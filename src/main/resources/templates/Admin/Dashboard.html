@@ -1233,7 +1233,7 @@
         <!-- ===================== ANALYTICS SECTION ===================== -->
         <section id="analytics" class="p-4 lg:p-6 hidden">
             <div class="mb-6">
-                <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Predicciones</h1>
+                <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Predicción de Clientes Potenciales</h1>
                 <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
                     <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
                     <i class='bx bx-chevron-right text-xs'></i>
@@ -1243,9 +1243,98 @@
 
             <div class="table-container">
                 <div class="p-4 lg:p-6">
-                    <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white mb-4">Gráficos y Estadísticas</h3>
-                    <div class="rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-                        <iframe title="concesionariotablero" width="100%" height="500" src="https://app.powerbi.com/view?r=eyJrIjoiMDljY2M3NWUtMWM1ZS00NjFiLTljNjgtMDQ3NGRlNDVjZGJjIiwidCI6IjlkMTJiZjNmLWU0ZjYtNDdhYi05MTJmLTFhMmYwZmM0OGFhNCIsImMiOjR9" frameborder="0" allowFullScreen="true"></iframe>
+                    <!-- Sistema de Búsqueda y Selección -->
+                    <div class="mb-8">
+                        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                            <i class='bx bx-search-alt-2 mr-2'></i>Buscar y Seleccionar Cliente
+                        </h3>
+
+                        <!-- Barra de búsqueda y botón -->
+                        <div class="flex flex-col lg:flex-row gap-4 mb-6">
+                            <div class="flex-1">
+                                <div class="form-group">
+                                    <label for="buscar-cliente">Buscar Cliente</label>
+                                    <div class="relative">
+                                        <input type="text" id="buscar-cliente"
+                                               class="form-control pl-10"
+                                               placeholder="Buscar por nombre, email..."
+                                               onkeyup="filtrarClientes()">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="cargarUsuarios()" class="btn-primary mt-6 lg:mt-0">
+                                <i class='bx bx-refresh mr-2'></i>Cargar Usuarios
+                            </button>
+                        </div>
+
+                        <!-- Lista de Usuarios -->
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto">
+                            <div id="loading-clientes" class="hidden text-center py-8">
+                                <i class='bx bx-loader-alt animate-spin text-2xl text-primary mb-2'></i>
+                                <p class="text-gray-600 dark:text-gray-400">Cargando usuarios...</p>
+                            </div>
+
+                            <div id="lista-clientes" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Los usuarios se cargarán aquí -->
+                            </div>
+
+                            <div id="empty-clientes" class="hidden text-center py-8">
+                                <i class='bx bx-user-x text-4xl text-gray-400 mb-2'></i>
+                                <p class="text-gray-600 dark:text-gray-400">No se encontraron usuarios</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resultado de Predicción -->
+                    <div id="resultado-prediccion" class="hidden">
+                        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                            <i class='bx bx-line-chart mr-2'></i>Resultado de Predicción
+                        </h3>
+
+                        <div class="metric-card">
+                            <h3 id="nombre-usuario" class="text-lg font-bold mb-4"></h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div class="text-center">
+                                    <div id="valor-potencial" class="text-2xl font-bold">Sin analizar</div>
+                                    <div class="text-sm text-gray-600">Cliente Potencial</div>
+                                </div>
+                                <div class="text-center">
+                                    <div id="valor-probabilidad" class="text-2xl font-bold text-purple-600">0%</div>
+                                    <div class="text-sm text-gray-600">Probabilidad</div>
+                                </div>
+                                <div class="text-center">
+                                    <div id="valor-recomendacion" class="text-lg font-semibold">Sin datos</div>
+                                    <div class="text-sm text-gray-600">Recomendación</div>
+                                </div>
+                            </div>
+
+                            <!-- Detalles del análisis -->
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-4">
+                                <h4 class="font-bold mb-2">Datos utilizados en el análisis:</h4>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                                    <div><strong>Citas:</strong> <span id="detalle-citas">0</span></div>
+                                    <div><strong>Antigüedad:</strong> <span id="detalle-antiguedad">0 días</span></div>
+                                    <div><strong>Estado:</strong> <span id="detalle-estado">-</span></div>
+                                    <div><strong>Interés:</strong> <span id="detalle-interes">-</span></div>
+                                </div>
+                            </div>
+
+                            <button onclick="realizarPrediccion()" class="btn-primary mt-4">
+                                <i class='bx bx-calculator mr-2'></i>Realizar Predicción
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Estado cuando no hay selección -->
+                    <div id="sin-seleccion" class="text-center py-12">
+                        <i class='bx bx-user-voice text-6xl text-gray-300 mb-4'></i>
+                        <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">
+                            Selecciona un usuario para ver la predicción
+                        </h3>
+                        <p class="text-gray-500 dark:text-gray-500">
+                            Busca y selecciona un usuario de la lista para analizar su potencial de conversión
+                        </p>
                     </div>
                 </div>
             </div>
@@ -2547,6 +2636,189 @@ async function cargarDatosAnuncio(id) {
         // Cargar notificaciones cada 30 segundos
         setInterval(cargarNotificaciones, 30000);
     });
+</script>
+<script>
+    let usuarioSeleccionado = null;
+
+// Cargar usuarios usando tu endpoint existente
+async function cargarUsuarios() {
+    const loading = document.getElementById('loading-clientes');
+    const lista = document.getElementById('lista-clientes');
+    const empty = document.getElementById('empty-clientes');
+
+    loading.classList.remove('hidden');
+    lista.classList.add('hidden');
+    empty.classList.add('hidden');
+
+    try {
+        const response = await fetch('/cargar-usuarios');
+        const usuarios = await response.json();
+
+        console.log('Usuarios cargados:', usuarios); // Para debug
+        loading.classList.add('hidden');
+
+        if (usuarios && usuarios.length > 0) {
+            mostrarUsuarios(usuarios);
+            lista.classList.remove('hidden');
+        } else {
+            empty.classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error('Error al cargar usuarios:', error);
+        loading.classList.add('hidden');
+        empty.classList.remove('hidden');
+    }
+}
+
+function mostrarUsuarios(usuarios) {
+    const lista = document.getElementById('lista-clientes');
+    lista.innerHTML = '';
+
+    usuarios.forEach(usuario => {
+        const usuarioElement = document.createElement('div');
+        usuarioElement.className = `p-4 hover:bg-white dark:hover:bg-gray-700 cursor-pointer transition-colors ${
+            usuarioSeleccionado && usuarioSeleccionado.id === usuario.id ? 'bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-500' : ''
+        }`;
+        usuarioElement.onclick = () => seleccionarUsuario(usuario);
+
+        usuarioElement.innerHTML = `
+            <div class="flex justify-between items-center">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <h4 class="font-semibold text-gray-900 dark:text-white">
+                            ${usuario.nombreUser || 'Sin nombre'} ${usuario.apellidoUser || ''}
+                        </h4>
+                        <span class="px-2 py-1 ${getClasePotencial(usuario.clientePotencial)} text-xs font-medium rounded-full">
+                            ${usuario.clientePotencial || 'Sin analizar'}
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        ${usuario.correoUser || 'Sin email'} • ${usuario.cantidadCitas || 0} citas • ${usuario.antiguedadCuenta || 0} días
+                    </div>
+                </div>
+                <i class='bx bx-chevron-right text-xl text-gray-400'></i>
+            </div>
+        `;
+
+        lista.appendChild(usuarioElement);
+    });
+}
+
+function seleccionarUsuario(usuario) {
+    usuarioSeleccionado = usuario;
+
+    // Actualizar interfaz de selección
+    document.querySelectorAll('#lista-clientes > div').forEach(element => {
+        element.classList.remove('bg-blue-50', 'dark:bg-blue-900', 'border-l-4', 'border-blue-500');
+    });
+
+    event.currentTarget.classList.add('bg-blue-50', 'dark:bg-blue-900', 'border-l-4', 'border-blue-500');
+
+    // Mostrar resultado
+    mostrarResultadoPrediccion(usuario);
+}
+
+function mostrarResultadoPrediccion(usuario) {
+    const resultado = document.getElementById('resultado-prediccion');
+    const sinSeleccion = document.getElementById('sin-seleccion');
+
+    resultado.classList.remove('hidden');
+    sinSeleccion.classList.add('hidden');
+
+    // Actualizar la información del usuario
+    document.getElementById('nombre-usuario').textContent =
+        `Resultado para: ${usuario.nombreUser || 'Sin nombre'} ${usuario.apellidoUser || ''}`;
+
+    // Actualizar valores principales
+    document.getElementById('valor-potencial').textContent = usuario.clientePotencial || 'Sin analizar';
+    document.getElementById('valor-potencial').className = `text-2xl font-bold ${
+        usuario.clientePotencial === 'Si' ? 'text-green-600' :
+        usuario.clientePotencial === 'No' ? 'text-red-600' : 'text-gray-600'
+    }`;
+
+    document.getElementById('valor-probabilidad').textContent =
+        usuario.probabilidad ? `${usuario.probabilidad.toFixed(1)}%` : 'N/A';
+
+    document.getElementById('valor-recomendacion').textContent =
+        usuario.observaciones || 'Sin observaciones';
+
+    // Actualizar detalles
+    document.getElementById('detalle-citas').textContent = usuario.cantidadCitas || 0;
+    document.getElementById('detalle-antiguedad').textContent = `${usuario.antiguedadCuenta || 0} días`;
+    document.getElementById('detalle-estado').textContent = usuario.estadoUltimaCita || 'Sin citas';
+    document.getElementById('detalle-interes').textContent = usuario.interesVehiculo || 'No';
+}
+
+function getClasePotencial(potencial) {
+    if (potencial === 'Si') return 'bg-green-100 text-green-800';
+    if (potencial === 'No') return 'bg-red-100 text-red-800';
+    return 'bg-gray-100 text-gray-800';
+}
+
+function filtrarClientes() {
+    const termino = document.getElementById('buscar-cliente').value.toLowerCase();
+    const elementos = document.querySelectorAll('#lista-clientes > div');
+
+    elementos.forEach(element => {
+        const texto = element.textContent.toLowerCase();
+        element.style.display = texto.includes(termino) ? 'block' : 'none';
+    });
+}
+
+// Realizar predicción usando tu endpoint existente
+async function realizarPrediccion() {
+    if (!usuarioSeleccionado) {
+        alert('Por favor selecciona un usuario primero');
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('usuarioId', usuarioSeleccionado.id);
+
+        const response = await fetch('/predecir-usuario', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Actualizar el usuario seleccionado con los nuevos datos
+            usuarioSeleccionado = data.usuario;
+            mostrarResultadoPrediccion(usuarioSeleccionado);
+
+            // Recargar la lista para actualizar los badges
+            cargarUsuarios();
+
+            mostrarNotificacion('Predicción realizada correctamente', 'success');
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (error) {
+        console.error('Error en la predicción:', error);
+        mostrarNotificacion('Error al realizar la predicción', 'error');
+    }
+}
+
+// Cargar usuarios automáticamente cuando se abre la sección
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const analyticsSection = document.getElementById('analytics');
+                if (analyticsSection && !analyticsSection.classList.contains('hidden')) {
+                    cargarUsuarios();
+                }
+            }
+        });
+    });
+
+    observer.observe(document.getElementById('analytics'), {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+});
 </script>
 </body>
 </html>
