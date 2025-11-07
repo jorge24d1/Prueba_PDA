@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/nosotros",
                                 "/garantias",
                                 "/credito",
+                                "/api/chatbot/mensaje",
 
 
                                 "/login",
