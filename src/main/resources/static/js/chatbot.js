@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
         addBotMessage('¡Hola! Bienvenido al concesionario . ¿En qué puedo ayudarte hoy?', [
             { text: 'Vehículos disponibles', value: 'vehiculos' },
             { text: 'Agendar cita', value: 'agendar' },
-
             { text: 'Contactar asesor', value: 'asesor' }
         ]);
         resetInactivityTimer();
@@ -102,10 +101,124 @@ document.addEventListener('DOMContentLoaded', function() {
             userInput.value = '';
             resetInactivityTimer();
 
-            setTimeout(() => {
-                processUserInput(message.toLowerCase());
-            }, 500);
+            // ✅ PRIMERO verificar si es búsqueda de vehículo
+            if (esBusquedaDeVehiculo(message)) {
+                // Usar el backend inteligente para vehículos
+                buscarVehiculosInteligente(message);
+            } else {
+                // Usar el sistema actual para otras cosas
+                setTimeout(() => {
+                    processUserInput(message.toLowerCase());
+                }, 500);
+            }
         }
+    }
+
+    function esBusquedaDeVehiculo(mensaje) {
+        const mensajeLower = mensaje.toLowerCase();
+        const palabrasVehiculo = [
+            // Tipos básicos
+            'auto', 'carro', 'vehículo', 'coche', 'moto',
+
+            // ✅ TODOS TUS TIPOS DE VEHÍCULOS
+            'pick-ups', 'pick ups', 'pickup', 'pick up',
+            'camioneta', 'camionetas',
+            'automóvil', 'automovil',
+            'performance',
+            'híbrido', 'hibrido', 'eléctrico', 'electrico',
+            'comercial', 'comerciales',
+            'suv', 'suvs',
+            'deportivo', 'deportivos',
+
+            // Características
+            'económico', 'economico', 'barato', 'accesible',
+            'familiar', 'espacioso', 'grande',
+            'potente', 'rápido', 'rapido', 'veloz',
+            'nuevo', 'usado', 'seminuevo',
+
+            // Marcas
+            'chevrolet', 'toyota', 'ford', 'nissan', 'bmw',
+            'mercedes', 'audi', 'honda', 'hyundai', 'kia',
+            'volkswagen', 'mazda', 'subaru', 'jeep',
+
+            // Acciones
+            'precio', 'costo', 'valor', 'comprar', 'adquirir',
+            'busco', 'quiero', 'necesito', 'deseo',
+            'recomienda', 'recomiéndame', 'sugiere', 'encuentra',
+            'cotizar', 'cotización'
+        ];
+
+        return palabrasVehiculo.some(palabra => mensajeLower.includes(palabra));
+    }
+
+    async function buscarVehiculosInteligente(mensaje) {
+        // Mostrar typing
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot-message typing-indicator';
+        typingDiv.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        try {
+            const response = await fetch('/api/chatbot/mensaje', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ mensaje: mensaje })
+            });
+
+            if (!response.ok) throw new Error('Error en la respuesta');
+
+            const data = await response.json();
+
+            // Remover typing
+            typingDiv.remove();
+
+            // Mostrar respuesta del bot
+            addBotMessage(data.respuesta);
+
+            // ✅ MOSTRAR VEHÍCULOS RECOMENDADOS (solo nombre, imagen y botón)
+            if (data.vehiculosRecomendados && data.vehiculosRecomendados.length > 0) {
+                mostrarVehiculosSimplificado(data.vehiculosRecomendados);
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            typingDiv.remove();
+            // Si falla, usar el sistema normal
+            processUserInput(mensaje.toLowerCase());
+        }
+    }
+
+    function mostrarVehiculosSimplificado(vehiculos) {
+        const container = document.createElement('div');
+        container.className = 'vehiculos-recomendados';
+
+        vehiculos.forEach(vehiculo => {
+            const vehiculoCard = document.createElement('div');
+            vehiculoCard.className = 'vehiculo-recomendado';
+
+            vehiculoCard.innerHTML = `
+                <div class="vehiculo-simple">
+                    <img src="${vehiculo.imagenUrl}" alt="${vehiculo.marca} ${vehiculo.modelo}"
+                         onerror="this.src='/images/placeholder.jpg'">
+                    <div class="vehiculo-info-simple">
+                        <h4>${vehiculo.marca} ${vehiculo.modelo}</h4>
+                        <button onclick="window.location.href='/vehiculos/explorar/${vehiculo.id}'"
+                                class="btn-explorar-simple">
+                            <i class="fas fa-search"></i> Explorar
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(vehiculoCard);
+        });
+
+        chatMessages.appendChild(container);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        saveChatHistory();
     }
 
     // Guardar historial del chat
@@ -154,7 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (input.includes('agendar') || input.includes('cita') || input === '2') {
             showAppointmentOptions();
         }
-
         else if (input.includes('asesor') || input === '4') {
             showAdvisorOptions();
         }
@@ -191,7 +303,6 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (input === 'email') {
             addBotMessage('Puedes escribirnos al correo electrónico: <a href="mailto:Nexgenmotors@gmail.com" style="color: #0066cc; text-decoration: underline;">Nexgenmotors@gmail.com</a>');
         }
-
         else if (input === 'cotizar') {
             window.location.href = '/usuario/cita';
         }
@@ -222,8 +333,6 @@ document.addEventListener('DOMContentLoaded', function() {
         ]);
     }
 
-
-
     function showAdvisorOptions() {
         addBotMessage('Puedes contactar a un asesor:', [
             { text: 'Llamar al concesionario: 305-442-4835', value: 'llamar' },
@@ -237,7 +346,6 @@ document.addEventListener('DOMContentLoaded', function() {
         addBotMessage('¿Cómo puedo ayudarte hoy?', [
             { text: 'Vehículos disponibles', value: 'vehiculos' },
             { text: 'Agendar cita', value: 'agendar' },
-
             { text: 'Contactar asesor', value: 'asesor' }
         ]);
     }
