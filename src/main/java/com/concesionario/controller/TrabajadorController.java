@@ -3,15 +3,14 @@ package com.concesionario.controller;
 import com.concesionario.dto.ProspectoDTO;
 import com.concesionario.model.Cita;
 import com.concesionario.model.Trabajador;
+import com.concesionario.model.Usuario;
 import com.concesionario.model.Vehiculo;
 import com.concesionario.repository.CitaRepository;
 import com.concesionario.repository.TrabajadorRepository;
 import com.concesionario.repository.UsuarioRepository;
 import com.concesionario.repository.VehiculoRepository;
-import com.concesionario.service.EmailPromocionalService;
-import com.concesionario.service.ProspectoService;
-import com.concesionario.service.TrabajadorDetailsService;
-import com.concesionario.service.VehiculoService;
+import com.concesionario.service.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,6 +25,22 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+// Importaciones para Excel
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
+import java.util.List;
+import java.util.Arrays;
+
 
 @Controller
 public class TrabajadorController {
@@ -52,6 +67,9 @@ public class TrabajadorController {
 
     @Autowired
     private ProspectoService prospectoService;
+
+    @Autowired
+    private PrediccionService prediccionService;
 
     @GetMapping("/perfil_analisis")
     public String perfilA(Model model, Authentication authentication) {
@@ -552,6 +570,403 @@ public class TrabajadorController {
         vehiculoService.eliminarVehiculo(id);
         redirectAttributes.addFlashAttribute("success", "Anuncio eliminado exitosamente");
         return "redirect:/perfil_gestor";
+    }
+
+    @GetMapping("/gestor/descargar-reporte-potenciales")
+    public ResponseEntity<InputStreamResource> descargarReportePotenciales() {
+        try {
+            // Obtener y procesar usuarios
+            List<Usuario> usuarios = usuarioRepository.findAll();
+            List<Usuario> usuariosProcesados = usuarios.stream()
+                    .map(this::aplicarPrediccionYActualizar)
+                    .filter(u -> "Si".equals(u.getClientePotencial()))
+                    .toList();
+
+            Workbook workbook = new XSSFWorkbook();
+
+            // Crear hoja principal
+            Sheet sheet = workbook.createSheet("Usuarios Potenciales");
+
+            // ========== ESTILOS PROFESIONALES ==========
+
+            // Estilo para título principal
+            CellStyle titleStyle = workbook.createCellStyle();
+            Font titleFont = workbook.createFont();
+            titleFont.setBold(true);
+            titleFont.setFontHeightInPoints((short) 16);
+            titleFont.setColor(IndexedColors.DARK_GREEN.getIndex());
+            titleStyle.setFont(titleFont);
+            titleStyle.setAlignment(HorizontalAlignment.CENTER);
+            titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+            // Estilo para subtítulo
+            CellStyle subtitleStyle = workbook.createCellStyle();
+            Font subtitleFont = workbook.createFont();
+            subtitleFont.setBold(true);
+            subtitleFont.setFontHeightInPoints((short) 12);
+            subtitleFont.setColor(IndexedColors.GREY_50_PERCENT.getIndex());
+            subtitleStyle.setFont(subtitleFont);
+            subtitleStyle.setAlignment(HorizontalAlignment.CENTER);
+
+            // Estilo para encabezados de tabla
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setFontHeightInPoints((short) 11);
+            headerFont.setColor(IndexedColors.WHITE.getIndex());
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(IndexedColors.DARK_GREEN.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setBorderTop(BorderStyle.THIN);
+            headerStyle.setBorderBottom(BorderStyle.THIN);
+            headerStyle.setBorderLeft(BorderStyle.THIN);
+            headerStyle.setBorderRight(BorderStyle.THIN);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+            // Estilo para celdas de datos
+            CellStyle dataStyle = workbook.createCellStyle();
+            dataStyle.setBorderTop(BorderStyle.THIN);
+            dataStyle.setBorderBottom(BorderStyle.THIN);
+            dataStyle.setBorderLeft(BorderStyle.THIN);
+            dataStyle.setBorderRight(BorderStyle.THIN);
+            dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+            // Estilo para probabilidad alta
+            CellStyle highProbStyle = workbook.createCellStyle();
+            highProbStyle.cloneStyleFrom(dataStyle);
+            highProbStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+            highProbStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            highProbStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0\"%\""));
+
+            // Estilo para probabilidad media
+            CellStyle mediumProbStyle = workbook.createCellStyle();
+            mediumProbStyle.cloneStyleFrom(dataStyle);
+            mediumProbStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+            mediumProbStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            mediumProbStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0\"%\""));
+
+            // Estilo para probabilidad baja
+            CellStyle lowProbStyle = workbook.createCellStyle();
+            lowProbStyle.cloneStyleFrom(dataStyle);
+            lowProbStyle.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
+            lowProbStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            lowProbStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0\"%\""));
+
+            // Estilo para resumen
+            CellStyle summaryStyle = workbook.createCellStyle();
+            Font summaryFont = workbook.createFont();
+            summaryFont.setBold(true);
+            summaryFont.setColor(IndexedColors.DARK_BLUE.getIndex());
+            summaryStyle.setFont(summaryFont);
+            summaryStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+            summaryStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            summaryStyle.setBorderTop(BorderStyle.MEDIUM);
+            summaryStyle.setBorderBottom(BorderStyle.MEDIUM);
+
+            // ========== CABECERA DEL REPORTE ==========
+
+            // Título principal
+            Row titleRow = sheet.createRow(0);
+            Cell titleCell = titleRow.createCell(0);
+            titleCell.setCellValue("REPORTE DE USUARIOS POTENCIALES - NEXTGEN MOTORS");
+            titleCell.setCellStyle(titleStyle);
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 13));
+
+            // Subtítulo
+            Row subtitleRow = sheet.createRow(1);
+            Cell subtitleCell = subtitleRow.createCell(0);
+            subtitleCell.setCellValue("Análisis Predictivo con Inteligencia Artificial");
+            subtitleCell.setCellStyle(subtitleStyle);
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 13));
+
+            // Fecha de generación
+            Row dateRow = sheet.createRow(2);
+            Cell dateCell = dateRow.createCell(0);
+            dateCell.setCellValue("Generado: " + java.time.LocalDate.now().toString());
+            dateCell.setCellStyle(subtitleStyle);
+            sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, 13));
+
+            // Espacio
+            sheet.createRow(3);
+
+            // ========== TABLA DE DATOS ==========
+
+            // Encabezados de tabla
+            Row headerRow = sheet.createRow(4);
+            String[] headers = {
+                    "No.", "Nombre", "Apellido", "Identificación", "Correo Electrónico",
+                    "Citas", "Antigüedad", "Estado", "Interés", "Tiempo",
+                    "Potencial", "Probabilidad", "Confianza", "Observaciones"
+            };
+
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            // Llenar datos
+            int rowNum = 5;
+            int contador = 1;
+            for (Usuario usuario : usuariosProcesados) {
+                Row dataRow = sheet.createRow(rowNum++);
+
+                // Número consecutivo
+                dataRow.createCell(0).setCellValue(contador++);
+
+                // Información básica
+                dataRow.createCell(1).setCellValue(usuario.getNombreUser() != null ? usuario.getNombreUser() : "N/A");
+                dataRow.createCell(2).setCellValue(usuario.getApellidoUser() != null ? usuario.getApellidoUser() : "N/A");
+                dataRow.createCell(3).setCellValue(usuario.getIdentificacionUser() != null ? usuario.getIdentificacionUser() : "N/A");
+                dataRow.createCell(4).setCellValue(usuario.getCorreoUser() != null ? usuario.getCorreoUser() : "N/A");
+
+                // Métricas
+                dataRow.createCell(5).setCellValue(usuario.getCantidadCitas() != null ? usuario.getCantidadCitas() : 0);
+                dataRow.createCell(6).setCellValue(usuario.getAntiguedadCuenta() != null ? usuario.getAntiguedadCuenta() : 0);
+                dataRow.createCell(7).setCellValue(usuario.getEstadoUltimaCita() != null ? usuario.getEstadoUltimaCita() : "N/A");
+                dataRow.createCell(8).setCellValue(usuario.getInteresVehiculo() != null ? usuario.getInteresVehiculo() : "N/A");
+                dataRow.createCell(9).setCellValue(usuario.getTiempoEntreCitas() != null ? usuario.getTiempoEntreCitas() : 0);
+
+                // Predicciones
+                dataRow.createCell(10).setCellValue(usuario.getClientePotencial() != null ? usuario.getClientePotencial() : "No");
+
+                // Celda de probabilidad con estilo condicional
+                Cell probCell = dataRow.createCell(11);
+                double probabilidad = usuario.getProbabilidad() != null ? usuario.getProbabilidad() : 0.0;
+                probCell.setCellValue(probabilidad);
+
+                if (probabilidad >= 80) {
+                    probCell.setCellStyle(highProbStyle);
+                } else if (probabilidad >= 60) {
+                    probCell.setCellStyle(mediumProbStyle);
+                } else {
+                    probCell.setCellStyle(lowProbStyle);
+                }
+
+                // Nivel de confianza
+                dataRow.createCell(12).setCellValue(determinarNivelConfianza(probabilidad));
+
+                // Observaciones
+                dataRow.createCell(13).setCellValue(usuario.getObservaciones() != null ? usuario.getObservaciones() : "Sin observaciones");
+
+                // Aplicar estilo de datos a todas las celdas
+                for (int i = 0; i < headers.length; i++) {
+                    if (i != 11) { // Excluir celda de probabilidad (ya tiene estilo)
+                        dataRow.getCell(i).setCellStyle(dataStyle);
+                    }
+                }
+            }
+
+            // ========== RESUMEN ESTADÍSTICO ==========
+
+            int summaryStartRow = rowNum + 2;
+
+            // Título del resumen
+            Row summaryTitleRow = sheet.createRow(summaryStartRow);
+            Cell summaryTitleCell = summaryTitleRow.createCell(0);
+            summaryTitleCell.setCellValue("RESUMEN ESTADÍSTICO");
+            summaryTitleCell.setCellStyle(titleStyle);
+            sheet.addMergedRegion(new CellRangeAddress(summaryStartRow, summaryStartRow, 0, 13));
+
+            // Estadísticas
+            String[] summaryLabels = {
+                    "Total de Usuarios Potenciales:",
+                    "Probabilidad Promedio:",
+                    "Usuarios con Probabilidad Alta (>80%):",
+                    "Usuarios con Probabilidad Media (60-80%):",
+                    "Usuarios con Probabilidad Baja (<60%):",
+                    "Tasa de Conversión Estimada:"
+            };
+
+            String[] summaryValues = calcularEstadisticas(usuariosProcesados);
+
+            for (int i = 0; i < summaryLabels.length; i++) {
+                Row summaryRow = sheet.createRow(summaryStartRow + i + 1);
+                summaryRow.createCell(0).setCellValue(summaryLabels[i]);
+                summaryRow.createCell(1).setCellValue(summaryValues[i]);
+
+                // Aplicar estilo al label
+                summaryRow.getCell(0).setCellStyle(summaryStyle);
+
+                // Aplicar estilo al valor
+                Cell valueCell = summaryRow.getCell(1);
+                valueCell.setCellStyle(summaryStyle);
+            }
+
+            // ========== AJUSTES FINALES ==========
+
+            // Autoajustar columnas
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // Congelar paneles (títulos y encabezados visibles al desplazar)
+            sheet.createFreezePane(0, 5, 0, 5);
+
+            // ========== GENERAR ARCHIVO ==========
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            workbook.write(out);
+            workbook.close();
+
+            ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.add("Content-Disposition", "attachment; filename=Reporte_Usuarios_Potenciales_NextGen.xlsx");
+
+            return ResponseEntity.ok()
+                    .headers(responseHeaders)
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(new InputStreamResource(in));
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error al generar el reporte Excel", e);
+        }
+    }
+
+    // Método para aplicar predicción a cada usuario
+    private Usuario aplicarPrediccionYActualizar(Usuario usuario) {
+        try {
+            // Obtener valores para la predicción (usar valores por defecto si son null)
+            double citas = usuario.getCantidadCitas() != null ? usuario.getCantidadCitas() : 0;
+            double antiguedad = usuario.getAntiguedadCuenta() != null ? usuario.getAntiguedadCuenta() : 0;
+            String estado = usuario.getEstadoUltimaCita() != null ? usuario.getEstadoUltimaCita() : "Pendiente";
+            String interes = usuario.getInteresVehiculo() != null ? usuario.getInteresVehiculo() : "No";
+            double tiempo = usuario.getTiempoEntreCitas() != null ? usuario.getTiempoEntreCitas() : 0;
+
+            // Usar tu servicio de predicción
+            String prediccion = prediccionService.predecir(citas, antiguedad, estado, interes, tiempo);
+            double probabilidad = prediccionService.obtenerProbabilidadSi(citas, antiguedad, estado, interes, tiempo);
+
+            // Actualizar usuario con la predicción
+            usuario.setClientePotencial(prediccion);
+            usuario.setProbabilidad(probabilidad);
+            usuario.setObservaciones(generarObservaciones(prediccion, probabilidad, citas, estado));
+
+            return usuario;
+
+        } catch (Exception e) {
+            System.err.println("Error aplicando predicción para usuario " + usuario.getCorreoUser() + ": " + e.getMessage());
+            // En caso de error, marcar como no potencial
+            usuario.setClientePotencial("No");
+            usuario.setProbabilidad(0.0);
+            usuario.setObservaciones("Error en análisis predictivo");
+            return usuario;
+        }
+    }
+
+    // Método para calcular estadísticas
+    private String[] calcularEstadisticas(List<Usuario> usuarios) {
+        if (usuarios.isEmpty()) {
+            return new String[]{"0", "0%", "0", "0", "0", "0%"};
+        }
+
+        double promedioProb = usuarios.stream()
+                .mapToDouble(u -> u.getProbabilidad() != null ? u.getProbabilidad() : 0)
+                .average()
+                .orElse(0);
+
+        long altaProb = usuarios.stream()
+                .filter(u -> u.getProbabilidad() != null && u.getProbabilidad() >= 80)
+                .count();
+
+        long mediaProb = usuarios.stream()
+                .filter(u -> u.getProbabilidad() != null && u.getProbabilidad() >= 60 && u.getProbabilidad() < 80)
+                .count();
+
+        long bajaProb = usuarios.stream()
+                .filter(u -> u.getProbabilidad() != null && u.getProbabilidad() < 60)
+                .count();
+
+        double tasaConversion = (altaProb * 0.8) + (mediaProb * 0.5) + (bajaProb * 0.2);
+
+        return new String[]{
+                String.valueOf(usuarios.size()),
+                String.format("%.1f%%", promedioProb),
+                String.valueOf(altaProb),
+                String.valueOf(mediaProb),
+                String.valueOf(bajaProb),
+                String.format("%.1f%%", tasaConversion)
+        };
+    }
+
+    // Método auxiliar para nivel de confianza mejorado
+    private String determinarNivelConfianza(double probabilidad) {
+        if (probabilidad >= 80) return "⭐ MUY ALTO";
+        if (probabilidad >= 60) return "▲ ALTO";
+        if (probabilidad >= 40) return "● MEDIO";
+        return "○ BAJO";
+    }
+
+    private String generarObservaciones(String prediccion, double probabilidad, double citas, String estado) {
+        StringBuilder observaciones = new StringBuilder();
+
+        if ("Si".equals(prediccion)) {
+            observaciones.append("Cliente potencial identificado. ");
+        } else {
+            observaciones.append("Requiere seguimiento adicional. ");
+        }
+
+        observaciones.append("Probabilidad: ").append(String.format("%.1f", probabilidad)).append("%. ");
+
+        if (citas == 0) {
+            observaciones.append("Sin citas previas. ");
+        } else if (citas >= 3) {
+            observaciones.append("Alto nivel de interés demostrado. ");
+        }
+
+        if ("Completada".equals(estado)) {
+            observaciones.append("Última cita completada exitosamente.");
+        } else if ("Cancelada".equals(estado)) {
+            observaciones.append("Última cita cancelada.");
+        }
+
+        return observaciones.toString();
+    }
+
+    private void agregarEstadisticasResumen(Sheet sheet, List<Usuario> usuarios, int startRow) {
+        if (usuarios.isEmpty()) return;
+
+        // Fila separadora
+        org.apache.poi.ss.usermodel.Row rowSeparator = sheet.createRow(startRow++);
+
+        // Título del resumen
+        org.apache.poi.ss.usermodel.Row rowResumen = sheet.createRow(startRow++);
+        rowResumen.createCell(0).setCellValue("RESUMEN ESTADÍSTICO");
+
+        // Total usuarios
+        org.apache.poi.ss.usermodel.Row rowTotal = sheet.createRow(startRow++);
+        rowTotal.createCell(0).setCellValue("Total usuarios potenciales:");
+        rowTotal.createCell(1).setCellValue(usuarios.size());
+
+        // Calcular promedio de probabilidad
+        double promedioProb = usuarios.stream()
+                .mapToDouble(u -> u.getProbabilidad() != null ? u.getProbabilidad() : 0)
+                .average()
+                .orElse(0);
+
+        org.apache.poi.ss.usermodel.Row rowPromedio = sheet.createRow(startRow++);
+        rowPromedio.createCell(0).setCellValue("Probabilidad promedio:");
+        rowPromedio.createCell(1).setCellValue(String.format("%.1f%%", promedioProb));
+
+        // Usuarios con alta probabilidad (>80%)
+        long altaProb = usuarios.stream()
+                .filter(u -> u.getProbabilidad() != null && u.getProbabilidad() >= 80)
+                .count();
+
+        org.apache.poi.ss.usermodel.Row rowAltaProb = sheet.createRow(startRow++);
+        rowAltaProb.createCell(0).setCellValue("Usuarios con probabilidad alta (>80%):");
+        rowAltaProb.createCell(1).setCellValue(altaProb);
+
+        // Usuarios con probabilidad media (60-80%)
+        long mediaProb = usuarios.stream()
+                .filter(u -> u.getProbabilidad() != null && u.getProbabilidad() >= 60 && u.getProbabilidad() < 80)
+                .count();
+
+        org.apache.poi.ss.usermodel.Row rowMediaProb = sheet.createRow(startRow++);
+        rowMediaProb.createCell(0).setCellValue("Usuarios con probabilidad media (60-80%):");
+        rowMediaProb.createCell(1).setCellValue(mediaProb);
     }
 
 

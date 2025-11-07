@@ -423,22 +423,42 @@
 <!--        </section>-->
 
         <!-- Reportes -->
+        <!-- Reportes -->
+        <!-- En Perfil_gestor.html - actualiza la sección de reportes -->
         <section id="reportes">
             <h2 class="text-2xl font-bold mb-6">Reportes Generados</h2>
             <div class="space-y-4">
+                <!-- Reporte mejorado con IA -->
+                <div class="metric-card flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold">Reporte de Usuarios Potenciales con IA</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            Análisis predictivo de clientes potenciales usando modelo de machine learning
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            ✅ Incluye probabilidades calculadas | ✅ Niveles de confianza | ✅ Observaciones automáticas
+                        </p>
+                    </div>
+                    <a th:href="@{/gestor/descargar-reporte-potenciales}" class="btn-gestor">
+                        <i class="fas fa-brain mr-2"></i>Descargar Análisis IA
+                    </a>
+                </div>
+
+                <!-- Reportes existentes -->
                 <div class="metric-card flex justify-between items-center">
                     <div>
                         <h3 class="font-bold">Reporte Trimestral Q4</h3>
-                        <p class="text-sm text-gray-600">Generado: 15/10/2024</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Generado: 15/10/2024</p>
                     </div>
                     <button class="btn-gestor">
                         <i class="fas fa-download mr-2"></i>Descargar
                     </button>
                 </div>
+
                 <div class="metric-card flex justify-between items-center">
                     <div>
                         <h3 class="font-bold">Análisis de Rendimiento</h3>
-                        <p class="text-sm text-gray-600">Generado: 10/10/2024</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Generado: 10/10/2024</p>
                     </div>
                     <button class="btn-gestor">
                         <i class="fas fa-download mr-2"></i>Descargar
