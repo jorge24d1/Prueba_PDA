@@ -663,61 +663,125 @@
 
         <!-- Tendencias -->
         <section id="tendencias">
-            <h2>🎯 Predicción de Clientes Potenciales</h2>
-
-
+            <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-6">🎯 Predicción de Clientes Potenciales</h2>
 
             <!-- Sistema de Predicción -->
-            <div class="mt-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold">Sistema de Predicción de Clientes</h3>
-                    <button id="cargarUsuariosBtn" class="btn-analista">
-                        <i class="fas fa-sync-alt mr-2"></i>Cargar Usuarios para Análisis
-                    </button>
-                </div>
+            <div class="table-container">
+                <div class="p-4 lg:p-6">
+                    <!-- Header con búsqueda Y PAGINACIÓN ARRIBA -->
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white">
+                            <i class='fas fa-chart-line mr-2'></i>Sistema de Predicción de Clientes
+                        </h3>
 
-                <!-- Loading indicator -->
-                <div id="loadingIndicator" class="hidden text-center py-4">
-                    <i class="fas fa-spinner fa-spin text-2xl text-purple-600 mr-2"></i>
-                    <span>Cargando usuarios...</span>
-                </div>
+                        <div class="flex flex-col lg:flex-row gap-3 w-full lg:w-auto">
+                            <!-- Barra de búsqueda -->
+                            <div class="relative flex-1 lg:w-64">
+                                <input type="text" id="buscar-usuarios"
+                                       class="w-full p-3 pl-10 rounded-lg border border-gray-300 dark:border-gray-600
+                                      bg-white dark:bg-gray-700 text-gray-800 dark:text-white
+                                      focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                       placeholder="Buscar por nombre, email...">
+                                <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
+                            </div>
 
-                <!-- Lista de Usuarios para Predicción -->
-                <div id="usuariosContainer" class="hidden">
-                    <div class="table-container">
-                        <table id="tablaUsuarios" class="table-auto w-full">
-                            <thead>
-                            <tr>
-                                <th class="px-4 py-2">Nombre</th>
-                                <th class="px-4 py-2">Email</th>
-                                <th class="px-4 py-2">Citas</th>
-                                <th class="px-4 py-2">Antigüedad</th>
-                                <th class="px-4 py-2">Estado de ultima cita</th>
-                                <th class="px-4 py-2">Interés</th>
-                                <th class="px-4 py-2">Tiempo entre Citas</th>
-                                <th class="px-4 py-2">Potencial</th>
-                                <th class="px-4 py-2">Acción</th>
-                            </tr>
-                            </thead>
-                            <tbody id="usuariosBody">
-                            <!-- Los usuarios se cargarán aquí dinámicamente -->
-                            </tbody>
-                        </table>
+                            <!-- SELECTOR DE PÁGINA ARRIBA -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Mostrar</span>
+                                <select id="filasPorPagina" class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </div>
+
+                            <button id="cargarUsuariosBtn" class="btn-analista whitespace-nowrap">
+                                <i class="fas fa-sync-alt mr-2"></i>Cargar Usuarios
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Loading indicator -->
+                    <div id="loadingIndicator" class="hidden text-center py-8">
+                        <div class="inline-flex flex-col items-center">
+                            <i class="fas fa-spinner fa-spin text-3xl text-purple-600 mb-2"></i>
+                            <span class="text-lg">Cargando usuarios...</span>
+                            <p class="text-sm text-gray-500 mt-1">Analizando datos de clientes</p>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor de tabla -->
+                    <div id="usuariosContainer" class="hidden">
+                        <div class="overflow-x-auto">
+                            <table id="tablaUsuarios" class="w-full min-w-full">
+                                <thead class="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Usuario</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Email</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Citas</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Antigüedad</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Estado</th>
+                                    <!-- QUITAMOS INTERÉS Y MEJORAMOS POTENCIAL -->
+                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Predicción</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Acción</th>
+                                </tr>
+                                </thead>
+                                <tbody id="usuariosBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Los usuarios se cargarán aquí dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- PAGINACIÓN ABAJO (solo botones) -->
+                        <div id="paginacion" class="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <!-- Contador de resultados -->
+                            <div id="contadorResultados" class="text-sm text-gray-600 dark:text-gray-400">
+                                Mostrando 0-0 de 0 usuarios
+                            </div>
+
+                            <!-- Botones de navegación -->
+                            <div class="flex items-center gap-2">
+                                <button id="paginaAnterior" class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+
+                                <span id="infoPagina" class="text-sm text-gray-600 dark:text-gray-400 px-3">
+                            Página 1 de 1
+                        </span>
+
+                                <button id="paginaSiguiente" class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado vacío -->
+                    <div id="emptyState" class="text-center py-12">
+                        <i class="fas fa-users text-5xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No hay usuarios cargados</h3>
+                        <p class="text-gray-500 dark:text-gray-500 max-w-md mx-auto">
+                            Haz clic en "Cargar Usuarios" para comenzar a analizar el potencial de tus clientes.
+                        </p>
                     </div>
                 </div>
+            </div>
 
-                <!-- Mensaje cuando no hay usuarios -->
-                <div id="emptyState" class="text-center py-8">
-                    <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
-                    <p class="text-gray-600 dark:text-gray-400">No hay usuarios cargados para análisis.</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">
-                        Haz clic en "Cargar Usuarios para Análisis" para comenzar.
-                    </p>
-                </div>
-
-                <!-- Resultado de Predicción -->
-                <div id="resultadoPrediccion" class="metric-card mt-6 hidden">
-                    <!-- El resultado se cargará aquí dinámicamente -->
+            <!-- Resultado de Predicción -->
+            <div id="resultadoPrediccion" class="table-container mt-6 hidden">
+                <div class="p-4 lg:p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                            <i class="fas fa-chart-line mr-2"></i>Resultado de Predicción
+                        </h3>
+                        <button onclick="cerrarResultado()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div id="contenidoResultado">
+                        <!-- Se llenará con JavaScript -->
+                    </div>
                 </div>
             </div>
         </section>
@@ -767,12 +831,42 @@
     }
 </script>
 <script>
-    // Función para cargar usuarios
-    document.getElementById('cargarUsuariosBtn').addEventListener('click', function() {
-        cargarUsuarios();
+    // ===================== VARIABLES GLOBALES =====================
+    let usuariosCargados = [];
+    let usuariosFiltrados = [];
+    let paginaActual = 1;
+    let filasPorPagina = 10;
+
+    // ===================== INICIALIZACIÓN =====================
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('cargarUsuariosBtn').addEventListener('click', cargarUsuarios);
+
+        document.getElementById('buscar-usuarios').addEventListener('input', filtrarUsuarios);
+
+        document.getElementById('filasPorPagina').addEventListener('change', function() {
+            filasPorPagina = parseInt(this.value);
+            paginaActual = 1;
+            mostrarUsuariosPaginados();
+        });
+
+        document.getElementById('paginaAnterior').addEventListener('click', function() {
+            if (paginaActual > 1) {
+                paginaActual--;
+                mostrarUsuariosPaginados();
+            }
+        });
+
+        document.getElementById('paginaSiguiente').addEventListener('click', function() {
+            const totalPaginas = Math.ceil(usuariosFiltrados.length / filasPorPagina);
+            if (paginaActual < totalPaginas) {
+                paginaActual++;
+                mostrarUsuariosPaginados();
+            }
+        });
     });
 
-    function cargarUsuarios() {
+    // ===================== CARGAR USUARIOS =====================
+    async function cargarUsuarios() {
         const loadingIndicator = document.getElementById('loadingIndicator');
         const usuariosContainer = document.getElementById('usuariosContainer');
         const emptyState = document.getElementById('emptyState');
@@ -781,134 +875,281 @@
         usuariosContainer.classList.add('hidden');
         emptyState.classList.add('hidden');
 
-        fetch('/cargar-usuarios')
-            .then(response => response.json())
-            .then(usuarios => {
-                loadingIndicator.classList.add('hidden');
+        try {
+            const response = await fetch('/cargar-usuarios');
+            const usuarios = await response.json();
 
-                if (usuarios && usuarios.length > 0) {
-                    mostrarUsuarios(usuarios);
-                    usuariosContainer.classList.remove('hidden');
-                } else {
-                    emptyState.classList.remove('hidden');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                loadingIndicator.classList.add('hidden');
+            loadingIndicator.classList.add('hidden');
+
+            if (usuarios && usuarios.length > 0) {
+                usuariosCargados = usuarios;
+                usuariosFiltrados = [...usuarios];
+                paginaActual = 1;
+                mostrarUsuariosPaginados();
+                usuariosContainer.classList.remove('hidden');
+            } else {
                 emptyState.classList.remove('hidden');
-                alert('Error al cargar los usuarios');
-            });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            loadingIndicator.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            alert('Error al cargar los usuarios');
+        }
     }
 
-    function mostrarUsuarios(usuarios) {
+    // ===================== FILTRAR USUARIOS =====================
+    function filtrarUsuarios() {
+        const terminoBusqueda = document.getElementById('buscar-usuarios').value.toLowerCase().trim();
+
+        if (terminoBusqueda === '') {
+            usuariosFiltrados = [...usuariosCargados];
+        } else {
+            usuariosFiltrados = usuariosCargados.filter(usuario =>
+                usuario.nombreUser.toLowerCase().includes(terminoBusqueda) ||
+                usuario.apellidoUser.toLowerCase().includes(terminoBusqueda) ||
+                usuario.correoUser.toLowerCase().includes(terminoBusqueda) ||
+                usuario.estadoUltimaCita.toLowerCase().includes(terminoBusqueda) ||
+                usuario.clientePotencial.toLowerCase().includes(terminoBusqueda)
+            );
+        }
+
+        paginaActual = 1;
+        mostrarUsuariosPaginados();
+    }
+
+    // ===================== MOSTRAR USUARIOS PAGINADOS =====================
+    function mostrarUsuariosPaginados() {
         const tbody = document.getElementById('usuariosBody');
+        const contadorResultados = document.getElementById('contadorResultados');
+        const infoPagina = document.getElementById('infoPagina');
+        const paginaAnterior = document.getElementById('paginaAnterior');
+        const paginaSiguiente = document.getElementById('paginaSiguiente');
+
+        const inicio = (paginaActual - 1) * filasPorPagina;
+        const fin = Math.min(inicio + filasPorPagina, usuariosFiltrados.length);
+        const usuariosPagina = usuariosFiltrados.slice(inicio, fin);
+        const totalPaginas = Math.ceil(usuariosFiltrados.length / filasPorPagina);
+
         tbody.innerHTML = '';
 
-        usuarios.forEach(usuario => {
-            const row = document.createElement('tr');
-            row.className = 'border-b dark:border-gray-700';
-            row.innerHTML = `
-                <td class="px-4 py-3">${usuario.nombreUser} ${usuario.apellidoUser}</td>
-                <td class="px-4 py-3">${usuario.correoUser}</td>
-                <td class="px-4 py-3 text-center">${usuario.cantidadCitas}</td>
-                <td class="px-4 py-3 text-center">${usuario.antiguedadCuenta} días</td>
-                <td class="px-4 py-3">
-                    <span class="${getEstadoClass(usuario.estadoUltimaCita)}">${usuario.estadoUltimaCita}</span>
-                </td>
-                <td class="px-4 py-3 text-center">
-                    ${usuario.interesVehiculo === 'Si' ?
-                        '<span class="estado-optimo">✅ SI</span>' :
-                        '<span class="estado-critico">❌ NO</span>'}
-                </td>
-                <td class="px-4 py-3 text-center">${usuario.tiempoEntreCitas} días</td>
-                <td class="px-4 py-3 text-center">
-                    ${getPotencialHtml(usuario.clientePotencial)}
-                </td>
-                <td class="px-4 py-3">
-                    <button onclick="predecirUsuario('${usuario.id}')" class="btn-analista py-2 px-3 text-sm">
-                        <i class="fas fa-bolt mr-1"></i>Predecir
-                    </button>
-                </td>
+        if (usuariosPagina.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-search text-3xl mb-2"></i>
+                        <p>No se encontraron usuarios que coincidan con tu búsqueda</p>
+                    </td>
+                </tr>
             `;
-            tbody.appendChild(row);
-        });
+        } else {
+            usuariosPagina.forEach(usuario => {
+                const row = document.createElement('tr');
+                row.className = 'border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors';
+                row.innerHTML = `
+                    <td class="px-4 py-3">${usuario.nombreUser} ${usuario.apellidoUser}</td>
+                    <td class="px-4 py-3">${usuario.correoUser}</td>
+                    <td class="px-4 py-3 text-center">${usuario.cantidadCitas}</td>
+                    <td class="px-4 py-3 text-center">${usuario.antiguedadCuenta} días</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="${getEstadoClass(usuario.estadoUltimaCita)}">${usuario.estadoUltimaCita}</span>
+                    </td>
+                    <!-- COLUMNA MEJORADA - SOLO PREDICCIÓN -->
+                    <td class="px-4 py-3 text-center">
+                        ${getPrediccionHtml(usuario.clientePotencial, usuario.interesVehiculo)}
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="predecirUsuario('${usuario.id}', this)"
+                        data-original-text='<i class="fas fa-bolt mr-1"></i>Analizar'
+                        class="btn-analista py-2 px-3 text-sm">
+                        <i class="fas fa-bolt mr-1"></i>Analizar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        const inicioMostrado = usuariosFiltrados.length > 0 ? inicio + 1 : 0;
+        const finMostrado = usuariosFiltrados.length > 0 ? fin : 0;
+        contadorResultados.textContent = `Mostrando ${inicioMostrado}-${finMostrado} de ${usuariosFiltrados.length} usuarios`;
+
+        infoPagina.textContent = `Página ${paginaActual} de ${totalPaginas}`;
+
+        paginaAnterior.disabled = paginaActual === 1;
+        paginaSiguiente.disabled = paginaActual === totalPaginas || totalPaginas === 0;
+
+        if (paginaAnterior.disabled) {
+            paginaAnterior.classList.add('opacity-50', 'cursor-not-allowed');
+            paginaAnterior.classList.remove('hover:bg-gray-100');
+        } else {
+            paginaAnterior.classList.remove('opacity-50', 'cursor-not-allowed');
+            paginaAnterior.classList.add('hover:bg-gray-100');
+        }
+
+        if (paginaSiguiente.disabled) {
+            paginaSiguiente.classList.add('opacity-50', 'cursor-not-allowed');
+            paginaSiguiente.classList.remove('hover:bg-gray-100');
+        } else {
+            paginaSiguiente.classList.remove('opacity-50', 'cursor-not-allowed');
+            paginaSiguiente.classList.add('hover:bg-gray-100');
+        }
     }
 
-    function predecirUsuario(usuarioId) {
+    // ===================== TEXTO MEJORADO PARA PREDICCIÓN =====================
+    function getPrediccionHtml(potencial, interes) {
+    // Si ya tiene predicción - CON FONDO VERDE/ROJO
+    if (potencial === 'Si') {
+        return `
+            <div class="flex flex-col items-center gap-1">
+                <span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1.5 rounded-full font-semibold text-sm border border-green-300 dark:border-green-700">
+                    Potencial
+                </span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">${interes === 'Si' ? 'Con interés' : 'Sin interés'}</span>
+            </div>
+        `;
+    }
+    if (potencial === 'No') {
+        return `
+            <div class="flex flex-col items-center gap-1">
+                <span class="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1.5 rounded-full font-semibold text-sm border border-red-300 dark:border-red-700">
+                    No Potencial
+                </span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">${interes === 'Si' ? 'Con interés' : 'Sin interés'}</span>
+            </div>
+        `;
+    }
+
+    // Si no tiene predicción aún
+    return `
+        <div class="flex flex-col items-center gap-1">
+            <span class="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-3 py-1.5 rounded-full font-semibold text-sm border border-yellow-300 dark:border-yellow-700">
+                ⏳ Por analizar
+            </span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">${interes === 'Si' ? 'Con interés' : 'Sin interés'}</span>
+        </div>
+    `;
+}
+
+    // ===================== FUNCIÓN DE PREDICCIÓN =====================
+    async function predecirUsuario(usuarioId, boton) {
+    // FIJAR el ancho del botón ANTES de cambiar el texto
+    const anchoOriginal = boton.offsetWidth;
+    boton.style.width = anchoOriginal + 'px';
+    boton.style.minWidth = anchoOriginal + 'px';
+
+    // Cambiar a spinner SIN texto para que no se expanda
+    boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    boton.disabled = true;
+
+    try {
         const formData = new FormData();
         formData.append('usuarioId', usuarioId);
 
-        fetch('/predecir-usuario', {
+        const response = await fetch('/predecir-usuario', {
             method: 'POST',
             body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                mostrarResultadoPrediccion(data.usuario);
-                // Actualizar la fila en la tabla
-                cargarUsuarios(); // Recargar para ver los cambios
-            } else {
-                alert('Error: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al realizar la predicción');
         });
+
+        const data = await response.json();
+
+        if (data.success) {
+            mostrarResultadoPrediccion(data.usuario);
+            actualizarUsuarioEnLista(data.usuario);
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al realizar la predicción');
+    } finally {
+        // RESTAURAR texto original
+        boton.innerHTML = '<i class="fas fa-bolt mr-1"></i>Analizar';
+        boton.disabled = false;
+        // Quitar el ancho fijo
+        boton.style.width = '';
+        boton.style.minWidth = '';
+    }
+}
+
+    // ===================== ACTUALIZAR USUARIO EN LISTA =====================
+    function actualizarUsuarioEnLista(usuarioActualizado) {
+        const index = usuariosCargados.findIndex(u => u.id === usuarioActualizado.id);
+        if (index !== -1) {
+            usuariosCargados[index] = usuarioActualizado;
+        }
+
+        const indexFiltrado = usuariosFiltrados.findIndex(u => u.id === usuarioActualizado.id);
+        if (indexFiltrado !== -1) {
+            usuariosFiltrados[indexFiltrado] = usuarioActualizado;
+        }
+
+        mostrarUsuariosPaginados();
     }
 
+    // ===================== MOSTRAR RESULTADO DE PREDICCIÓN =====================
     function mostrarResultadoPrediccion(usuario) {
         const resultadoDiv = document.getElementById('resultadoPrediccion');
-        resultadoDiv.innerHTML = `
-            <h3 class="text-lg font-bold mb-4">
-                <i class="fas fa-chart-line mr-2"></i>
-                Resultado de Predicción para: ${usuario.nombreUser} ${usuario.apellidoUser}
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div class="text-center">
-                    <div class="text-2xl font-bold ${usuario.clientePotencial === 'Si' ? 'text-green-600' : 'text-red-600'}">
-                        ${usuario.clientePotencial}
-                    </div>
-                    <div class="text-sm text-gray-600">Cliente Potencial</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-purple-600">
+        const contenidoDiv = document.getElementById('contenidoResultado');
+        const esPotencial = usuario.clientePotencial === 'Si';
+
+        contenidoDiv.innerHTML = `
+            <div class="bg-gradient-to-r ${esPotencial ? 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20' : 'from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20'} rounded-xl p-6 mb-4 border ${esPotencial ? 'border-green-200 dark:border-green-800' : 'border-red-200 dark:border-red-800'}">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-bold ${esPotencial ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'}">
+                        <i class="fas ${esPotencial ? 'fa-check-circle' : 'fa-exclamation-triangle'} mr-2"></i>
+                        ${usuario.nombreUser} ${usuario.apellidoUser} - ${esPotencial ? ' POTENCIAL' : 'NO POTENCIAL'}
+                    </h4>
+                    <span class="text-2xl font-bold ${esPotencial ? 'text-green-600' : 'text-red-600'}">
                         ${usuario.probabilidad ? usuario.probabilidad.toFixed(1) + '%' : 'N/A'}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold ${esPotencial ? 'text-green-600' : 'text-red-600'}">
+                            ${usuario.probabilidad ? usuario.probabilidad.toFixed(1) + '%' : 'N/A'}
+                        </div>
+                        <div class="text-sm ${esPotencial ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}">Probabilidad</div>
                     </div>
-                    <div class="text-sm text-gray-600">Probabilidad</div>
+
+                    <div class="text-center">
+                        <div class="text-xl font-semibold text-gray-700 dark:text-gray-300">
+                            ${usuario.cantidadCitas} citas
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Historial</div>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="text-xl font-semibold text-gray-700 dark:text-gray-300">
+                            ${usuario.antiguedadCuenta} días
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Antigüedad</div>
+                    </div>
                 </div>
-                <div class="text-center">
-                    <div class="text-lg font-semibold">${usuario.observaciones || 'Sin observaciones'}</div>
-                    <div class="text-sm text-gray-600">Recomendación</div>
-                </div>
-            </div>
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <h4 class="font-bold mb-2">Datos utilizados en el análisis:</h4>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-sm">
-                    <div><strong>Citas:</strong> ${usuario.cantidadCitas}</div>
-                    <div><strong>Antigüedad:</strong> ${usuario.antiguedadCuenta} días</div>
-                    <div><strong>Estado:</strong> ${usuario.estadoUltimaCita}</div>
-                    <div><strong>Interés:</strong> ${usuario.interesVehiculo}</div>
-                    <div><strong>Tiempo entre citas:</strong> ${usuario.tiempoEntreCitas} días</div>
-                </div>
+
+                ${usuario.observaciones ? `
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                        <h5 class="font-bold mb-2 text-gray-700 dark:text-gray-300">📋 Observaciones del Sistema:</h5>
+                        <p class="text-gray-600 dark:text-gray-400">${usuario.observaciones}</p>
+                    </div>
+                ` : ''}
             </div>
         `;
+
         resultadoDiv.classList.remove('hidden');
+        resultadoDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    // Funciones auxiliares
+    // ===================== FUNCIONES AUXILIARES =====================
     function getEstadoClass(estado) {
         if (estado === 'Aprobada') return 'estado-optimo';
         if (estado === 'Pendiente') return 'estado-alerta';
         return 'estado-critico';
     }
 
-    function getPotencialHtml(potencial) {
-        if (potencial === 'Si') return '<span class="estado-optimo">✅ POTENCIAL</span>';
-        if (potencial === 'No') return '<span class="estado-critico">❌ NO POTENCIAL</span>';
-        return '<span class="estado-alerta">⏳ SIN ANALIZAR</span>';
+    function cerrarResultado() {
+        document.getElementById('resultadoPrediccion').classList.add('hidden');
     }
 </script>
 </body>
