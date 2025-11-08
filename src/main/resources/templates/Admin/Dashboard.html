@@ -918,6 +918,122 @@
     font-weight: bold;
 }
     </style>
+    <style>
+        /* ===================== MODALES ESPECÍFICOS PARA TRABAJADORES ===================== */
+.modal-trabajadores {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content-trabajadores {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 0.75rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    animation: slideIn 0.3s ease;
+}
+
+.dark .modal-content-trabajadores {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Botones específicos para modales de trabajadores */
+.btn-confirmar-trabajadores {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
+
+.btn-confirmar-trabajadores:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
+}
+
+.btn-cancelar-trabajadores {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancelar-trabajadores:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(107, 114, 128, 0.3);
+}
+
+.btn-aceptar-trabajadores {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-aceptar-trabajadores:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(15, 102, 189, 0.4);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.btn-despedir {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.875rem;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
+
+.btn-despedir:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
+}
+    </style>
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -994,6 +1110,12 @@
                 <a href="#team" class="sidebar-link flex items-center gap-3 px-6 py-4 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300">
                     <i class='bx bxs-group text-xl'></i>
                     <span class="sidebar-text font-medium">Team</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_ADMINISTRADOR')">
+                <a href="#mis-trabajadores" class="sidebar-link flex items-center gap-3 px-6 py-4 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300">
+                    <i class='bx bxs-user-badge text-xl'></i>
+                    <span class="sidebar-text font-medium">Mis Trabajadores</span>
                 </a>
             </li>
         </ul>
@@ -1564,6 +1686,91 @@
                                 <a href="/admin/Dashboard" class="btn btn-secondary">Cancelar</a>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- ===================== MIS TRABAJADORES SECTION ===================== -->
+        <section id="mis-trabajadores" class="p-4 lg:p-6 hidden">
+            <div class="mb-6">
+                <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Mis Trabajadores</h1>
+                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
+                    <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
+                    <i class='bx bx-chevron-right text-xs'></i>
+                    <a href="#" class="text-primary font-medium">Mis Trabajadores</a>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="p-4 lg:p-6">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white">Lista de Trabajadores Registrados</h3>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table id="tabla-trabajadores" class="w-full min-w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nombre</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Identificación</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Correo</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Horario</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Días Trabajo</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Roles</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tr th:each="trabajador : ${trabajadores}" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+                                            <span th:text="${#strings.substring(trabajador.nombre, 0, 1)} + ${#strings.substring(trabajador.apellido, 0, 1)}"></span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="font-medium text-gray-900 dark:text-white" th:text="${trabajador.nombre} + ' ' + ${trabajador.apellido}"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${trabajador.identificacion}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${trabajador.correo}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    <!-- ✅ CORREGIDO: Usar los nombres correctos de los campos -->
+                                    <span th:text="${trabajador.horaInicioTrabajo} + ' - ' + ${trabajador.horaFinTrabajo}"></span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    <div class="flex flex-wrap gap-1">
+                                <span th:each="dia : ${trabajador.diasTrabajo}"
+                                      class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                                      th:text="${#strings.substring(dia, 0, 3)}"></span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    <div class="flex flex-wrap gap-1">
+                                <span th:each="rol : ${trabajador.roles}"
+                                      class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
+                                      th:text="${rol}"></span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button th:data-id="${trabajador.id}"
+                                            onclick="confirmarDespido(this)"
+                                            class="btn-despedir">
+                                        <i class='bx bx-user-x mr-1'></i>Despedir
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(trabajadores)}" class="text-center">
+                                <td colspan="7" class="px-4 py-8 text-gray-500 dark:text-gray-400">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <i class='bx bx-user-x text-4xl mb-2 text-gray-300'></i>
+                                        <p class="text-lg font-medium">No hay trabajadores registrados</p>
+                                        <p class="text-sm">Registra el primer trabajador en la sección "Team"</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -2824,6 +3031,216 @@ document.addEventListener('DOMContentLoaded', function() {
         attributeFilter: ['class']
     });
 });
+</script>
+<script>
+    // ===================== MODALES ESPECÍFICOS PARA TRABAJADORES =====================
+ function mostrarModalConfirmacionTrabajador(contenido, onConfirm) {
+     // Crear modal de confirmación específico para trabajadores
+     const modalId = 'modal-confirmacion-trabajadores';
+
+     // Remover modal existente si hay uno
+     const modalExistente = document.getElementById(modalId);
+     if (modalExistente) {
+         modalExistente.remove();
+     }
+
+     const modal = document.createElement('div');
+     modal.id = modalId;
+     modal.className = 'modal-trabajadores';
+     modal.innerHTML = `
+         <div class="modal-content-trabajadores">
+             <div class="p-6">
+                 ${contenido}
+                 <div class="flex flex-col lg:flex-row gap-3 mt-6">
+                     <button onclick="cerrarModalConfirmacionTrabajador()" class="btn-cancelar-trabajadores flex-1">
+                         <i class='bx bx-x mr-2'></i>Cancelar
+                     </button>
+                     <button onclick="confirmarAccionTrabajador()" class="btn-confirmar-trabajadores flex-1">
+                         <i class='bx bx-check mr-2'></i>Confirmar
+                     </button>
+                 </div>
+             </div>
+         </div>
+     `;
+
+     // Guardar callback de confirmación
+     modal._onConfirm = onConfirm;
+
+     document.body.appendChild(modal);
+     modal.style.display = 'block';
+
+     // Guardar referencia global específica
+     window.modalConfirmacionTrabajador = modal;
+ }
+
+ function mostrarModalErrorTrabajador(contenido) {
+     // Crear modal de error específico para trabajadores
+     const modalId = 'modal-error-trabajadores';
+
+     // Remover modal existente si hay uno
+     const modalExistente = document.getElementById(modalId);
+     if (modalExistente) {
+         modalExistente.remove();
+     }
+
+     const modal = document.createElement('div');
+     modal.id = modalId;
+     modal.className = 'modal-trabajadores';
+     modal.innerHTML = `
+         <div class="modal-content-trabajadores">
+             <div class="p-6">
+                 ${contenido}
+                 <div class="flex justify-center mt-6">
+                     <button onclick="cerrarModalErrorTrabajador()" class="btn-aceptar-trabajadores">
+                         <i class='bx bx-check mr-2'></i>Entendido
+                     </button>
+                 </div>
+             </div>
+         </div>
+     `;
+
+     document.body.appendChild(modal);
+     modal.style.display = 'block';
+
+     // Guardar referencia global específica
+     window.modalErrorTrabajador = modal;
+ }
+
+ function cerrarModalConfirmacionTrabajador() {
+     if (window.modalConfirmacionTrabajador) {
+         window.modalConfirmacionTrabajador.remove();
+         window.modalConfirmacionTrabajador = null;
+     }
+ }
+
+ function cerrarModalErrorTrabajador() {
+     if (window.modalErrorTrabajador) {
+         window.modalErrorTrabajador.remove();
+         window.modalErrorTrabajador = null;
+     }
+ }
+
+ function confirmarAccionTrabajador() {
+     if (window.modalConfirmacionTrabajador && window.modalConfirmacionTrabajador._onConfirm) {
+         window.modalConfirmacionTrabajador._onConfirm();
+         cerrarModalConfirmacionTrabajador();
+     }
+ }
+
+ // Cerrar modales específicos al hacer clic fuera
+ document.addEventListener('click', function(event) {
+     if (event.target.classList.contains('modal-trabajadores')) {
+         if (window.modalConfirmacionTrabajador && event.target === window.modalConfirmacionTrabajador) {
+             cerrarModalConfirmacionTrabajador();
+         }
+         if (window.modalErrorTrabajador && event.target === window.modalErrorTrabajador) {
+             cerrarModalErrorTrabajador();
+         }
+     }
+ });
+
+ // ===================== GESTIÓN DE TRABAJADORES (ACTUALIZADO) =====================
+ function confirmarDespido(button) {
+     const trabajadorId = button.getAttribute('data-id');
+     const nombreTrabajador = button.closest('tr').querySelector('.font-medium').textContent;
+
+     // Usar modal específico para trabajadores
+     mostrarModalConfirmacionTrabajador(`
+         <div class="text-center">
+             <i class='bx bx-user-x text-5xl text-red-500 mb-4'></i>
+             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Confirmar Terminación Laboral</h3>
+             <p class="text-gray-600 dark:text-gray-400 mb-4">
+                 ¿Está seguro de proceder con la terminación laboral de <strong>${nombreTrabajador}</strong>?
+             </p>
+             <p class="text-sm text-red-500 mb-6">
+                 Esta acción es irreversible y eliminará todos los datos del empleado.
+             </p>
+         </div>
+     `, () => {
+         despedirTrabajador(trabajadorId, button);
+     });
+ }
+
+ function despedirTrabajador(trabajadorId, button) {
+    console.log(`Procesando terminación laboral para ID: ${trabajadorId}`);
+
+    // Mostrar indicador de carga
+    const fila = button.closest('tr');
+    fila.style.opacity = '0.5';
+    button.disabled = true;
+    button.innerHTML = '<i class="bx bx-loader-alt animate-spin"></i> Procesando...';
+
+    // Obtener la instancia de DataTables
+    const tabla = $('#tabla-trabajadores').DataTable();
+
+    // Llamada AJAX al backend
+    fetch(`/admin/despedir-trabajador/${trabajadorId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.status}`);
+        }
+        return response.text();
+    })
+    .then(result => {
+        if (result === 'OK') {
+            // ✅ CORREGIDO: Eliminar la fila usando DataTables para mantener la integridad
+            const filaDataTable = tabla.row(fila);
+            filaDataTable.remove();
+            tabla.draw(); // Esto actualiza DataTables y elimina los espacios raros
+
+            mostrarNotificacion('Terminación laboral procesada correctamente', 'success');
+
+            // Verificar si quedan trabajadores
+            if (tabla.rows().count() === 0) {
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+
+        } else {
+            throw new Error('Error en la respuesta del servidor');
+        }
+    })
+    .catch(error => {
+        console.error('Error al despedir trabajador:', error);
+
+        // Revertir cambios visuales
+        fila.style.opacity = '1';
+        button.disabled = false;
+        button.innerHTML = '<i class="bx bx-user-x mr-1"></i>Despedir';
+
+        // Usar modal de error específico para trabajadores
+        mostrarModalErrorTrabajador(`
+            <div class="text-center">
+                <i class='bx bx-error-alt text-5xl text-red-500 mb-4'></i>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Error del Sistema</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                    No se pudo procesar la terminación laboral en este momento.
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-500">
+                    Por favor, intente nuevamente más tarde o contacte al administrador del sistema.
+                </p>
+            </div>
+        `);
+    });
+}
+</script>
+<script>
+    function inicializarDataTables() {
+    $('#tabla-vehiculos, #tabla-anuncios, #tabla-citas, #tabla-trabajadores').DataTable({
+        responsive: true,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        },
+        pageLength: 10,
+        dom: '<"flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4"lfr>t<"flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mt-4"ip>'
+    });
+}
 </script>
 </body>
 </html>

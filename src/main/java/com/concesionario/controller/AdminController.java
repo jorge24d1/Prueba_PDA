@@ -50,10 +50,10 @@ public class AdminController {
     private CitaService citaService;
     @Autowired
     private NotificacionService notificacionService;
+    @Autowired
+    private TrabajadorRepository trabajadorRepository;
 
-    // ❌ ELIMINADO: Ya no necesitamos uploadDir local
-    // @Value("${upload.dir}")
-    // private String uploadDir;
+
 
     @Autowired
     private TrabajadorRepository TrabajadorRepository;
@@ -67,10 +67,12 @@ public class AdminController {
         long totalUsuarios = usuarioService.contarUsuarios();
         long totalVehiculos = vehiculoService.contarTodosVehiculos();
 
+
         // Listados
         List<Vehiculo> vehiculos = vehiculoService.obtenerVehiculosNormales();
         List<Vehiculo> anuncios = vehiculoService.obtenerDestacados();
         List<Cita> citasPendientes = citaService.obtenerCitasPendientes();
+        List<Trabajador> trabajadores = trabajadorRepository.findAll();
 
         // Agregar atributos al modelo
         model.addAttribute("totalCitas", totalCitas);
@@ -81,7 +83,7 @@ public class AdminController {
         model.addAttribute("citas", citasPendientes);
         model.addAttribute("numeroNotificaciones", notificacionService.contarCitasNoLeidas());
         model.addAttribute("citasNoLeidas", notificacionService.obtenerCitasNoLeidas());
-
+        model.addAttribute("trabajadores", trabajadores);
         return "Admin/Dashboard";
     }
 
@@ -159,6 +161,16 @@ public class AdminController {
         model.addAttribute("horaInicio", horaInicio != null ? horaInicio.toString() : "");
         model.addAttribute("horaFin", horaFin != null ? horaFin.toString() : "");
         return "Admin/Dashboard";
+    }
+    @PostMapping("/despedir-trabajador/{id}")
+    @ResponseBody
+    public String despedirTrabajador(@PathVariable String id) {
+        try {
+            trabajadorRepository.deleteById(id);
+            return "OK";
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
     }
 
     @GetMapping("/notificaciones")
