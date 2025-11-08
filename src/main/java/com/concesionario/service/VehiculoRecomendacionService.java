@@ -14,13 +14,17 @@ public class VehiculoRecomendacionService {
 
     private static final int MINIMUM_SCORE_THRESHOLD = 5;
 
+    // ✅ NUEVAS VARIABLES PARA ROTACIÓN
+    private String ultimaBusqueda;
+    private int indiceRotacion = 0;
+    private Vehiculo ultimoVehiculoRecomendado;
+
     // Helper DTO (inner class) para guardar el puntaje
     private static class VehiculoConPuntaje {
         Vehiculo vehiculo;
         int puntaje;
         VehiculoConPuntaje(Vehiculo v, int p) { this.vehiculo = v; this.puntaje = p; }
     }
-
 
     public VehiculoRecomendacionService(VehiculoService vehiculoService,
                                         GeminiAIService geminiAIService) {
@@ -51,7 +55,7 @@ public class VehiculoRecomendacionService {
             String respuestaGemini = geminiAIService.analizarYSeleccionarVehiculo(mensajeUsuario, vehiculosFiltrados)
                     .block();
 
-            // ✅ QUINTO: Seleccionar el vehículo más relevante (El de mayor puntaje)
+            // ✅ QUINTO: Seleccionar el vehículo con rotación
             Vehiculo vehiculoSeleccionado = seleccionarMejorVehiculo(vehiculosFiltrados, mensajeUsuario);
 
             List<Vehiculo> vehiculoUnico = vehiculoSeleccionado != null ?
@@ -60,6 +64,8 @@ public class VehiculoRecomendacionService {
             return new RecomendacionResponse(respuestaGemini, vehiculoUnico);
 
         } catch (Exception e) {
+            System.out.println("❌ Error en procesarRecomendacion: " + e.getMessage());
+            e.printStackTrace();
             return new RecomendacionResponse(
                     "🤖 **Dante**: ¿Qué tipo de vehículo te interesa? Puedo ayudarte a encontrar autos, SUVs, camionetas...",
                     List.of()
@@ -80,15 +86,14 @@ public class VehiculoRecomendacionService {
                     int puntaje = calcularPuntaje(vehiculo, mensajeLower);
                     return new VehiculoConPuntaje(vehiculo, puntaje);
                 })
-                .filter(vp -> vp.puntaje >= MINIMUM_SCORE_THRESHOLD) // <-- REQUISITO CLAVE: UMBRAL MÍNIMO
-                .sorted((vp1, vp2) -> Integer.compare(vp2.puntaje, vp1.puntaje)) // Ordenar por puntaje DESC
+                .filter(vp -> vp.puntaje >= MINIMUM_SCORE_THRESHOLD)
+                .sorted((vp1, vp2) -> Integer.compare(vp2.puntaje, vp1.puntaje))
                 .collect(Collectors.toList());
 
         // 2. Si NADA superó el umbral, la lista estará vacía
-        // [SE ELIMINÓ EL FALLBACK A DESTACADOS]
         if (vehiculosConPuntaje.isEmpty()) {
             System.out.println("🚫 No se encontraron vehículos con el puntaje mínimo (" + MINIMUM_SCORE_THRESHOLD + ").");
-            return List.of(); // Devolver lista vacía
+            return List.of();
         }
 
         // 3. Convertir de nuevo a List<Vehiculo> (los 5 mejores)
@@ -98,6 +103,7 @@ public class VehiculoRecomendacionService {
                 .collect(Collectors.toList());
 
         System.out.println("📊 RESULTADOS FILTRADOS (Umbral " + MINIMUM_SCORE_THRESHOLD + "): " + filtrados.size() + " vehículos");
+        filtrados.forEach(v -> System.out.println("   - " + v.getMarca() + " " + v.getModelo() + " | Categoría: " + v.getCategoria()));
         return filtrados;
     }
 
@@ -110,7 +116,7 @@ public class VehiculoRecomendacionService {
 
         // Prioridad 1: Categoría (La más alta como pidió el usuario)
         if (coincideCategoria(vehiculo, mensajeLower)) {
-            puntaje += 6; // <-- Prioridad más alta
+            puntaje += 6;
         }
 
         // Prioridad 2: Marca/Modelo
@@ -133,7 +139,6 @@ public class VehiculoRecomendacionService {
             puntaje += 1;
         }
 
-        // [SE ELIMINÓ 'isDestacado()' DE AQUÍ]
         return puntaje;
     }
 
@@ -170,19 +175,66 @@ public class VehiculoRecomendacionService {
         return false;
     }
 
-
     /**
-     * ✅ SELECCIONAR EL MEJOR VEHÍCULO (SIMPLIFICADO)
-     * Confía en el scoring: el mejor auto es simplemente el primero de la lista.
+     * ✅ NUEVO: Selección con rotación para variedad
      */
     private Vehiculo seleccionarMejorVehiculo(List<Vehiculo> vehiculosFiltrados, String mensaje) {
-        // La lista 'vehiculosFiltrados' NUNCA estará vacía aquí (se comprueba antes)
-        // y YA VIENE ORDENADA por puntaje.
-        Vehiculo mejorOpcion = vehiculosFiltrados.get(0);
-        System.out.println("⭐ Selección (Mejor Puntaje): " + mejorOpcion.getMarca() + " " + mejorOpcion.getModelo());
-        return mejorOpcion;
+        return seleccionarVehiculoConRotacion(vehiculosFiltrados, mensaje);
     }
 
+    /**
+     * ✅ NUEVO MÉTODO: Sistema de rotación para "otro vehículo"
+     */
+    private Vehiculo seleccionarVehiculoConRotacion(List<Vehiculo> vehiculosFiltrados, String mensajeUsuario) {
+        if (vehiculosFiltrados.isEmpty()) return null;
+
+        String mensajeLower = mensajeUsuario.toLowerCase();
+
+        // Detectar si es búsqueda de "otro"
+        boolean esBusquedaDeOtro = esBusquedaDeAlternativa(mensajeLower);
+
+        if (!esBusquedaDeOtro) {
+            // Primera búsqueda: reiniciar y tomar el mejor
+            indiceRotacion = 0;
+            ultimaBusqueda = mensajeLower;
+            ultimoVehiculoRecomendado = vehiculosFiltrados.get(0);
+
+            System.out.println("🔄 PRIMERA BÚSQUEDA: Índice " + indiceRotacion +
+                    " -> " + ultimoVehiculoRecomendado.getMarca() + " " + ultimoVehiculoRecomendado.getModelo());
+
+            return ultimoVehiculoRecomendado;
+        }
+
+        // Búsqueda de "otro": rotar al siguiente
+        indiceRotacion++;
+        int indice = indiceRotacion % vehiculosFiltrados.size();
+
+        Vehiculo seleccionado = vehiculosFiltrados.get(indice);
+        ultimoVehiculoRecomendado = seleccionado;
+
+        System.out.println("🔄 ROTACIÓN: Índice " + indice + " de " + vehiculosFiltrados.size() +
+                " vehículos -> " + seleccionado.getMarca() + " " + seleccionado.getModelo());
+
+        return seleccionado;
+    }
+
+    /**
+     * ✅ NUEVO MÉTODO: Detectar si el usuario pide "otro" vehículo
+     */
+    private boolean esBusquedaDeAlternativa(String mensajeLower) {
+        String[] palabrasAlternativa = {
+                "otro", "otra", "diferente", "variedad", "alternativa",
+                "opción", "opcion", "similar pero", "muestra otro",
+                "qué más", "que mas", "otros", "otras", "no ese", "no me gusta"
+        };
+
+        for (String palabra : palabrasAlternativa) {
+            if (mensajeLower.contains(palabra)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // --- [MÉTODOS SIN CAMBIOS] ---
 
@@ -238,8 +290,6 @@ public class VehiculoRecomendacionService {
     }
 
     private String generarRespuestaVehiculo(String mensajeUsuario, Vehiculo vehiculo) {
-        // Este método ya no se usa activamente si Gemini genera toda la respuesta,
-        // pero es bueno tenerlo de fallback.
         if (vehiculo == null) {
             return "🤖 **Dante**: No encontré vehículos que coincidan exactamente con tu búsqueda. " +
                     "¿Podrías ser más específico? Por ejemplo: 'SUV familiar', 'auto económico', etc.";

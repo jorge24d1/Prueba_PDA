@@ -20,14 +20,12 @@ public class GeminiAIService {
     private static final String GEMINI_API_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
-
-
     public GeminiAIService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
     }
 
     /**
-     * ✅ MÉTODO NUEVO: Analizar y seleccionar el mejor vehículo
+     * ✅ MÉTODO MEJORADO: Con detección de alternativas
      */
     public Mono<String> analizarYSeleccionarVehiculo(String mensajeUsuario, List<Vehiculo> vehiculosDisponibles) {
 
@@ -37,21 +35,46 @@ public class GeminiAIService {
 
         String infoVehiculos = construirInfoVehiculos(vehiculosDisponibles);
 
+        // ✅ DETECTAR SI ES BÚSQUEDA DE "OTRO"
+        boolean esAlternativa = mensajeUsuario.toLowerCase().contains("otro") ||
+                mensajeUsuario.toLowerCase().contains("otra") ||
+                mensajeUsuario.toLowerCase().contains("diferente");
+
         String prompt = "Eres Dante, un asistente especializado en vehículos de concesionario.\n\n" +
-                "MENSAJE DEL USUARIO: \"" + mensajeUsuario + "\"\n\n" +
+
+                "CONTEXTO CONVERSACIONAL:\n" +
+                (esAlternativa ?
+                        "🔹 EL USUARIO PIDE UNA ALTERNATIVA/OTRO VEHÍCULO\n" +
+                                "🔹 DEBES seleccionar un vehículo DIFERENTE al anterior\n" +
+                                "🔹 Explica claramente en qué se diferencia esta nueva opción\n" :
+                        "🔹 PRIMERA BÚSQUEDA DEL USUARIO\n" +
+                                "🔹 Recomienda el vehículo más balanceado y relevante\n") +
+
+                "\nMENSAJE DEL USUARIO: \"" + mensajeUsuario + "\"\n\n" +
+
                 "VEHÍCULOS DISPONIBLES EN EL CONCESIONARIO:\n" + infoVehiculos + "\n\n" +
+
                 "INSTRUCCIONES CRÍTICAS:\n" +
-                "1. Analiza EXACTAMENTE qué busca el usuario\n" +
-                "2. SELECCIONA SOLO 1 VEHÍCULO que mejor se adapte a lo que pide\n" +
-                "3. Si menciona una marca/modelo específico, prioriza ese\n" +
-                "4. Responde de forma NATURAL y ENTUSIASTA\n" +
-                "5. Incluye detalles específicos del vehículo seleccionado\n" +
-                "6. NO inventes vehículos que no estén en la lista\n" +
-                "7. MÁXIMO 1 recomendación\n\n" +
+                "1. " + (esAlternativa ?
+                "SELECCIONA un vehículo DIFERENTE (preferiblemente otra marca/modelo)" :
+                "SELECCIONA el vehículo más relevante para la búsqueda") + "\n" +
+                "2. Responde de forma NATURAL y ENTUSIASTA\n" +
+                "3. Incluye detalles específicos del vehículo seleccionado\n" +
+                "4. " + (esAlternativa ?
+                "Destaca 2-3 características que hacen única esta alternativa" :
+                "Explica por qué este vehículo es ideal para el usuario") + "\n" +
+                "5. NO inventes vehículos que no estén en la lista\n\n" +
+
                 "FORMATO DE RESPUESTA:\n" +
-                "Comienza con: '🤖 **Dante**: [tu respuesta aquí]'\n" +
+                (esAlternativa ?
+                        "Comienza con: '🤖 **Dante**: ¡Claro! Te muestro otra excelente opción...'\n" :
+                        "Comienza con: '🤖 **Dante**: ¡Perfecto! Encontré el vehículo ideal...'\n") +
                 "Incluye: modelo, año, precio, características principales\n" +
-                "Termina invitando a explorar más detalles";
+                "Termina invitando a explorar más detalles o pedir otra opción";
+
+        System.out.println("🤖 PROMPT ENVIADO A GEMINI:");
+        System.out.println("Tipo: " + (esAlternativa ? "ALTERNATIVA" : "PRIMERA BÚSQUEDA"));
+        System.out.println("Vehículos disponibles: " + vehiculosDisponibles.size());
 
         GeminiRequest request = crearRequest(prompt);
 
