@@ -1,321 +1,336 @@
-* {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+ .material-symbols-outlined {
+            font-variation-settings:
+                "FILL" 0,
+                "wght" 400,
+                "GRAD" 0,
+                "opsz" 24;
         }
 
-        body {
-            overflow-x: hidden;
-            color: #333;
-            padding-top: 80px;
-            background-color: #f9f9f9;
-        }
-
-        /* Barra de navegación */
-        #mainNav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 5%;
-            background-color: white;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-
-        .nav-logo img {
-            height: 40px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-
-        .nav-links a {
-            color: #002e5b;
-            text-decoration: none;
+        /* Estilos para los badges de ubicación */
+        .location-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #0f66bd;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
             font-weight: 600;
-            font-size: 0.95rem;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .nav-links a:hover {
-            color: #e53238;
+        /* Asegurar que el iframe del mapa sea responsive */
+        .map-container {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* NUEVOS ESTILOS RESPONSIVOS PARA EL NAVBAR */
+
+        /* Menú hamburguesa */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #475569;
+            cursor: pointer;
+            padding: 0.5rem;
         }
 
         @media (max-width: 768px) {
-            body {
-                padding-top: 70px;
-            }
-            .nav-logo img {
-                height: 30px;
-            }
-            .nav-links {
-                gap: 15px;
-                font-size: 0.9rem;
+            .menu-toggle {
+                display: block;
             }
         }
 
-        /* Hero section */
-        .hero {
-            background: linear-gradient(rgba(0, 46, 91, 0.8), rgba(0, 46, 91, 0.8)), url('https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1400&q=80');
-            background-size: cover;
-            background-position: center;
-            height: 350px;
-            display: flex;
-            align-items: center;
-            padding: 0 50px;
-            color: white;
-            text-align: center;
+        .dark .menu-toggle {
+            color: #cbd5e1;
         }
 
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-        }
-
-        /* Contenido principal */
-        .main-content {
-            padding: 60px 50px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 30px;
-            color: #002e5b;
-            text-align: center;
-        }
-
-        .section-subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 40px;
-            color: #666;
-            text-align: center;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* Sección de ubicaciones */
-        .locations-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .location-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: transform 0.3s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        /* Menú móvil */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
             background: white;
+            z-index: 60;
+            transition: right 0.3s ease;
+            padding: 2rem;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
         }
 
-        .location-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .dark .mobile-menu {
+            background: #1e293b;
         }
 
-        .location-map {
-            height: 200px;
-            background-color: #f5f5f5;
-            position: relative;
+        .mobile-menu.active {
+            right: 0;
         }
 
-        .location-map iframe {
-            width: 100%;
-            height: 100%;
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .mobile-menu-close {
+            background: none;
             border: none;
+            font-size: 1.5rem;
+            color: #475569;
+            cursor: pointer;
         }
 
-        .location-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: #e53238;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 0.9rem;
+        .dark .mobile-menu-close {
+            color: #cbd5e1;
         }
 
-        .location-info {
-            padding: 20px;
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
-        .location-name {
-            font-size: 1.3rem;
-            color: #002e5b;
-            margin-bottom: 10px;
-        }
-
-        .location-address {
-            margin-bottom: 15px;
-            color: #555;
-            line-height: 1.5;
-        }
-
-        .location-hours {
-            margin-bottom: 15px;
-            color: #555;
-        }
-
-        .location-hours strong {
-            color: #333;
-        }
-
-        .location-contact {
-            margin-bottom: 15px;
-        }
-
-        .location-button {
-            display: inline-block;
-            background: #002e5b;
-            color: white;
+        .mobile-nav a {
+            color: #475569;
+            font-weight: 500;
             text-decoration: none;
-            padding: 8px 20px;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
-
-        .location-button:hover {
-            background: #e53238;
-        }
-
-        /* Footer */
-        footer {
-            background: #111;
-            color: white;
-            padding: 50px;
-            text-align: center;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            text-align: left;
-            margin-bottom: 30px;
-        }
-
-        .footer-column h3 {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: #e53238;
-        }
-
-        .footer-column ul li {
-            margin-bottom: 10px;
-            list-style: none;
-        }
-
-        .footer-column ul li a {
-            color: #ccc;
-            text-decoration: none;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
             transition: color 0.3s;
         }
 
-        .footer-column ul li a:hover {
-            color: white;
+        .dark .mobile-nav a {
+            color: #cbd5e1;
+            border-bottom: 1px solid #374151;
         }
 
-        .social-links {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
+        .mobile-nav a:hover {
+            color: #0f66bd;
         }
 
-        .social-links a {
-            color: white;
-            background: #333;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s;
+        /* MEJORAS RESPONSIVAS ESPECÍFICAS PARA UBICACIONES */
+
+        /* Ajustes para Hero Section */
+        @media (max-width: 768px) {
+            .hero-section {
+                height: 30vh !important;
+                min-height: 250px !important;
+            }
+
+            .hero-title {
+                font-size: 2rem !important;
+                line-height: 1.2 !important;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem !important;
+            }
         }
 
-        .social-links a:hover {
-            background: #e53238;
+        @media (max-width: 480px) {
+            .hero-section {
+                height: 25vh !important;
+                min-height: 200px !important;
+            }
+
+            .hero-title {
+                font-size: 1.75rem !important;
+            }
+
+            .hero-subtitle {
+                font-size: 0.875rem !important;
+            }
         }
 
-        .copyright {
-            margin-top: 30px;
-            color: #777;
-            font-size: 0.9rem;
+        /* Ajustes para grid de ubicaciones */
+        @media (max-width: 768px) {
+            .locations-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
         }
 
-        .whatsapp-float {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #25D366;
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            z-index: 100;
+        /* Ajustes para tarjetas de ubicación */
+        @media (max-width: 768px) {
+            .location-card {
+                margin-bottom: 1rem;
+            }
+
+            .map-container {
+                height: 200px !important;
+            }
         }
 
-        .whatsapp-float:hover {
-            transform: scale(1.1);
+        @media (max-width: 480px) {
+            .map-container {
+                height: 180px !important;
+            }
+
+            .location-content {
+                padding: 1rem !important;
+            }
         }
-        .logo-container {
-                    display: flex;
-                    align-items: center;
-                }
 
-                .logo-nexgen {
-                    font-family: 'Arial Black', sans-serif;
-                    font-size: 17px;
-                    color: #002e5b;
-                    letter-spacing: 1px;
-                    text-transform: uppercase;
-                    position: relative;
-                    transition: color 0.3s;
-                }
+        /* Ajustes para información de contacto */
+        @media (max-width: 768px) {
+            .contact-info {
+                gap: 1rem !important;
+            }
 
-                .logo-motors {
-                    font-family: 'Arial', sans-serif;
-                    font-weight: bold;
-                    font-size: 17px;
-                    color: #e53238;
-                    margin-left: 5px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    transition: color 0.3s;
-                }
+            .contact-item {
+                align-items: flex-start !important;
+            }
 
-                nav.scrolled .logo-nexgen {
-                    color:white;
-                }
+            .contact-icon {
+                margin-top: 0.25rem !important;
+                margin-right: 0.75rem !important;
+            }
+        }
 
-                nav.scrolled .logo-motors {
-                    color: white;
-                }
+        /* Ajustes para botones */
+        @media (max-width: 480px) {
+            .location-btn {
+                width: 100% !important;
+                justify-content: center;
+            }
+        }
+
+        /* Ajustes para texto */
+        @media (max-width: 768px) {
+            .responsive-text {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+        }
+
+        /* Ajustes para el footer */
+        @media (max-width: 768px) {
+            .footer-column {
+                margin-bottom: 2rem;
+            }
+        }
+
+        /* Ajustes generales de tipografía */
+        @media (max-width: 768px) {
+            .text-3xl {
+                font-size: 1.75rem;
+            }
+
+            .text-2xl {
+                font-size: 1.5rem;
+            }
+
+            .text-xl {
+                font-size: 1.25rem;
+            }
+
+            .text-lg {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .text-3xl {
+                font-size: 1.5rem;
+            }
+
+            .text-2xl {
+                font-size: 1.25rem;
+            }
+
+            .text-xl {
+                font-size: 1.125rem;
+            }
+
+            .text-lg {
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Ajustes específicos para el logo en móviles */
+        @media (max-width: 640px) {
+            .logo-container {
+                gap: 0.5rem;
+            }
+
+            .logo-img {
+                width: 3rem;
+                height: 3rem;
+            }
+
+            .logo-text {
+                font-size: 1rem;
+            }
+        }
+
+        /* Ajustes para espaciado general */
+        @media (max-width: 768px) {
+            .py-16 {
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+
+            .mt-12 {
+                margin-top: 2rem;
+            }
+
+            .mt-16 {
+                margin-top: 3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .py-16 {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+
+            .mt-12 {
+                margin-top: 1.5rem;
+            }
+
+            .mt-16 {
+                margin-top: 2rem;
+            }
+        }
+
+        /* Imagen de fondo para Hero Section */
+        .hero-section {
+            background-image: url('https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+        }

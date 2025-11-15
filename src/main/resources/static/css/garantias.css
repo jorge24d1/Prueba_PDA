@@ -1,460 +1,424 @@
-:root {
-    --primary: #002e5b;
-    --secondary: #e53238;
-    --accent: #002e5b;
-    --light: #f9f9f9;
-    --dark: #111;
-    --text: #333;
-    --text-light: #777;
-    --border: #dee2e6;
-    --white: #ffffff;
-    --black: #000000;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
-}
-
-body {
-    overflow-x: hidden;
-    color: var(--text);
-    padding-top: 80px; /* Espacio para la barra fija */
-    line-height: 1.6;
-    background-color: var(--light);
-}
-
-/* Barra de navegación modificada */
-nav {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 50px;
-    background-color: transparent;
-    transition: all 0.3s ease;
-    z-index: 1000;
-    border-bottom: 1px solid transparent;
-}
-
-nav.scrolled {
-    background-color: var(--white);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid var(--border);
-}
-
-.nav-logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--black); /* Cambiado a negro permanentemente */
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-.nav-logo img {
-    height: 40px;
-    transition: all 0.3s;
-}
-
-.nav-links {
-    display: flex;
-    gap: 30px;
-}
-
-.nav-links a {
-    color: var(--black); /* Cambiado a negro permanentemente */
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-.nav-links a:hover {
-    color: var(--secondary);
-}
-        /* Resto del diseño original de garantías */
-        .hero {
-            background: linear-gradient(rgba(0, 46, 91, 0.8), rgba(0, 46, 91, 0.8)), url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1400&q=80');
-            background-size: cover;
-            background-position: center;
-            height: 400px;
-            display: flex;
-            align-items: center;
-            padding: 0 50px;
-            color: white;
-        }
-
-        .hero-content {
-            max-width: 600px;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-        }
-
-        .hero-button {
-            display: inline-block;
-            background: #e53238;
-            color: white;
-            padding: 12px 30px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .hero-button:hover {
-            background: white;
-            color: #002e5b;
-        }
-
-        .warranty-section {
-            padding: 80px 50px;
-            background: #f9f9f9;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: #002e5b;
-            text-align: center;
-        }
-
-        .section-subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 50px;
-            color: #666;
-            text-align: center;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .warranty-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 50px;
-        }
-
-        .warranty-card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .warranty-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-        }
-
-        .warranty-image {
-            height: 200px;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .warranty-info {
-            padding: 30px;
-        }
-
-        .warranty-name {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: #002e5b;
-        }
-
-        .warranty-coverage {
-            color: #e53238;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .warranty-features {
-            margin-bottom: 20px;
-            color: #666;
-        }
-
-        .warranty-features li {
-            margin-bottom: 10px;
-            list-style-position: inside;
-        }
-
-        .warranty-button {
-            display: inline-block;
-            background: #002e5b;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-
-        .warranty-button:hover {
-            background: #e53238;
-        }
-
-        .benefits {
-            padding: 80px 50px;
-            background: white;
-        }
-
-        .benefits-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 50px;
-            margin-top: 50px;
-        }
-
-        .benefit-item {
-            display: flex;
-            gap: 20px;
-        }
-
-        .benefit-icon {
-            font-size: 2.5rem;
-            color: #002e5b;
-            flex-shrink: 0;
-        }
-
-        .benefit-content h3 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            color: #002e5b;
-        }
-
-        .benefit-content p {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .faq {
-            padding: 80px 50px;
-            background: #f9f9f9;
-        }
-
-        .faq-container {
-            max-width: 800px;
-            margin: 0 auto;
+ .material-symbols-outlined {
+            font-variation-settings:
+                "FILL" 0,
+                "wght" 400,
+                "GRAD" 0,
+                "opsz" 24;
         }
 
         .faq-item {
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .faq-answer {
+            max-height: 0;
             overflow: hidden;
+            transition: max-height 0.3s ease;
         }
 
-        .faq-question {
-            background: #002e5b;
-            color: white;
-            padding: 15px 20px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .faq-question i {
-            transition: transform 0.3s;
+        .faq-item.active .faq-answer {
+            max-height: 500px;
         }
 
         .faq-item.active .faq-question i {
             transform: rotate(180deg);
         }
 
-        .faq-answer {
-            padding: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease;
+        /* NUEVOS ESTILOS RESPONSIVOS */
+
+        /* Menú hamburguesa */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #475569;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        .dark .menu-toggle {
+            color: #cbd5e1;
+        }
+
+        /* Menú móvil */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
             background: white;
+            z-index: 60;
+            transition: right 0.3s ease;
+            padding: 2rem;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
         }
 
-        .faq-item.active .faq-answer {
-            padding: 20px;
-            max-height: 500px;
+        .dark .mobile-menu {
+            background: #1e293b;
         }
 
-        .cta {
-            padding: 80px 50px;
-            background: #002e5b;
-            color: white;
-            text-align: center;
+        .mobile-menu.active {
+            right: 0;
         }
 
-        .cta h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
         }
 
-        .cta p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
 
-        .cta-buttons {
+        .mobile-menu-header {
             display: flex;
-            gap: 20px;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
         }
 
-        .cta-button {
-            display: inline-block;
-            color: white;
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .dark .mobile-menu-close {
+            color: #cbd5e1;
+        }
+
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav a {
+            color: #475569;
+            font-weight: 500;
             text-decoration: none;
-            padding: 12px 30px;
-            border: 2px solid white;
-            border-radius: 30px;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .cta-button:first-child {
-            background: rgba(255,255,255,0.2);
-        }
-
-        .cta-button:hover {
-            background: white;
-            color: #002e5b;
-        }
-
-        footer {
-            background: #111;
-            color: white;
-            padding: 50px;
-            text-align: center;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            text-align: left;
-            margin-bottom: 30px;
-        }
-
-        .footer-column h3 {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: #e53238;
-        }
-
-        .footer-column ul {
-            list-style: none;
-        }
-
-        .footer-column ul li {
-            margin-bottom: 10px;
-        }
-
-        .footer-column ul li a {
-            color: #ccc;
-            text-decoration: none;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
             transition: color 0.3s;
         }
 
-        .footer-column ul li a:hover {
-            color: white;
+        .dark .mobile-nav a {
+            color: #cbd5e1;
+            border-bottom: 1px solid #374151;
         }
 
-        .social-links {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
+        .mobile-nav a:hover {
+            color: #0f66bd;
         }
 
-        .social-links a {
-            color: white;
-            background: #333;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s;
+        /* Ajustes responsivos para Hero Section */
+        @media (max-width: 768px) {
+            .hero-section {
+                height: 40vh;
+                min-height: 300px;
+            }
+
+            .hero-title {
+                font-size: 2rem !important;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem !important;
+            }
+
+            .hero-button {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.875rem;
+            }
         }
 
-        .social-links a:hover {
-            background: #e53238;
+        @media (max-width: 480px) {
+            .hero-section {
+                height: 35vh;
+                min-height: 250px;
+            }
+
+            .hero-title {
+                font-size: 1.75rem !important;
+            }
+
+            .hero-subtitle {
+                font-size: 0.875rem !important;
+            }
+
+            .hero-button {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+                width: 100%;
+                max-width: 250px;
+            }
         }
 
-        .copyright {
-            margin-top: 30px;
-            color: #777;
-            font-size: 0.9rem;
+        /* Ajustes para planes de garantía */
+        @media (max-width: 768px) {
+            .warranty-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .warranty-card {
+                margin-bottom: 1rem;
+            }
+
+            .warranty-image {
+                height: 200px;
+            }
+
+            .warranty-content {
+                padding: 1.5rem;
+            }
         }
 
-        .whatsapp-float {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #25D366;
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            z-index: 100;
-            transition: all 0.3s;
+        @media (max-width: 480px) {
+            .warranty-grid {
+                gap: 1rem;
+            }
+
+            .warranty-image {
+                height: 180px;
+            }
+
+            .warranty-content {
+                padding: 1rem;
+            }
+
+            .warranty-button {
+                width: 100%;
+            }
         }
 
-        .whatsapp-float:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        /* Ajustes para beneficios */
+        @media (max-width: 768px) {
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .benefit-card {
+                padding: 1.5rem;
+            }
+
+            .benefit-icon {
+                width: 3rem;
+                height: 3rem;
+            }
+
+            .benefit-icon i {
+                font-size: 1.25rem;
+            }
         }
-        .logo-container {
-                    display: flex;
-                    align-items: center;
-                }
 
-                .logo-nexgen {
-                    font-family: 'Arial Black', sans-serif;
-                    font-size: 17px;
-                    color: #002e5b;
-                    letter-spacing: 1px;
-                    text-transform: uppercase;
-                    position: relative;
-                    transition: color 0.3s;
-                }
+        @media (max-width: 480px) {
+            .benefits-grid {
+                gap: 1rem;
+            }
 
-                .logo-motors {
-                    font-family: 'Arial', sans-serif;
-                    font-weight: bold;
-                    font-size: 17px;
-                    color: #e53238;
-                    margin-left: 5px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    transition: color 0.3s;
-                }
+            .benefit-card {
+                padding: 1rem;
+            }
 
-                nav.scrolled .logo-nexgen {
-                    color: #002e5b;
-                }
+            .benefit-icon {
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+        }
 
-                nav.scrolled .logo-motors {
-                    color: #e53238;
-                }
+        /* Ajustes para FAQ */
+        @media (max-width: 768px) {
+            .faq-container {
+                padding: 0;
+            }
+
+            .faq-question {
+                padding: 1rem;
+            }
+
+            .faq-answer {
+                padding: 0 1rem 1rem;
+            }
+
+            .faq-question span {
+                font-size: 0.875rem;
+                line-height: 1.4;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .faq-question {
+                padding: 0.75rem;
+            }
+
+            .faq-answer {
+                padding: 0 0.75rem 0.75rem;
+            }
+
+            .faq-question span {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Ajustes para CTA */
+        @media (max-width: 768px) {
+            .cta-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .cta-button {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cta-button {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Ajustes para el footer */
+        @media (max-width: 768px) {
+            .footer-column {
+                margin-bottom: 2rem;
+            }
+        }
+
+        /* Ajustes generales de tipografía */
+        @media (max-width: 768px) {
+            .text-3xl {
+                font-size: 1.75rem;
+            }
+
+            .text-2xl {
+                font-size: 1.5rem;
+            }
+
+            .text-xl {
+                font-size: 1.25rem;
+            }
+
+            .text-lg {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .text-3xl {
+                font-size: 1.5rem;
+            }
+
+            .text-2xl {
+                font-size: 1.25rem;
+            }
+
+            .text-xl {
+                font-size: 1.125rem;
+            }
+
+            .text-lg {
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Ajustes específicos para el logo en móviles */
+        @media (max-width: 640px) {
+            .logo-container {
+                gap: 0.5rem;
+            }
+
+            .logo-img {
+                width: 3rem;
+                height: 3rem;
+            }
+
+            .logo-text {
+                font-size: 1rem;
+            }
+        }
+
+        /* Ajustes para espaciado general */
+        @media (max-width: 768px) {
+            .py-16 {
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+
+            .mt-12 {
+                margin-top: 2rem;
+            }
+
+            .mb-16 {
+                margin-bottom: 3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .py-16 {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+
+            .mt-12 {
+                margin-top: 1.5rem;
+            }
+
+            .mb-16 {
+                margin-bottom: 2rem;
+            }
+        }
+
+        /* Ajustes para listas */
+        @media (max-width: 768px) {
+            .feature-list {
+                gap: 0.75rem;
+            }
+
+            .feature-list li {
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .feature-list {
+                gap: 0.5rem;
+            padding-left: 1rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            padding: 0.5rem 0;
+            border-radius: 0.5rem;
+        }
+
+            .feature-list li {
+                font-size: 0.75rem;
+                padding: 0.25rem 0;
+            }
+        }
