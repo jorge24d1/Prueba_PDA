@@ -98,20 +98,29 @@ public class TrabajadorController {
     }
 
     @GetMapping("/perfil_gestor")
-    public String perfilG(Model model) {
+    public String perfilG(Model model, Authentication authentication) {
         // Obtener datos para el dashboard del gestor
         List<Vehiculo> vehiculos = vehiculoService.obtenerVehiculosNormales();
         List<Vehiculo> anuncios = vehiculoService.obtenerDestacados();
         long totalVehiculos = vehiculoRepository.count();
         long totalAnuncios = anuncios.size();
 
+        // Obtener nombre del gestor autenticado
+        String nombreUsuario = "Gestor"; // Valor por defecto
 
+        if (authentication != null) {
+            String username = authentication.getName();
+            Optional<Trabajador> trabajador = trabajadorRepository.findByCorreo(username);
+            if (trabajador.isPresent()) {
+                nombreUsuario = trabajador.get().getNombre();
+            }
+        }
 
+        model.addAttribute("nombreUsuario", nombreUsuario);
         model.addAttribute("vehiculos", vehiculos);
         model.addAttribute("anuncios", anuncios);
         model.addAttribute("totalVehiculos", totalVehiculos);
         model.addAttribute("totalAnuncios", totalAnuncios);
-
 
         return "Perfil_gestor";
     }
