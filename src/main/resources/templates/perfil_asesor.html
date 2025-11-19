@@ -23,13 +23,21 @@
     <span class="logo-nexgen">NextGen</span>
     <span class="logo-motors">Motors</span>
   </div>
+
+  <!-- AGREGAR BOTÓN HAMBURGUESA -->
+  <button class="menu-toggle" id="menuToggle">
+    <i class="fas fa-bars"></i>
+  </button>
+
   <div class="nav-links">
-    <span class="text-sm text-gray-600 dark:text-gray-300 mr-4">Rol: <strong>Asesor</strong></span>
-    <a th:href="@{/usuario/Inicio}" class="mr-4">Inicio Público</a>
-    <a href="/logout">Cerrar Sesión</a>
+    <a th:href="@{/usuario/Inicio}">Inicio</a>
+    <a href="/vehiculos">Nuestros Modelos</a>
+    <a th:href="@{/usuario/agendamiento}">Agendamiento online</a>
   </div>
 </nav>
 
+<!-- AGREGAR OVERLAY PARA MÓVIL -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <!-- Contenedor principal -->
 <div class="main-container">
   <!-- Barra lateral -->
@@ -250,6 +258,27 @@
     </div>
 
   </main>
+</div>
+<!-- Modal de confirmación para cerrar sesión -->
+<div id="logoutModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-icon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h3 class="modal-title">¿Cerrar Sesión?</h3>
+    <p class="modal-message">
+      ¿Estás seguro de que quieres cerrar tu sesión? Tendrás que volver a iniciar sesión para acceder a tu cuenta.
+    </p>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="cancelarCerrarSesion()">
+        Cancelar
+      </button>
+      <button class="modal-btn modal-btn-confirm" onclick="cerrarSesion()">
+        <i class="fas fa-sign-out-alt mr-2"></i>
+        Sí, Cerrar
+      </button>
+    </div>
+  </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -736,11 +765,62 @@
       }
   }
 
-  function confirmarCerrarSesion() {
-      if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-          window.location.href = '/logout';
-      }
-  }
+  // Funciones para el modal de cierre de sesión
+function confirmarCerrarSesion() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.add('active');
+}
+
+function cancelarCerrarSesion() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.remove('active');
+}
+
+function cerrarSesion() {
+    // Mostrar loading en el botón
+    const confirmButton = document.querySelector('.modal-btn-confirm');
+    const originalText = confirmButton.innerHTML;
+    confirmButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Cerrando...';
+    confirmButton.disabled = true;
+
+    // Redirigir al logout después de un breve delay
+    setTimeout(() => {
+        window.location.href = '/logout';
+    }, 1000);
+}
+  // Menú móvil
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+        sidebar.classList.add('mobile-open');
+        sidebarOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('mobile-open');
+        sidebarOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    menuToggle.addEventListener('click', openSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
+
+    // Cerrar sidebar al hacer clic en un enlace
+    document.querySelectorAll('.side-menu a').forEach(link => {
+        link.addEventListener('click', closeSidebar);
+    });
+
+    // Cerrar con tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('mobile-open')) {
+            closeSidebar();
+        }
+    });
+});
 </script>
 <script>
   // ===================== GESTIÓN DE VEHÍCULOS =====================
