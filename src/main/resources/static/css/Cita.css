@@ -1,490 +1,681 @@
 .material-symbols-outlined {
-            font-variation-settings:
-                "FILL" 0,
-                "wght" 400,
-                "GRAD" 0,
-                "opsz" 24;
-        }
-
-        /* Estilos personalizados para mantener la funcionalidad */
-        .categoria-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .categoria-item {
-            flex: 1;
-            min-width: 150px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            background-color: #f6f7f8;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .categoria-item:hover {
-            border-color: #0f66bd;
-            transform: translateY(-2px);
-        }
-
-        .categoria-item.selected {
-            border-color: #0f66bd;
-            background-color: rgba(15, 102, 189, 0.1);
-        }
-
-        .categoria-item i {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            color: #0f66bd;
-        }
-
-        .categoria-item p {
-            font-weight: 500;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            background-color: #fff;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #0f66bd;
-            box-shadow: 0 0 0 3px rgba(15, 102, 189, 0.1);
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background-color: #0f66bd;
-            color: white;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #0a4d8c;
-        }
-
-        .btn-secondary {
-            background-color: #6b7280;
-            color: white;
-            border: none;
-        }
-
-        .btn-secondary:hover {
-            background-color: #4b5563;
-        }
-
-        .horario-info {
-            background-color: #f3f4f6;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .horario-info p {
-            margin: 0.25rem 0;
-        }
-
-        .error-message {
-            color: #dc2626;
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        /* Modo oscuro */
-        .dark .categoria-item {
-            background-color: #1f2937;
-            border-color: #374151;
-            color: #e5e7eb;
-        }
-
-        .dark .categoria-item:hover {
-            border-color: #0f66bd;
-        }
-
-        .dark .categoria-item.selected {
-            border-color: #0f66bd;
-            background-color: rgba(15, 102, 189, 0.2);
-        }
-
-        .dark .form-group input,
-        .dark .form-group select,
-        .dark .form-group textarea {
-            background-color: #1f2937;
-            border-color: #374151;
-            color: #e5e7eb;
-        }
-
-        .dark .horario-info {
-            background-color: #1f2937;
-        }
-
-        /* NUEVOS ESTILOS RESPONSIVOS */
-
-        /* Menú hamburguesa */
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #475569;
-            cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: block;
-            }
-        }
-
-        .dark .menu-toggle {
-            color: #cbd5e1;
-        }
-
-        /* Menú móvil */
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 80%;
-            max-width: 300px;
-            height: 100vh;
-            background: white;
-            z-index: 60;
-            transition: right 0.3s ease;
-            padding: 2rem;
-            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
-        }
-
-        .dark .mobile-menu {
-            background: #1e293b;
-        }
-
-        .mobile-menu.active {
-            right: 0;
-        }
-
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 50;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .mobile-menu-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .mobile-menu-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .mobile-menu-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #475569;
-            cursor: pointer;
-        }
-
-        .dark .mobile-menu-close {
-            color: #cbd5e1;
-        }
-
-        .mobile-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .mobile-nav a {
-            color: #475569;
-            font-weight: 500;
-            text-decoration: none;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #e5e7eb;
-            transition: color 0.3s;
-        }
-
-        .dark .mobile-nav a {
-            color: #cbd5e1;
-            border-bottom: 1px solid #374151;
-        }
-
-        .mobile-nav a:hover {
-            color: #0f66bd;
-        }
-
-        /* Ajustes responsivos para Hero Section */
-        @media (max-width: 768px) {
-            .hero-section {
-                height: 30vh;
-                min-height: 250px;
-            }
-
-            .hero-title {
-                font-size: 2rem !important;
-            }
-
-            .hero-subtitle {
-                font-size: 1rem !important;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-section {
-                height: 25vh;
-                min-height: 200px;
-            }
-
-            .hero-title {
-                font-size: 1.75rem !important;
-            }
-
-            .hero-subtitle {
-                font-size: 0.875rem !important;
-            }
-        }
-
-        /* Ajustes para categorías */
-        @media (max-width: 768px) {
-            .categoria-container {
-                gap: 0.75rem;
-            }
-
-            .categoria-item {
-                min-width: 120px;
-                padding: 1rem 0.5rem;
-            }
-
-            .categoria-item i {
-                font-size: 1.5rem;
-            }
-
-            .categoria-item p {
-                font-size: 0.875rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .categoria-container {
-                gap: 0.5rem;
-            }
-
-            .categoria-item {
-                min-width: 100px;
-                padding: 0.75rem 0.25rem;
-            }
-
-            .categoria-item i {
-                font-size: 1.25rem;
-            }
-
-            .categoria-item p {
-                font-size: 0.75rem;
-            }
-        }
-
-        /* Ajustes para formulario */
-        @media (max-width: 768px) {
-            .form-container {
-                padding: 1.5rem !important;
-            }
-
-            .form-group {
-                margin-bottom: 1rem;
-            }
-
-            .form-group input,
-            .form-group select,
-            .form-group textarea {
-                padding: 0.625rem;
-            }
-
-            .form-actions {
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-
-            .btn {
-                width: 100%;
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .form-container {
-                padding: 1rem !important;
-            }
-
-            .form-group label {
-                font-size: 0.875rem;
-            }
-
-            .form-group input,
-            .form-group select,
-            .form-group textarea {
-                padding: 0.5rem;
-                font-size: 0.875rem;
-            }
-        }
-
-        /* Ajustes para Select2 en móviles */
-        @media (max-width: 768px) {
-            .select2-container {
-                width: 100% !important;
-            }
-
-            .select2-selection {
-                min-height: 44px !important;
-            }
-
-            .select2-selection__rendered {
-                font-size: 0.875rem !important;
-            }
-        }
-
-        /* Ajustes para horario info */
-        @media (max-width: 480px) {
-            .horario-info {
-                padding: 0.75rem;
-            }
-
-            .horario-info p {
-                font-size: 0.875rem;
-            }
-        }
-
-        /* Ajustes para el footer */
-        @media (max-width: 768px) {
-            .footer-column {
-                margin-bottom: 2rem;
-            }
-        }
-
-        /* Ajustes generales de tipografía */
-        @media (max-width: 768px) {
-            .text-3xl {
-                font-size: 1.75rem;
-            }
-
-            .text-2xl {
-                font-size: 1.5rem;
-            }
-
-            .text-xl {
-                font-size: 1.25rem;
-            }
-
-            .text-lg {
-                font-size: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .text-3xl {
-                font-size: 1.5rem;
-            }
-
-            .text-2xl {
-                font-size: 1.25rem;
-            }
-
-            .text-xl {
-                font-size: 1.125rem;
-            }
-
-            .text-lg {
-                font-size: 0.875rem;
-            }
-        }
-
-        /* Ajustes específicos para el logo en móviles */
-        @media (max-width: 640px) {
-            .logo-container {
-                gap: 0.5rem;
-            }
-
-            .logo-img {
-                width: 3rem;
-                height: 3rem;
-            }
-
-            .logo-text {
-                font-size: 1rem;
-            }
-        }
-
-        /* Ajustes para espaciado general */
-        @media (max-width: 768px) {
-            .py-16 {
-                padding-top: 3rem;
-                padding-bottom: 3rem;
-            }
-
-            .mt-12 {
-                margin-top: 2rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .py-16 {
-                padding-top: 2rem;
-                padding-bottom: 2rem;
-            }
-
-            .mt-12 {
-                margin-top: 1.5rem;
-            }
-        }
+    font-variation-settings:
+        "FILL" 0,
+        "wght" 400,
+        "GRAD" 0,
+        "opsz" 24;
+}
+
+/* Estilos personalizados para mantener la funcionalidad */
+.categoria-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.categoria-item {
+    flex: 1;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background-color: #f6f7f8;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.categoria-item:hover {
+    border-color: #0f66bd;
+    transform: translateY(-2px);
+}
+
+.categoria-item.selected {
+    border-color: #0f66bd;
+    background-color: rgba(15, 102, 189, 0.1);
+}
+
+.categoria-item i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #0f66bd;
+}
+
+.categoria-item p {
+    font-weight: 500;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: #fff;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #0f66bd;
+    box-shadow: 0 0 0 3px rgba(15, 102, 189, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #0f66bd;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0a4d8c;
+}
+
+.btn-secondary {
+    background-color: #6b7280;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #4b5563;
+}
+
+/* MEJORAS ESPECÍFICAS PARA EL SELECTOR DE TRABAJADOR Y HORARIO */
+.horario-info {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #bae6fd;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.horario-info p {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+    color: #1e40af;
+    font-weight: 500;
+}
+
+.horario-info strong {
+    color: #1d4ed8;
+    font-weight: 700;
+}
+
+.error-message {
+    color: #dc2626;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* SELECT2 MEJORADO - TEXTO COMPLETAMENTE LEGIBLE */
+.select2-container--default .select2-selection--single {
+    background-color: #ffffff !important;
+    border: 2px solid #d1d5db !important;
+    border-radius: 0.75rem !important;
+    height: 52px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 1rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* TEXTO DEL SELECTOR - COMPLETAMENTE VISIBLE */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #1f2937 !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+    padding-left: 0 !important;
+    background-color: transparent !important;
+    opacity: 1 !important;
+}
+
+/* Placeholder visible */
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #6b7280 !important;
+    font-weight: 400 !important;
+    background-color: transparent !important;
+    opacity: 1 !important;
+}
+
+/* Cuando hay texto seleccionado */
+.select2-container--default .select2-selection--single .select2-selection__rendered:not([title=""]) {
+    color: #111827 !important;
+    font-weight: 600 !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    right: 12px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: #4b5563 transparent transparent transparent !important;
+}
+
+/* DROPDOWN MEJORADO - BUSCADOR VISIBLE */
+.select2-container--default .select2-dropdown {
+    border: 2px solid #e5e7eb !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 4px !important;
+    background-color: #ffffff !important;
+}
+
+/* BUSCADOR DENTRO DEL DROPDOWN */
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    border: 2px solid #d1d5db !important;
+    border-radius: 0.5rem !important;
+    padding: 0.75rem !important;
+    background-color: #ffffff !important;
+    color: #1f2937 !important;
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field:focus {
+    border-color: #0f66bd !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(15, 102, 189, 0.1) !important;
+}
+
+/* OPCIONES DEL DROPDOWN */
+.select2-container--default .select2-results__option {
+    padding: 0.875rem 1rem !important;
+    color: #374151 !important;
+    background-color: #ffffff !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #0f66bd !important;
+    color: #ffffff !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: #f0f9ff !important;
+    color: #0f66bd !important;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--single {
+    border-color: #0f66bd !important;
+    box-shadow: 0 0 0 3px rgba(15, 102, 189, 0.2) !important;
+}
+
+/* MODO OSCURO MEJORADO */
+.dark .categoria-item {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #e5e7eb;
+}
+
+.dark .categoria-item:hover {
+    border-color: #0f66bd;
+}
+
+.dark .categoria-item.selected {
+    border-color: #0f66bd;
+    background-color: rgba(15, 102, 189, 0.2);
+}
+
+.dark .form-group input,
+.dark .form-group select,
+.dark .form-group textarea {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #e5e7eb;
+}
+
+/* MODO OSCURO - SELECTOR DE TRABAJADOR COMPLETAMENTE LEGIBLE */
+.dark .select2-container--default .select2-selection--single {
+    background-color: #1f2937 !important;
+    border-color: #4b5563 !important;
+}
+
+.dark .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #f9fafb !important;
+    background-color: transparent !important;
+}
+
+.dark .select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #9ca3af !important;
+    background-color: transparent !important;
+}
+
+.dark .select2-container--default .select2-selection--single .select2-selection__rendered:not([title=""]) {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.dark .select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: #d1d5db transparent transparent transparent !important;
+}
+
+/* DROPDOWN EN MODO OSCURO */
+.dark .select2-container--default .select2-dropdown {
+    background-color: #1f2937 !important;
+    border-color: #4b5563 !important;
+}
+
+.dark .select2-container--default .select2-search--dropdown .select2-search__field {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    color: #f9fafb !important;
+}
+
+.dark .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+    border-color: #0f66bd !important;
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+}
+
+.dark .select2-container--default .select2-results__option {
+    background-color: #1f2937 !important;
+    color: #e5e7eb !important;
+    border-bottom-color: #374151 !important;
+}
+
+.dark .select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #0f66bd !important;
+    color: #ffffff !important;
+}
+
+.dark .select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: #1e3a5f !important;
+    color: #bfdbfe !important;
+}
+
+.dark .horario-info {
+    background: linear-gradient(135deg, #1e3a8a 0%, #0c4a6e 100%) !important;
+    border: 2px solid #0369a1 !important;
+}
+
+.dark .horario-info p {
+    color: #bfdbfe !important;
+}
+
+.dark .horario-info strong {
+    color: #93c5fd !important;
+}
+
+/* NUEVOS ESTILOS RESPONSIVOS */
+
+/* Menú hamburguesa */
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #475569;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+    }
+}
+
+.dark .menu-toggle {
+    color: #cbd5e1;
+}
+
+/* Menú móvil */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 300px;
+    height: 100vh;
+    background: white;
+    z-index: 60;
+    transition: right 0.3s ease;
+    padding: 2rem;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+.dark .mobile-menu {
+    background: #1e293b;
+}
+
+.mobile-menu.active {
+    right: 0;
+}
+
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.mobile-menu-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #475569;
+    cursor: pointer;
+}
+
+.dark .mobile-menu-close {
+    color: #cbd5e1;
+}
+
+.mobile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mobile-nav a {
+    color: #475569;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    transition: color 0.3s;
+}
+
+.dark .mobile-nav a {
+    color: #cbd5e1;
+    border-bottom: 1px solid #374151;
+}
+
+.mobile-nav a:hover {
+    color: #0f66bd;
+}
+
+/* Ajustes responsivos para Hero Section */
+@media (max-width: 768px) {
+    .hero-section {
+        height: 30vh;
+        min-height: 250px;
+    }
+
+    .hero-title {
+        font-size: 2rem !important;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-section {
+        height: 25vh;
+        min-height: 200px;
+    }
+
+    .hero-title {
+        font-size: 1.75rem !important;
+    }
+
+    .hero-subtitle {
+        font-size: 0.875rem !important;
+    }
+}
+
+/* Ajustes para categorías */
+@media (max-width: 768px) {
+    .categoria-container {
+        gap: 0.75rem;
+    }
+
+    .categoria-item {
+        min-width: 120px;
+        padding: 1rem 0.5rem;
+    }
+
+    .categoria-item i {
+        font-size: 1.5rem;
+    }
+
+    .categoria-item p {
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .categoria-container {
+        gap: 0.5rem;
+    }
+
+    .categoria-item {
+        min-width: 100px;
+        padding: 0.75rem 0.25rem;
+    }
+
+    .categoria-item i {
+        font-size: 1.25rem;
+    }
+
+    .categoria-item p {
+        font-size: 0.75rem;
+    }
+}
+
+/* Ajustes para formulario */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1.5rem !important;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.625rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-container {
+        padding: 1rem !important;
+    }
+
+    .form-group label {
+        font-size: 0.875rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Ajustes para Select2 en móviles */
+@media (max-width: 768px) {
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-selection {
+        min-height: 44px !important;
+    }
+
+    .select2-selection__rendered {
+        font-size: 1rem !important;
+    }
+
+    .select2-container--default .select2-selection--single {
+        height: 48px !important;
+        padding: 0 0.875rem !important;
+    }
+
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        padding: 0.625rem !important;
+        font-size: 1rem !important;
+    }
+
+    .horario-info {
+        padding: 1rem !important;
+    }
+}
+
+/* Ajustes para horario info */
+@media (max-width: 480px) {
+    .horario-info {
+        padding: 0.75rem;
+    }
+
+    .horario-info p {
+        font-size: 0.875rem;
+    }
+}
+
+/* Ajustes para el footer */
+@media (max-width: 768px) {
+    .footer-column {
+        margin-bottom: 2rem;
+    }
+}
+
+/* Ajustes generales de tipografía */
+@media (max-width: 768px) {
+    .text-3xl {
+        font-size: 1.75rem;
+    }
+
+    .text-2xl {
+        font-size: 1.5rem;
+    }
+
+    .text-xl {
+        font-size: 1.25rem;
+    }
+
+    .text-lg {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .text-3xl {
+        font-size: 1.5rem;
+    }
+
+    .text-2xl {
+        font-size: 1.25rem;
+    }
+
+    .text-xl {
+        font-size: 1.125rem;
+    }
+
+    .text-lg {
+        font-size: 0.875rem;
+    }
+}
+
+/* Ajustes específicos para el logo en móviles */
+@media (max-width: 640px) {
+    .logo-container {
+        gap: 0.5rem;
+    }
+
+    .logo-img {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .logo-text {
+        font-size: 1rem;
+    }
+}
+
+/* Ajustes para espaciado general */
+@media (max-width: 768px) {
+    .py-16 {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+    }
+
+    .mt-12 {
+        margin-top: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .py-16 {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+
+    .mt-12 {
+        margin-top: 1.5rem;
+    }
+}

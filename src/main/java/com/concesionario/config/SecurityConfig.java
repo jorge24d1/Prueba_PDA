@@ -76,7 +76,10 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout=true")
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/usuario/Inicio")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
                 .userDetailsService(userDetailsService());
