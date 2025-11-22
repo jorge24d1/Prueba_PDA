@@ -12,6 +12,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -35,15 +36,39 @@ public class PasswordResetService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
+    @Value("${app.base-url:}") // El valor puede estar vacío
+    private String configuredBaseUrl;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
 
     private static final long EXPIRE_TOKEN_AFTER_MINUTES = 30;
 
+    /**
+     * Obtiene la URL base automáticamente detectando el entorno
+     */
+    private String getBaseUrl() {
+        // 1. Si baseUrl está configurado explícitamente, úsalo
+        if (StringUtils.hasText(configuredBaseUrl)) {
+            return configuredBaseUrl;
+        }
+
+        // 2. Detectar si estamos en Azure App Service
+        String azureWebsiteHostname = System.getenv("WEBSITE_HOSTNAME");
+        if (azureWebsiteHostname != null && !azureWebsiteHostname.isEmpty()) {
+            // Estamos en Azure, usar HTTPS
+            return "https://" + azureWebsiteHostname;
+        }
+
+        // 3. Por defecto para desarrollo local
+        return "http://localhost:8080";
+    }
+
     public void initiatePasswordReset(String email) {
+        // Log para debugging
+        String currentBaseUrl = getBaseUrl();
+        System.out.println("🔗 PasswordReset - Usando BASE URL: " + currentBaseUrl);
+
         // Buscar primero en usuarios
         Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreoUser(email);
         if (usuarioOpt.isPresent()) {
@@ -176,6 +201,7 @@ public class PasswordResetService {
     }
 
     private void sendResetEmail(String email, String token, String tipoUsuario) {
+        String baseUrl = getBaseUrl();
         String resetLink = baseUrl + "/auth/reset-password?token=" + token;
 
         String tipoCuenta = "";
@@ -213,5 +239,10 @@ public class PasswordResetService {
         return usuarioRepository.findByCorreoUser(email).isPresent() ||
                 trabajadorRepository.findByCorreo(email).isPresent() ||
                 administradorRepository.findByCorreoAdmin(email).isPresent();
+    }
+
+    // Método para obtener la URL base (útil para testing)
+    public String getCurrentBaseUrl() {
+        return getBaseUrl();
     }
 }
