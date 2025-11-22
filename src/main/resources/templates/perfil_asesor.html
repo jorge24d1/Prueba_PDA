@@ -552,50 +552,141 @@
       return estados[estado] || 'estado-pendiente';
   }
 
-  // Manejar acciones de citas
-  function manejarAccionCita(accion, boton) {
-      switch(accion) {
-          case 'aprobar':
-              cambiarEstadoCita('Aprobada');
-              break;
-          case 'rechazar':
-              cambiarEstadoCita('Rechazada');
-              break;
-          case 'asignar-fecha':
-              mostrarModal('modal-fecha');
-              break;
-          case 'pendiente':
-              cambiarEstadoCita('Pendiente');
-              break;
-          case 'notas':
-              cargarNotasActuales();
-              mostrarModal('modal-notas');
-              break;
-      }
-  }
+  // Manejar acciones de citas - ACTUALIZADO
+function manejarAccionCita(accion, boton) {
+    switch(accion) {
+        case 'aprobar':
+            cambiarEstadoCita('Aprobada');
+            break;
+        case 'rechazar':
+            cambiarEstadoCita('Rechazada');
+            break;
+        case 'asignar-fecha':
+            mostrarModal('modal-fecha');
+            break;
+        case 'pendiente':
+            cambiarEstadoCita('Pendiente');
+            break;
+        case 'notas':
+            cargarNotasActuales();
+            mostrarModal('modal-notas');
+            break;
+    }
+}
 
   // Cambiar estado de cita
   async function cambiarEstadoCita(nuevoEstado) {
-      try {
-          const response = await fetch(`/asesor/citas/${citaActualId}/cambiar-estado`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-              },
-              body: `estado=${nuevoEstado}`
-          });
+    try {
+        const boton = event.target;
+        const textoOriginal = boton.innerHTML;
 
-          if (response.ok) {
-              mostrarNotificacion(`Estado cambiado a ${nuevoEstado}`, 'success');
-              await cargarCitas(); // Recargar la tabla
-          } else {
-              throw new Error('Error en la respuesta del servidor');
-          }
-      } catch (error) {
-          console.error('Error al cambiar estado:', error);
-          mostrarNotificacion('Error al cambiar el estado', 'error');
-      }
-  }
+        // Mostrar loading en el botón
+        boton.innerHTML = '<div class="loading-small"></div>';
+        boton.disabled = true;
+
+        const response = await fetch(`/asesor/citas/${citaActualId}/cambiar-estado`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `estado=${nuevoEstado}`
+        });
+
+        if (response.ok) {
+            mostrarNotificacion(`Estado cambiado a ${nuevoEstado}`, 'success');
+
+            // ACTUALIZACIÓN EN TIEMPO REAL - SIN ENDPOINTS EXTRAS
+            const fila = document.querySelector(`tr[data-id="${citaActualId}"]`);
+            if (fila) {
+                // 1. Actualizar el badge de estado
+                const badgeEstado = fila.querySelector('.estado-badge');
+                if (badgeEstado) {
+                    badgeEstado.className = `estado-badge ${obtenerClaseEstadoCita(nuevoEstado)}`;
+                    badgeEstado.textContent = nuevoEstado;
+                }
+
+                // 2. Actualizar los botones inmediatamente
+                const contenedorBotones = fila.querySelector(`#botones-cita-${citaActualId}`);
+                if (contenedorBotones) {
+                    contenedorBotones.innerHTML = generarBotonesCita(nuevoEstado, citaActualId);
+                }
+
+                // 3. Añadir animación de confirmación
+                fila.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
+                setTimeout(() => {
+                    fila.style.backgroundColor = '';
+                }, 1000);
+            }
+
+        } else {
+            throw new Error('Error en la respuesta del servidor');
+        }
+
+        // Restaurar botón
+        boton.innerHTML = textoOriginal;
+        boton.disabled = false;
+
+    } catch (error) {
+        console.error('Error al cambiar estado:', error);
+        mostrarNotificacion('Error al cambiar el estado', 'error');
+
+        // Restaurar botón en caso de error
+        if (event.target) {
+            event.target.innerHTML = textoOriginal;
+            event.target.disabled = false;
+        }
+    }
+}
+// Función para actualizar una fila de cita en tiempo real
+async function actualizarFilaCitaEnTiempoReal(citaId, nuevoEstado) {
+    try {
+        // Obtener datos actualizados de la cita específica
+        const response = await fetch(`/asesor/citas/${citaId}/datos`);
+        if (!response.ok) throw new Error('Error al obtener datos actualizados');
+
+        const citaActualizada = await response.json();
+
+        // Encontrar la fila en la tabla
+        const fila = document.querySelector(`tr[data-id="${citaId}"]`);
+        if (!fila) return;
+
+        // Actualizar el estado visual
+        const celdaEstado = fila.querySelector('td:nth-child(6)');
+        const badgeEstado = celdaEstado.querySelector('.estado-badge');
+
+        if (badgeEstado) {
+            badgeEstado.className = `estado-badge ${obtenerClaseEstadoCita(nuevoEstado)}`;
+            badgeEstado.textContent = nuevoEstado;
+        }
+
+        // Actualizar los botones
+        const celdaAcciones = fila.querySelector('td:nth-child(9)');
+        const contenedorBotones = celdaAcciones.querySelector(`#botones-cita-${citaId}`);
+
+        if (contenedorBotones) {
+            contenedorBotones.innerHTML = generarBotonesCita(nuevoEstado, citaId);
+        }
+
+        // Si hay notas actualizadas, actualizarlas también
+        if (citaActualizada.notasAdmin) {
+            const celdaNotas = fila.querySelector('td:nth-child(8)');
+            celdaNotas.textContent = citaActualizada.notasAdmin;
+        }
+
+        // Si se asignó fecha, actualizar
+        if (citaActualizada.fechaAsignada) {
+            const celdaFecha = fila.querySelector('td:nth-child(7)');
+            const fechaFormateada = new Date(citaActualizada.fechaAsignada).toLocaleDateString('es-ES') + ' ' +
+                                  new Date(citaActualizada.fechaAsignada).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+            celdaFecha.textContent = fechaFormateada;
+        }
+
+    } catch (error) {
+        console.error('Error al actualizar fila en tiempo real:', error);
+        // Si falla la actualización individual, recargar toda la tabla
+        await cargarCitas();
+    }
+}
 
   // Cargar notas actuales de la cita
   function cargarNotasActuales() {
@@ -607,62 +698,84 @@
   }
 
   // Confirmar asignación de fecha
-  async function confirmarFecha() {
-      const fecha = document.getElementById('fecha-asignacion').value;
-      const hora = document.getElementById('hora-asignacion').value;
+ // Confirmar asignación de fecha - VERSIÓN SIMPLIFICADA
+async function confirmarFecha() {
+    const fecha = document.getElementById('fecha-asignacion').value;
+    const hora = document.getElementById('hora-asignacion').value;
 
-      if (!fecha || !hora) {
-          mostrarNotificacion('Por favor selecciona fecha y hora', 'error');
-          return;
-      }
+    if (!fecha || !hora) {
+        mostrarNotificacion('Por favor selecciona fecha y hora', 'error');
+        return;
+    }
 
-      try {
-          const response = await fetch(`/asesor/citas/${citaActualId}/asignar-fecha`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-              },
-              body: `fecha=${fecha}&hora=${hora}`
-          });
+    try {
+        const response = await fetch(`/asesor/citas/${citaActualId}/asignar-fecha`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `fecha=${fecha}&hora=${hora}`
+        });
 
-          if (response.ok) {
-              mostrarNotificacion('Fecha asignada correctamente', 'success');
-              cerrarModal('modal-fecha');
-              await cargarCitas(); // Recargar la tabla
-          } else {
-              throw new Error('Error en la respuesta del servidor');
-          }
-      } catch (error) {
-          console.error('Error al asignar fecha:', error);
-          mostrarNotificacion('Error al asignar fecha', 'error');
-      }
-  }
+        if (response.ok) {
+            mostrarNotificacion('Fecha asignada correctamente', 'success');
+            cerrarModal('modal-fecha');
+
+            // ACTUALIZACIÓN EN TIEMPO REAL
+            const fila = document.querySelector(`tr[data-id="${citaActualId}"]`);
+            if (fila) {
+                // Actualizar la fecha en la tabla
+                const celdaFecha = fila.querySelector('td:nth-child(7)');
+                const fechaCompleta = `${fecha} ${hora}`;
+                const fechaFormateada = new Date(fechaCompleta).toLocaleDateString('es-ES') + ' ' +
+                                      new Date(fechaCompleta).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+                celdaFecha.textContent = fechaFormateada;
+
+                // Actualizar botones (por si cambia el estado automáticamente)
+                const contenedorBotones = fila.querySelector(`#botones-cita-${citaActualId}`);
+                if (contenedorBotones) {
+                    contenedorBotones.innerHTML = generarBotonesCita('Aprobada', citaActualId);
+                }
+            }
+        } else {
+            throw new Error('Error en la respuesta del servidor');
+        }
+    } catch (error) {
+        console.error('Error al asignar fecha:', error);
+        mostrarNotificacion('Error al asignar fecha', 'error');
+    }
+}
 
   // Guardar notas de la cita
   async function guardarNotas() {
-      const notas = document.getElementById('texto-notas').value;
+    const notas = document.getElementById('texto-notas').value;
 
-      try {
-          const response = await fetch(`/asesor/citas/${citaActualId}/guardar-notas`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-              },
-              body: `notas=${encodeURIComponent(notas)}`
-          });
+    try {
+        const response = await fetch(`/asesor/citas/${citaActualId}/guardar-notas`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `notas=${encodeURIComponent(notas)}`
+        });
 
-          if (response.ok) {
-              mostrarNotificacion('Notas guardadas correctamente', 'success');
-              cerrarModal('modal-notas');
-              await cargarCitas(); // Recargar la tabla
-          } else {
-              throw new Error('Error en la respuesta del servidor');
-          }
-      } catch (error) {
-          console.error('Error al guardar notas:', error);
-          mostrarNotificacion('Error al guardar notas', 'error');
-      }
-  }
+        if (response.ok) {
+            mostrarNotificacion('Notas guardadas correctamente', 'success');
+            cerrarModal('modal-notas');
+            // Actualizar solo las notas en tiempo real
+            const fila = document.querySelector(`tr[data-id="${citaActualId}"]`);
+            if (fila) {
+                const celdaNotas = fila.querySelector('td:nth-child(8)');
+                celdaNotas.textContent = notas || 'Sin notas';
+            }
+        } else {
+            throw new Error('Error en la respuesta del servidor');
+        }
+    } catch (error) {
+        console.error('Error al guardar notas:', error);
+        mostrarNotificacion('Error al guardar notas', 'error');
+    }
+}
 
   // Filtrar citas por estado
   function filtrarCitasPorEstado(estado) {
@@ -728,24 +841,49 @@
       }
   }
 
-  // Función para mostrar notificaciones
-  function mostrarNotificacion(mensaje, tipo) {
-      // Crear elemento de notificación
-      const notificacion = document.createElement('div');
-      notificacion.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-          tipo === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-      }`;
-      notificacion.textContent = mensaje;
+  // Función para mostrar notificaciones - VERSIÓN MEJORADA
+function mostrarNotificacion(mensaje, tipo) {
+    // Crear elemento de notificación
+    const notificacion = document.createElement('div');
+    notificacion.className = `fixed top-20 right-4 p-4 rounded-lg shadow-lg z-[100] border-l-4 transform transition-all duration-300 ${
+        tipo === 'success'
+            ? 'bg-green-50 text-green-800 border-green-500 dark:bg-green-900 dark:text-green-200'
+            : 'bg-red-50 text-red-800 border-red-500 dark:bg-red-900 dark:text-red-200'
+    }`;
 
-      document.body.appendChild(notificacion);
+    // Agregar icono según el tipo
+    const icono = tipo === 'success' ? '✅' : '❌';
+    notificacion.innerHTML = `
+        <div class="flex items-center">
+            <span class="text-lg mr-2">${icono}</span>
+            <span class="font-medium">${mensaje}</span>
+        </div>
+    `;
 
-      // Remover después de 3 segundos
-      setTimeout(() => {
-          if (document.body.contains(notificacion)) {
-              document.body.removeChild(notificacion);
-          }
-      }, 3000);
-  }
+    // Asegurarse de que esté por encima del navbar
+    notificacion.style.zIndex = '10000';
+    notificacion.style.maxWidth = '400px';
+    notificacion.style.minWidth = '300px';
+
+    document.body.appendChild(notificacion);
+
+    // Animación de entrada
+    setTimeout(() => {
+        notificacion.style.transform = 'translateX(0)';
+    }, 10);
+
+    // Remover después de 4 segundos con animación de salida
+    setTimeout(() => {
+        notificacion.style.transform = 'translateX(100%)';
+        notificacion.style.opacity = '0';
+
+        setTimeout(() => {
+            if (document.body.contains(notificacion)) {
+                document.body.removeChild(notificacion);
+            }
+        }, 300);
+    }, 4000);
+}
 
   // Funciones para manejar los modales
   function mostrarModal(modalId) {
