@@ -43,6 +43,11 @@
             line-height: 1.6;
         }
 
+        .btn-primary.w-auto {
+    width: auto !important;
+    flex: none !important;
+}
+
         .dark body {
             background-color: #101922;
             color: #e5e7eb;
@@ -1385,7 +1390,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="cargarUsuarios()" class="btn-primary mt-6 lg:mt-0">
+                            <button onclick="cargarUsuarios()"
+                                    class="mt-6 lg:mt-0 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center">
                                 <i class='bx bx-refresh mr-2'></i>Cargar Usuarios
                             </button>
                         </div>

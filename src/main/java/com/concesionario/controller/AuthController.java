@@ -51,11 +51,15 @@ public class AuthController {
         this.administradorService = administradorService;
     }
 
+
+
     @GetMapping("/login")
-    public String showLogin(@RequestParam(required = false) boolean error, Model model) {
+    public String showLogin(@RequestParam(required = false) boolean error,
+                            Model model) {
         if (error) {
             model.addAttribute("error", "Usuario o contraseña incorrectos");
         }
+
         return "usuario/login";
     }
 

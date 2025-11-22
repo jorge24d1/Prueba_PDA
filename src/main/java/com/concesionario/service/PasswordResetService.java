@@ -1,10 +1,11 @@
 package com.concesionario.service;
 
-
-// import com.concesionario.model.Trabajadores;
 import com.concesionario.model.Usuario;
-// import com.concesionario.repository.TrabajadoresRepository;
+import com.concesionario.model.Trabajador;
+import com.concesionario.model.Administrador;
 import com.concesionario.repository.UsuarioRepository;
+import com.concesionario.repository.TrabajadorRepository;
+import com.concesionario.repository.AdministradorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -22,8 +23,11 @@ public class PasswordResetService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // @Autowired
-    // private TrabajadoresRepository trabajadoresRepository;
+    @Autowired
+    private TrabajadorRepository trabajadorRepository;
+
+    @Autowired
+    private AdministradorRepository administradorRepository;
 
     @Autowired
     private JavaMailSender mailSender;
@@ -42,7 +46,6 @@ public class PasswordResetService {
     public void initiatePasswordReset(String email) {
         // Buscar primero en usuarios
         Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreoUser(email);
-
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
             String token = generateToken();
@@ -53,18 +56,29 @@ public class PasswordResetService {
             return;
         }
 
-        // Si no es usuario, buscar en trabajadores
-        // Optional<Trabajadores> trabajadorOpt = trabajadoresRepository.findByCorreoTAM(email);
+        // Buscar en trabajadores
+        Optional<Trabajador> trabajadorOpt = trabajadorRepository.findByCorreo(email);
+        if (trabajadorOpt.isPresent()) {
+            Trabajador trabajador = trabajadorOpt.get();
+            String token = generateToken();
+            trabajador.setResetPasswordToken(token);
+            trabajador.setResetPasswordTokenExpiry(LocalDateTime.now().plusMinutes(EXPIRE_TOKEN_AFTER_MINUTES));
+            trabajadorRepository.save(trabajador);
+            sendResetEmail(trabajador.getCorreo(), token, "trabajador");
+            return;
+        }
 
-        // if (trabajadorOpt.isPresent()) {
-        //     Trabajadores trabajador = trabajadorOpt.get();
-        //     String token = generateToken();
-        //     trabajador.setResetPasswordToken(token);
-        //     trabajador.setResetPasswordTokenExpiry(LocalDateTime.now().plusMinutes(EXPIRE_TOKEN_AFTER_MINUTES));
-        //     trabajadoresRepository.save(trabajador);
-        //     sendResetEmail(trabajador.getCorreoTAM(), token, "trabajador");
-        //     return;
-        // }
+        // Buscar en administradores
+        Optional<Administrador> administradorOpt = administradorRepository.findByCorreoAdmin(email);
+        if (administradorOpt.isPresent()) {
+            Administrador administrador = administradorOpt.get();
+            String token = generateToken();
+            administrador.setResetPasswordToken(token);
+            administrador.setResetPasswordTokenExpiry(LocalDateTime.now().plusMinutes(EXPIRE_TOKEN_AFTER_MINUTES));
+            administradorRepository.save(administrador);
+            sendResetEmail(administrador.getCorreoAdmin(), token, "administrador");
+            return;
+        }
 
         throw new RuntimeException("No se encontró ninguna cuenta con ese correo electrónico");
     }
@@ -72,13 +86,11 @@ public class PasswordResetService {
     public void resetPassword(String token, String newPassword) {
         // Buscar en usuarios
         Optional<Usuario> usuarioOpt = usuarioRepository.findByResetPasswordToken(token);
-
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
             if (isTokenExpired(usuario.getResetPasswordTokenExpiry())) {
                 throw new RuntimeException("El token ha expirado");
             }
-            // Encriptar la nueva contraseña
             usuario.setPasswordUser(passwordEncoder.encode(newPassword));
             usuario.setResetPasswordToken(null);
             usuario.setResetPasswordTokenExpiry(null);
@@ -87,20 +99,70 @@ public class PasswordResetService {
         }
 
         // Buscar en trabajadores
-        // Optional<Trabajadores> trabajadorOpt = trabajadoresRepository.findByResetPasswordToken(token);
+        Optional<Trabajador> trabajadorOpt = trabajadorRepository.findByResetPasswordToken(token);
+        if (trabajadorOpt.isPresent()) {
+            Trabajador trabajador = trabajadorOpt.get();
+            if (isTokenExpired(trabajador.getResetPasswordTokenExpiry())) {
+                throw new RuntimeException("El token ha expirado");
+            }
+            trabajador.setPassword(passwordEncoder.encode(newPassword));
+            trabajador.setResetPasswordToken(null);
+            trabajador.setResetPasswordTokenExpiry(null);
+            trabajadorRepository.save(trabajador);
+            return;
+        }
 
-        // if (trabajadorOpt.isPresent()) {
-        //     Trabajadores trabajador = trabajadorOpt.get();
-        //     if (isTokenExpired(trabajador.getResetPasswordTokenExpiry())) {
-        //         throw new RuntimeException("El token ha expirado");
-        //     }
-        //     // Encriptar la nueva contraseña
-        //     trabajador.setPassword(passwordEncoder.encode(newPassword));
-        //     trabajador.setResetPasswordToken(null);
-        //     trabajador.setResetPasswordTokenExpiry(null);
-        //     trabajadoresRepository.save(trabajador);
-        //     return;
-        // }
+        // Buscar en administradores
+        Optional<Administrador> administradorOpt = administradorRepository.findByResetPasswordToken(token);
+        if (administradorOpt.isPresent()) {
+            Administrador administrador = administradorOpt.get();
+            if (isTokenExpired(administrador.getResetPasswordTokenExpiry())) {
+                throw new RuntimeException("El token ha expirado");
+            }
+            administrador.setPasswordAdmin(passwordEncoder.encode(newPassword));
+            administrador.setResetPasswordToken(null);
+            administrador.setResetPasswordTokenExpiry(null);
+            administradorRepository.save(administrador);
+            return;
+        }
+
+        throw new RuntimeException("Token inválido");
+    }
+
+    public void validateToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            throw new RuntimeException("Token inválido");
+        }
+
+        // Buscar en usuarios
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByResetPasswordToken(token);
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            if (isTokenExpired(usuario.getResetPasswordTokenExpiry())) {
+                throw new RuntimeException("El token ha expirado");
+            }
+            return; // Token válido
+        }
+
+        // Buscar en trabajadores
+        Optional<Trabajador> trabajadorOpt = trabajadorRepository.findByResetPasswordToken(token);
+        if (trabajadorOpt.isPresent()) {
+            Trabajador trabajador = trabajadorOpt.get();
+            if (isTokenExpired(trabajador.getResetPasswordTokenExpiry())) {
+                throw new RuntimeException("El token ha expirado");
+            }
+            return; // Token válido
+        }
+
+        // Buscar en administradores
+        Optional<Administrador> administradorOpt = administradorRepository.findByResetPasswordToken(token);
+        if (administradorOpt.isPresent()) {
+            Administrador administrador = administradorOpt.get();
+            if (isTokenExpired(administrador.getResetPasswordTokenExpiry())) {
+                throw new RuntimeException("El token ha expirado");
+            }
+            return; // Token válido
+        }
 
         throw new RuntimeException("Token inválido");
     }
@@ -116,13 +178,40 @@ public class PasswordResetService {
     private void sendResetEmail(String email, String token, String tipoUsuario) {
         String resetLink = baseUrl + "/auth/reset-password?token=" + token;
 
+        String tipoCuenta = "";
+        switch (tipoUsuario) {
+            case "usuario":
+                tipoCuenta = "cliente";
+                break;
+            case "trabajador":
+                tipoCuenta = "trabajador";
+                break;
+            case "administrador":
+                tipoCuenta = "administrador";
+                break;
+        }
+
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
         message.setTo(email);
-        message.setSubject("Restablecimiento de contraseña");
-        message.setText("Para restablecer tu contraseña, haz clic en el siguiente enlace: " + resetLink +
-                "\n\nEste enlace expirará en 30 minutos.");
+        message.setSubject("Restablecimiento de contraseña - NextGenMotors");
+        message.setText(
+                "Hola,\n\n" +
+                        "Has solicitado restablecer tu contraseña de " + tipoCuenta + " en NextGenMotors.\n\n" +
+                        "Para crear una nueva contraseña, haz clic en el siguiente enlace:\n" +
+                        resetLink +
+                        "\n\nEste enlace expirará en " + EXPIRE_TOKEN_AFTER_MINUTES + " minutos." +
+                        "\n\nSi no solicitaste este restablecimiento, por favor ignora este mensaje." +
+                        "\n\nSaludos cordiales,\nEquipo NextGenMotors"
+        );
 
         mailSender.send(message);
+    }
+
+    // Método adicional para verificar si un email existe en cualquier tipo de cuenta
+    public boolean emailExists(String email) {
+        return usuarioRepository.findByCorreoUser(email).isPresent() ||
+                trabajadorRepository.findByCorreo(email).isPresent() ||
+                administradorRepository.findByCorreoAdmin(email).isPresent();
     }
 }
