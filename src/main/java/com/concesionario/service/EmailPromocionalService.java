@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -20,8 +21,8 @@ public class EmailPromocionalService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
+    @Value("${app.base-url:}") // El valor puede estar vacío
+    private String configuredBaseUrl;
 
     private final JavaMailSender mailSender;
     private final UsuarioRepository usuarioRepository;
@@ -35,6 +36,23 @@ public class EmailPromocionalService {
         this.vehiculoRepository = vehiculoRepository;
     }
 
+    private String getBaseUrl() {
+        // 1. Si baseUrl está configurado explícitamente, úsalo
+        if (StringUtils.hasText(configuredBaseUrl)) {
+            return configuredBaseUrl;
+        }
+
+        // 2. Detectar si estamos en Azure App Service
+        String azureWebsiteHostname = System.getenv("WEBSITE_HOSTNAME");
+        if (azureWebsiteHostname != null && !azureWebsiteHostname.isEmpty()) {
+            // Ya estás en Azure, usa HTTPS
+            return "https://" + azureWebsiteHostname;
+        }
+
+        // 3. Por defecto para desarrollo local
+        return "http://localhost:8080";
+    }
+
     public void enviarPromocionVehiculo(String vehiculoId) {
         try {
             Vehiculo vehiculo = vehiculoRepository.findById(vehiculoId)
@@ -46,7 +64,9 @@ public class EmailPromocionalService {
                 throw new RuntimeException("No hay usuarios registrados");
             }
 
-
+            // Log para debugging - ver qué URL se está usando
+            String currentBaseUrl = getBaseUrl();
+            System.out.println("🔗 Usando BASE URL: " + currentBaseUrl);
 
             int exitosos = 0;
             int fallidos = 0;
@@ -55,17 +75,14 @@ public class EmailPromocionalService {
                 try {
                     enviarCorreoHtmlConImagen(usuario, vehiculo);
                     exitosos++;
-                    // Pausa más corta
                     Thread.sleep(50);
-
                 } catch (Exception e) {
-                    System.err.println(" Error enviando a: " + usuario.getCorreoUser() + " - " + e.getMessage());
-                    e.printStackTrace();
+                    System.err.println("❌ Error enviando a: " + usuario.getCorreoUser() + " - " + e.getMessage());
                     fallidos++;
                 }
             }
 
-            System.out.println("Envío masivo completado: " + exitosos + " exitosos, " + fallidos + " fallidos");
+            System.out.println("✅ Envío masivo completado: " + exitosos + " exitosos, " + fallidos + " fallidos");
 
         } catch (Exception e) {
             throw new RuntimeException("Error en envío masivo: " + e.getMessage());
@@ -89,7 +106,6 @@ public class EmailPromocionalService {
         helper.setText(contenidoHtml, true);
 
         mailSender.send(message);
-
     }
 
     private String crearContenidoHtmlSimple(Usuario usuario, Vehiculo vehiculo) {
@@ -99,9 +115,9 @@ public class EmailPromocionalService {
                 vehiculo.getImagenUrl() :
                 "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80";
 
-        String urlVehiculo = baseUrl + "/vehiculos/explorar/" + vehiculo.getId();
+        // Usar getBaseUrl() aquí para obtener la URL correcta
+        String urlVehiculo = getBaseUrl() + "/vehiculos/explorar/" + vehiculo.getId();
 
-        // HTML MÁS SIMPLE - sin caracteres problemáticos
         return "<!DOCTYPE html>" +
                 "<html>" +
                 "<head>" +
