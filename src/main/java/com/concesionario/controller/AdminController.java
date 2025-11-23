@@ -101,6 +101,7 @@ public class AdminController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
+
         // Validación básica de días de trabajo
         if (diasTrabajo == null || diasTrabajo.isEmpty()) {
             model.addAttribute("error", "Debe seleccionar al menos un día de trabajo");
