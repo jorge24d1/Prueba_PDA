@@ -253,12 +253,18 @@
         }
 
         /* Estilos para testimonios */
+
+
+        /* Estilos para testimonios */
         .testimonial-card {
             padding: 2rem;
             border: 1px solid #e5e7eb;
             border-radius: 0.75rem;
             background-color: #f6f7f8;
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         @media (max-width: 768px) {
@@ -277,6 +283,7 @@
             color: #4b5563;
             margin-bottom: 1.5rem;
             line-height: 1.6;
+            flex-grow: 1; /* Esto hace que el texto ocupe el espacio disponible */
         }
 
         @media (max-width: 480px) {
@@ -290,6 +297,7 @@
             display: flex;
             align-items: center;
             gap: 1rem;
+            margin-top: auto; /* Esto empuja el autor hacia abajo */
         }
 
         @media (max-width: 480px) {
@@ -303,12 +311,29 @@
             height: 3rem;
             background-color: #d1d5db;
             border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0; /* Evita que el avatar se reduzca */
+        }
+
+        /* NUEVOS ESTILOS PARA LOS ICONOS DENTRO DE LOS AVATARES */
+        .author-avatar i {
+            font-size: 1rem; /* Tamaño del icono */
+            color: #6b7280; /* Color del icono que combine con el fondo */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         @media (max-width: 480px) {
             .author-avatar {
                 width: 2.5rem;
                 height: 2.5rem;
+            }
+
+            .author-avatar i {
+                font-size: 0.875rem; /* Icono más pequeño en móviles */
             }
         }
 
@@ -333,6 +358,28 @@
             .author-info p {
                 font-size: 0.75rem;
             }
+        }
+
+        /* Modo oscuro */
+        .dark .testimonial-card {
+            background-color: #1f2937;
+            border-color: #374151;
+        }
+
+        .dark .testimonial-text {
+            color: #d1d5db;
+        }
+
+        .dark .author-info h4 {
+            color: #f9fafb;
+        }
+
+        .dark .author-avatar {
+            background-color: #4b5563;
+        }
+
+        .dark .author-avatar i {
+            color: #d1d5db; /* Icono más claro en modo oscuro */
         }
 
         /* Estilos para contacto */
