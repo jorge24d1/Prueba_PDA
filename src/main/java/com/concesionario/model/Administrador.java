@@ -10,7 +10,9 @@ public class Administrador {
 
     @Id
     private String id;
-
+    public boolean tieneRol(Rol rol) {
+        return this.rol != null && this.rol.equals(rol);
+    }
     private String nombreAdmin;
     private String apellidoAdmin;
 

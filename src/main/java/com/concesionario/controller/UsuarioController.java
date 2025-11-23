@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import com.concesionario.model.*;
 import com.concesionario.repository.TrabajadorRepository;
-import com.concesionario.service.TrabajadorDetailsService;
+import com.concesionario.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,14 +24,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.concesionario.repository.UsuarioRepository;
-import com.concesionario.service.CitaService;
-import com.concesionario.service.UsuarioService;
-import com.concesionario.service.VehiculoService;
 
 @Controller
 @RequestMapping("/usuario")
 public class UsuarioController {
 
+    @Autowired
+    private AdministradorService administradorService;
     @Autowired
     private CitaService citaService;
     @Autowired
@@ -53,7 +52,18 @@ public class UsuarioController {
     public String verPerfil(Model model, Principal principal) {
         String email = principal.getName();
 
-        // Primero verificar si es trabajador
+
+        try {
+            Administrador administrador = administradorService.findByCorreoAdmin(email);
+            if (administrador != null && administrador.tieneRol(Rol.ADMINISTRADOR)) {
+                return "redirect:/admin/Dashboard";
+            }
+        } catch (Exception e) {
+
+            System.out.println("No es administrador: " + e.getMessage());
+        }
+
+
         try {
             Trabajador trabajador = trabajadorDetailsService.findByCorreo(email);
 
@@ -67,13 +77,14 @@ public class UsuarioController {
             } else if (trabajador.tieneRol(Rol.TRABAJADOR)) {
                 return "redirect:/trabajador/dashboard";
             }
-            // Si es trabajador pero no tiene rol específico, continuar como usuario normal
+
 
         } catch (Exception e) {
-            // No es trabajador, continuar como usuario normal
+
+            System.out.println("No es trabajador: " + e.getMessage());
         }
 
-        // Lógica original para usuarios normales
+
         Usuario usuario = usuarioService.findByCorreoUser(email);
         List<Cita> citas = citaService.obtenerCitasPorUsuarioId(usuario.getId());
 

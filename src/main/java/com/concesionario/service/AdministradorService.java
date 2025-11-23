@@ -40,4 +40,9 @@ public class AdministradorService {
 
         administradorRepository.save(admin);
     }
+    public Administrador findByCorreoAdmin(String email) {
+        return administradorRepository.findByCorreoAdmin(email)
+                .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
+    }
+
 }
