@@ -56,9 +56,21 @@
                     </nav>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button class="rounded-full p-2 text-gray-600 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
-                        <a class="fas fa-user" href="/usuario/perfil"></a>
-                    </button>
+                    <!-- Usuario NO autenticado - Mostrar Iniciar Sesión -->
+                    <div th:if="${#authorization.expression('!isAuthenticated()')}">
+                        <a href="/login" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors hidden sm:block">Iniciar sesión</a>
+                        <button class="rounded-full p-2 text-gray-600 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors sm:hidden">
+                            <a class="fas fa-sign-in-alt" href="/login"></a>
+                        </button>
+                    </div>
+
+                    <!-- Usuario autenticado - Mostrar solo el icono de perfil -->
+                    <div th:if="${#authorization.expression('isAuthenticated()')}">
+                        <button class="rounded-full p-2 text-gray-600 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
+                            <a class="fas fa-user" href="/usuario/perfil"></a>
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </div>
