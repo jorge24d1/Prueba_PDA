@@ -6,17 +6,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import java.util.Collection;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -37,19 +42,16 @@ public class SecurityConfig {
                                 "/terminos",
                                 "/cookies",
                                 "/registro-admin",
-
                                 "/usuario",
                                 "/registro",
-                                "/vehiculos"
-                                ,"/vehiculos/explorar/{id}",
+                                "/vehiculos",
+                                "/vehiculos/explorar/{id}",
                                 "/styles4.css",
                                 "/images/**",
                                 "/nosotros",
                                 "/garantias",
                                 "/credito",
                                 "/api/chatbot/mensaje",
-
-
                                 "/login",
                                 "/usuario/agendamiento",
                                 "/usuario/loginup",
@@ -58,9 +60,7 @@ public class SecurityConfig {
                                 "/STloginup.css",
                                 "/uploads/**",
                                 "/auth/**"
-
                         ).permitAll()
-                        // ✅ NUEVO: Protección para roles específicos de trabajadores
                         .requestMatchers("/perfil_gestor").hasRole("TRB_GESTOR")
                         .requestMatchers("/perfil_analisis").hasRole("TRB_ANALISIS")
                         .requestMatchers("/perfil_asesor").hasRole("TRB_ASESOR")
@@ -82,6 +82,15 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
+                // ✅ CONFIGURACIÓN MEJORADA: Control de sesiones concurrentes
+                .sessionManagement(session -> session
+                        .sessionFixation().migrateSession() // Protege contra ataques de fixation
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false) // Invalida la sesión anterior
+                        .expiredUrl("/login?expired=true")
+                        .sessionRegistry(sessionRegistry()) // Registro de sesiones activas
+                )
+
                 .userDetailsService(userDetailsService());
 
         return http.build();
@@ -101,7 +110,6 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (request, response, authentication) -> {
-            // ✅ NUEVA LÓGICA: Redirección inteligente por roles
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
             if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_TRB_GESTOR"))) {
@@ -123,6 +131,17 @@ public class SecurityConfig {
                 response.sendRedirect("/usuario/Inicio");
             }
         };
+    }
+
+    // ✅ BEANS NECESARIOS PARA EL CONTROL DE SESIONES
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 
     @Bean
