@@ -46,7 +46,7 @@ import java.util.Arrays;
 public class TrabajadorController {
 
     @Autowired
-    private EmailPromocionalService emailPromocionalService;
+    private EmailService EmailService;
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -388,7 +388,7 @@ public class TrabajadorController {
             System.out.println("🔄 Iniciando envío masivo por asesor: " + asesor.getNombre());
 
             // Enviar promoción masiva
-            emailPromocionalService.enviarPromocionVehiculo(id);
+            EmailService.enviarPromocionVehiculo(id);
 
             // Registrar la acción
             System.out.println("✅ Promoción masiva completada por asesor: " + asesor.getNombre());

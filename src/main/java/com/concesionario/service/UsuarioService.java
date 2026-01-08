@@ -15,7 +15,7 @@ import java.util.Optional;
 public class UsuarioService {
 
     @Autowired
-    private EmailBienvenidaService emailBienvenidaService;
+    private EmailService EmailService;
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -43,7 +43,7 @@ public class UsuarioService {
         usuario.setFechaCreacion(LocalDateTime.now());
         usuario.setRol(rol);
 
-        emailBienvenidaService.enviarCorreoBienvenida(email, nombre, apellido);
+        EmailService.enviarCorreoBienvenida(email, nombre, apellido);
 
         usuarioRepository.save(usuario);
     }
