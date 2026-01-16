@@ -10,6 +10,7 @@ import com.concesionario.repository.UsuarioRepository;
 import com.concesionario.repository.VehiculoRepository;
 import com.concesionario.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -217,7 +218,24 @@ public class TrabajadorController {
 
         return observaciones.toString();
     }
+    @GetMapping("/gestor/descargar-analisis-rendimiento")
+    public ResponseEntity<InputStreamResource> descargarAnalisisRendimiento() {
+        try {
+            ByteArrayInputStream in = prospectoService.generarReporteRendimientoMensual();
 
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=Analisis_Rendimiento_Asesores.xlsx");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(new InputStreamResource(in));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 
 

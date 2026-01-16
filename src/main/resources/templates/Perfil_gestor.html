@@ -243,14 +243,18 @@
 
                 <div class="metric-card flex justify-between items-center">
                     <div>
-                        <h3 class="font-bold">Análisis de Rendimiento</h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Generado: 10/10/2024</p>
+                        <h3 class="font-bold">Análisis de Rendimiento - Asesores</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            Reporte Excel con análisis mensual de prospectos y ventas
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            ✅ Total prospectos | ✅ Ventas por asesor | ✅ Tasa de conversión
+                        </p>
                     </div>
-                    <button class="btn-gestor">
-                        <i class="fas fa-download mr-2"></i>Descargar
-                    </button>
+                    <a th:href="@{/gestor/descargar-analisis-rendimiento}" class="btn-gestor">
+                        <i class="fas fa-file-excel mr-2"></i>Descargar Excel
+                    </a>
                 </div>
-            </div>
         </section>
     </main>
 </div>
