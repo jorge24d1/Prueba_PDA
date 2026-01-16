@@ -12,19 +12,10 @@ public class VehiculoRecomendacionService {
     private final VehiculoService vehiculoService;
     private final GeminiAIService geminiAIService;
 
-    private static final int MINIMUM_SCORE_THRESHOLD = 5;
-
     // ✅ NUEVAS VARIABLES PARA ROTACIÓN
     private String ultimaBusqueda;
     private int indiceRotacion = 0;
     private Vehiculo ultimoVehiculoRecomendado;
-
-    // Helper DTO (inner class) para guardar el puntaje
-    private static class VehiculoConPuntaje {
-        Vehiculo vehiculo;
-        int puntaje;
-        VehiculoConPuntaje(Vehiculo v, int p) { this.vehiculo = v; this.puntaje = p; }
-    }
 
     public VehiculoRecomendacionService(VehiculoService vehiculoService,
                                         GeminiAIService geminiAIService) {
@@ -74,37 +65,31 @@ public class VehiculoRecomendacionService {
     }
 
     /**
-     * ✅ FILTRAR VEHÍCULOS (SOLUCIÓN CON SCORING + UMBRAL)
+     * ✅ FILTRAR VEHÍCULOS (Versión simplificada para dar Contexto a Gemini)
+     * En lugar de filtrar estrictamente, pasamos los vehículos al LLM para que él decida.
+     * Si son muchos, podríamos limitar a los 20 más relevantes por palabras clave, 
+     * pero para un inventario manejable, mejor pasar contexto amplio.
      */
     private List<Vehiculo> filtrarVehiculosBasico(List<Vehiculo> vehiculos, String mensaje) {
-        String mensajeLower = mensaje.toLowerCase();
-        System.out.println("🔍 BUSCANDO (v3 con Umbral): '" + mensaje + "' -> '" + mensajeLower + "'");
-
-        // 1. Calcular puntaje para CADA vehículo
-        List<VehiculoConPuntaje> vehiculosConPuntaje = vehiculos.stream()
-                .map(vehiculo -> {
-                    int puntaje = calcularPuntaje(vehiculo, mensajeLower);
-                    return new VehiculoConPuntaje(vehiculo, puntaje);
+        // Para máxima "inteligencia", le damos al modelo casi todo y dejamos que él razone.
+        // Solo filtramos si la lista es enorme, pero aquí priorizamos la capacidad semántica de Gemini.
+        
+        // Si hay más de 20 vehículos, hacemos un filtro ligero por coincidencia de texto muy básica
+        if (vehiculos.size() > 20) {
+            String mensajeLower = mensaje.toLowerCase();
+            return vehiculos.stream()
+                .sorted((v1, v2) -> {
+                    // Ordenar por relevancia simple para cortar los menos probables
+                    int s1 = calcularPuntaje(v1, mensajeLower);
+                    int s2 = calcularPuntaje(v2, mensajeLower);
+                    return Integer.compare(s2, s1);
                 })
-                .filter(vp -> vp.puntaje >= MINIMUM_SCORE_THRESHOLD)
-                .sorted((vp1, vp2) -> Integer.compare(vp2.puntaje, vp1.puntaje))
+                .limit(15) // Pasar los top 15 al prompt
                 .collect(Collectors.toList());
-
-        // 2. Si NADA superó el umbral, la lista estará vacía
-        if (vehiculosConPuntaje.isEmpty()) {
-            System.out.println("🚫 No se encontraron vehículos con el puntaje mínimo (" + MINIMUM_SCORE_THRESHOLD + ").");
-            return List.of();
         }
-
-        // 3. Convertir de nuevo a List<Vehiculo> (los 5 mejores)
-        List<Vehiculo> filtrados = vehiculosConPuntaje.stream()
-                .map(vp -> vp.vehiculo)
-                .limit(5)
-                .collect(Collectors.toList());
-
-        System.out.println("📊 RESULTADOS FILTRADOS (Umbral " + MINIMUM_SCORE_THRESHOLD + "): " + filtrados.size() + " vehículos");
-        filtrados.forEach(v -> System.out.println("   - " + v.getMarca() + " " + v.getModelo() + " | Categoría: " + v.getCategoria()));
-        return filtrados;
+        
+        // Si son pocos, pasamos todos para que Gemini tenga vision global
+        return vehiculos;
     }
 
     /**

@@ -34,6 +34,9 @@ public class AsesorRestController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @GetMapping("/prospectos")
     public List<ProspectoDTO> obtenerProspectos(Principal principal) {
         try {
@@ -186,6 +189,16 @@ public class AsesorRestController {
                     .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
             cita.setEstado(estado);
             citaRepository.save(cita);
+
+            // 🔔 NOTIFICACIÓN PUSH
+            if (cita.getUsuario() != null) {
+               notificationService.enviarNotificacion(
+                   cita.getUsuario().getId(), 
+                   "Actualización de Cita", 
+                   "Tu cita ha cambiado de estado a: " + estado
+               );
+            }
+
             return ResponseEntity.ok("OK");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
@@ -204,6 +217,15 @@ public class AsesorRestController {
             LocalDateTime fechaHora = LocalDateTime.parse(fecha + "T" + hora);
             cita.setFechaAsignada(fechaHora);
             citaRepository.save(cita);
+
+            // 🔔 NOTIFICACIÓN PUSH
+            if (cita.getUsuario() != null) {
+               notificationService.enviarNotificacion(
+                   cita.getUsuario().getId(), 
+                   "Cita Asignada", 
+                   "Tu cita ha sido programada para el " + fecha + " a las " + hora
+               );
+            }
 
             return ResponseEntity.ok("OK");
         } catch (Exception e) {

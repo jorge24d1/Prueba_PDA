@@ -36,6 +36,7 @@ public class Usuario {
     private String clientePotencial; // Si, No
     private Double probabilidad;
     private String observaciones;
+    private String fcmToken;
 
     // Constructor vacío
     public Usuario() {
@@ -185,5 +186,13 @@ public class Usuario {
 
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 }
