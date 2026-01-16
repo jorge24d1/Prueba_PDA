@@ -1,68 +1,77 @@
 package com.concesionario.service;
 
 import com.concesionario.dto.ProspectoDTO;
-import com.concesionario.model.Cita;
-import com.concesionario.repository.CitaRepository;
-import com.concesionario.repository.UsuarioRepository;
+import com.concesionario.model.Prospecto;
+import com.concesionario.repository.ProspectoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-// En tu CitaService o un nuevo ProspectoService
 @Service
 public class ProspectoService {
 
     @Autowired
-    private CitaRepository citaRepository;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private ProspectoRepository prospectoRepository;
 
     public List<ProspectoDTO> obtenerProspectosParaAsesor(String asesorId) {
-        // Obtener todas las citas asignadas a este asesor
-        List<Cita> citasAsesor = citaRepository.findByTrabajadorId(asesorId);
-
-        // Agrupar por usuario y obtener la última cita de cada uno
-        Map<String, Cita> ultimasCitasPorUsuario = citasAsesor.stream()
-                .collect(Collectors.toMap(
-                        cita -> cita.getUsuario().getId(),
-                        Function.identity(),
-                        (cita1, cita2) -> cita1.getFechaCreacion().isAfter(cita2.getFechaCreacion()) ? cita1 : cita2
-                ));
-
-        // Convertir a DTOs
-        return ultimasCitasPorUsuario.values().stream()
+        List<Prospecto> prospectos = prospectoRepository.findByTrabajadorId(asesorId);
+        return prospectos.stream()
                 .map(this::convertirAProspectoDTO)
                 .collect(Collectors.toList());
     }
 
-    private ProspectoDTO convertirAProspectoDTO(Cita cita) {
+    public void registrarProspectoManual(String nombre, String apellido, String correo, String telefono, String vehiculoInteres, String asesorId, String observaciones) {
+        Prospecto prospecto = new Prospecto();
+        prospecto.setNombre(nombre);
+        prospecto.setApellido(apellido);
+        prospecto.setCorreo(correo);
+        prospecto.setTelefono(telefono);
+        prospecto.setVehiculoInteres(vehiculoInteres);
+        prospecto.setTrabajadorId(asesorId);
+        prospecto.setObservaciones(observaciones);
+        prospecto.setOrigen("Presencial");
+        prospecto.setEstado("Nuevo");
+        prospecto.setFechaRegistro(LocalDateTime.now());
+        
+        prospectoRepository.save(prospecto);
+    }
+
+    private ProspectoDTO convertirAProspectoDTO(Prospecto prospecto) {
         ProspectoDTO dto = new ProspectoDTO();
-        dto.setUsuarioId(cita.getUsuario().getId());
-
-        // ✅ CORREGIR: Usar los campos correctos del UsuarioDTO
-        dto.setNombreCompleto(cita.getNombres() + " " + cita.getApellidos());
-        dto.setEmail(cita.getCorreoElectronico());
-        dto.setTelefono(cita.getTelefono());
-        dto.setVehiculoInteres(cita.getNombreVehiculo());
-        dto.setEstado(cita.getEstado());
-        dto.setUltimoContacto(cita.getFechaCreacion());
-        dto.setProximaAccion(cita.getFechaAsignada());
-        dto.setCitaId(cita.getId());
-
+        dto.setId(prospecto.getId());
+        dto.setNombreCompleto(prospecto.getNombre() + " " + prospecto.getApellido());
+        dto.setEmail(prospecto.getCorreo());
+        dto.setTelefono(prospecto.getTelefono());
+        dto.setVehiculoInteres(prospecto.getVehiculoInteres());
+        dto.setEstado(prospecto.getEstado());
+        dto.setUltimoContacto(prospecto.getUltimoContacto() != null ? prospecto.getUltimoContacto() : prospecto.getFechaRegistro());
+        dto.setOrigen(prospecto.getOrigen());
+        dto.setObservaciones(prospecto.getObservaciones());
         return dto;
     }
 
-    public void cambiarEstadoContactado(String citaId) {
-        Cita cita = citaRepository.findById(citaId)
-                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
-        cita.setEstado("Contactado");
-        citaRepository.save(cita);
+    public void cambiarEstadoContactado(String prospectoId) {
+        Prospecto prospecto = prospectoRepository.findById(prospectoId)
+                .orElseThrow(() -> new RuntimeException("Prospecto no encontrado"));
+        
+        // Solo cambiar estado a "Contactado" si está en "Nuevo". 
+        // Si ya está en una fase avanzada (En Proceso, Financiación, etc.), NO cambiar el estado.
+        if ("Nuevo".equalsIgnoreCase(prospecto.getEstado())) {
+            prospecto.setEstado("Contactado");
+        }
+        
+        prospecto.setUltimoContacto(LocalDateTime.now());
+        prospectoRepository.save(prospecto);
+    }
+
+    public void actualizarEstadoProspecto(String prospectoId, String nuevoEstado) {
+        Prospecto prospecto = prospectoRepository.findById(prospectoId)
+                .orElseThrow(() -> new RuntimeException("Prospecto no encontrado"));
+        prospecto.setEstado(nuevoEstado);
+        prospecto.setUltimoContacto(LocalDateTime.now());
+        prospectoRepository.save(prospecto);
     }
 }
-

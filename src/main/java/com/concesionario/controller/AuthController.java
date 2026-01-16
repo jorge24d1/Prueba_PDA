@@ -3,15 +3,13 @@ package com.concesionario.controller;
 import com.concesionario.model.Usuario;
 import com.concesionario.model.Administrador;
 import com.concesionario.model.Rol;
-import com.concesionario.repository.UsuarioRepository;
-import com.concesionario.repository.AdministradorRepository;
-import com.concesionario.repository.TrabajadorRepository;
+
 import com.concesionario.service.UsuarioService;
 import com.concesionario.service.AdministradorService;
 import com.concesionario.service.ValidacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,28 +25,15 @@ public class AuthController {
     }
 
     @Autowired
-    private AdministradorRepository administradorRepository;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private TrabajadorRepository trabajadorRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private ValidacionService validacionService;
 
     private final UsuarioService usuarioService;
     private final AdministradorService administradorService;
 
-    public AuthController(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, UsuarioService usuarioService, AdministradorService administradorService) {
-        this.usuarioRepository = usuarioRepository;
-        this.passwordEncoder = passwordEncoder;
+    public AuthController(UsuarioService usuarioService, AdministradorService administradorService, ValidacionService validacionService) {
         this.usuarioService = usuarioService;
         this.administradorService = administradorService;
+        this.validacionService = validacionService;
     }
 
 

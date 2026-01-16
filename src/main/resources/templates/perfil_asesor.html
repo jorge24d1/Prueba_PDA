@@ -83,39 +83,38 @@
     </section>
 
     <!-- ===================== PROSPECTOS SECTION ===================== -->
+    <!-- ===================== PROSPECTOS SECTION (Diseño Limpio) ===================== -->
     <section id="prospectos">
       <div class="head-title mb-6">
         <h2 class="text-2xl font-bold">Gestión de Prospectos</h2>
-        <p class="text-gray-600 dark:text-gray-300">Administra tus clientes potenciales y su proceso de venta</p>
+        <p class="text-gray-600 dark:text-gray-300">Administra tus clientes potenciales</p>
       </div>
 
-      <div class="table-container">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold">Mis Prospectos</h3>
-
+      <div class="table-container bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-bold text-gray-800"><i class="fas fa-users mr-2 text-blue-600"></i>Mis Prospectos</h3>
+          <button onclick="mostrarModal('modal-registro')" class="btn-asesor flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-sm transition transform hover:scale-105">
+            <i class="fas fa-plus"></i> Nuevo Prospecto
+          </button>
         </div>
-        <table id="tabla-prospectos" class="display">
-          <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Contacto</th>
-            <th>Vehículo Interés</th>
-            <th>Estado</th>
-            <th>Último Contacto</th>
-            <th>Próxima Acción</th>
-            <th>Acciones</th>
-          </tr>
-          </thead>
-          <tbody id="cuerpo-tabla-prospectos">
-          <!-- Los datos se cargarán dinámicamente aquí -->
-          <tr>
-            <td colspan="7" class="text-center py-4">
-              <div class="loading mx-auto"></div>
-              <span class="ml-2">Cargando prospectos...</span>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+
+        <div class="overflow-x-auto">
+          <table id="tabla-prospectos" class="w-full min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Cliente</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Contacto</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Vehículo Interés</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Observaciones</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="cuerpo-tabla-prospectos" class="bg-white divide-y divide-gray-200">
+            <!-- JS llenará esto -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -255,6 +254,46 @@
       </div>
     </div>
 
+    <!-- MODAL REGISTRO MANUAL SIMPLE -->
+    <div id="modal-registro" class="modal">
+      <div class="modal-content" style="max-width: 500px;">
+        <span class="close text-2xl cursor-pointer float-right" onclick="cerrarModal('modal-registro')">&times;</span>
+        <h2 class="text-2xl font-bold mb-4">Nuevo Prospecto</h2>
+        
+        <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Nombre *</label>
+              <input type="text" id="reg-nombre" class="form-control" required placeholder="Nombre del cliente">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Apellido *</label>
+              <input type="text" id="reg-apellido" class="form-control" required placeholder="Apellido">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Teléfono *</label>
+              <input type="tel" id="reg-telefono" class="form-control" required placeholder="Número de contacto">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Vehículo de Interés *</label>
+                <!-- Input simple o select básico -->
+                <input type="text" id="reg-vehiculo" class="form-control" placeholder="Ej: Mazda CX-5 Rojo">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Email</label>
+              <input type="email" id="reg-correo" class="form-control" placeholder="Opcional">
+            </div>
+            <div>
+               <label class="block text-sm font-bold text-gray-700 mb-1">Observaciones</label>
+               <textarea id="reg-observaciones" class="form-control" rows="3" placeholder="Comentarios adicionales..."></textarea>
+            </div>
+
+            <button onclick="registrarProspecto()" class="btn-asesor w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow mt-2">
+               <i class="fas fa-save mr-2"></i>Guardar Prospecto
+            </button>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 <!-- Modal de confirmación para cerrar sesión -->
@@ -281,7 +320,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script>
+<script th:inline="none">
   // Variables globales
   let tablaProspectos;
   let tablaCitas;
@@ -318,13 +357,15 @@
       cargarDatosIniciales();
   });
 
-  // Función para cargar datos iniciales del asesor
+  // Cargar datos iniciales
   async function cargarDatosIniciales() {
+      // Cargar marcas y filtros para el formulario de prospectos eliminado/simplificado
+      // await cargarFiltrosVehiculos(); // Eliminado porque ya no existe
+
       try {
           // Cargar información del asesor
           const response = await fetch('/asesor/datos');
           if (!response.ok) throw new Error('Error en la respuesta del servidor');
-
           const datosAsesor = await response.json();
 
           document.getElementById('nombre-asesor').textContent = datosAsesor.nombre;
@@ -333,10 +374,8 @@
           document.getElementById('ventas-mes').textContent = datosAsesor.ventasMes;
           document.getElementById('tasa-conversion').textContent = datosAsesor.tasaConversion + '%';
           document.getElementById('comisiones').textContent = '$' + datosAsesor.comisiones.toLocaleString();
-
       } catch (error) {
           console.error('Error al cargar datos del asesor:', error);
-          mostrarNotificacion('Error al cargar datos del perfil', 'error');
       }
   }
 
@@ -354,7 +393,7 @@
           if (prospectos.length === 0) {
               cuerpoTabla.innerHTML = `
                   <tr>
-                      <td colspan="7" class="text-center py-4 text-gray-500">
+                      <td colspan="6" class="text-center py-4 text-gray-500">
                           No hay prospectos asignados
                       </td>
                   </tr>
@@ -362,48 +401,80 @@
               return;
           }
 
+
+
           prospectos.forEach(prospecto => {
               const fila = document.createElement('tr');
-
-              // Formatear fechas
-              const ultimoContacto = prospecto.ultimoContacto ?
-                  new Date(prospecto.ultimoContacto).toLocaleDateString('es-ES') : 'N/A';
-
-              const proximaAccion = prospecto.proximaAccion ?
-                  `Cita - ${new Date(prospecto.proximaAccion).toLocaleDateString('es-ES')}` : 'Sin acción programada';
-
-              // Determinar clase CSS para el estado
+              fila.className = "hover:bg-gray-50 transition-colors";
+              
               const claseEstado = obtenerClaseEstado(prospecto.estado);
               const textoEstado = obtenerTextoEstado(prospecto.estado);
+              
+              // Datos seguros
+              const nombre = prospecto.nombreCompleto || 'Sin Nombre';
+              const telefono = prospecto.telefono || 'Sin Teléfono';
+              const email = prospecto.email || '';
+              const vehiculo = prospecto.vehiculoInteres || 'No especificado';
+              const observaciones = prospecto.observaciones || '-';
 
               fila.innerHTML = `
-                  <td>${prospecto.nombreCompleto}</td>
-                  <td>${prospecto.email}<br>${prospecto.telefono || 'Sin teléfono'}</td>
-                  <td>${prospecto.vehiculoInteres || 'No especificado'}</td>
-                  <td><span class="estado-prospecto ${claseEstado}">${textoEstado}</span></td>
-                  <td>${ultimoContacto}</td>
-                  <td>${proximaAccion}</td>
-                  <td>
-                      <button onclick="contactarProspecto('${prospecto.citaId}')" class="btn-contactar" ${prospecto.estado === 'Contactado' ? 'disabled' : ''}>
-                          <i class="fas fa-phone mr-1"></i>${prospecto.estado === 'Contactado' ? 'Contactado' : 'Contactar'}
-                      </button>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-bold text-gray-900">${nombre}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900"><i class="fas fa-phone mr-1 text-gray-400"></i>${telefono}</div>
+                    ${email ? `<div class="text-xs text-gray-500 mt-1"><i class="fas fa-envelope mr-1 text-gray-400"></i>${email}</div>` : ''}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900 font-medium">${vehiculo}</div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm text-gray-500 truncate max-w-xs" title="${observaciones}">${observaciones}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <select onchange="cambiarFase('${prospecto.id}', this.value)" 
+                            class="block w-full pl-3 pr-10 py-1 text-xs border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                            style="min-width: 130px; ${obtenerEstiloSelect(prospecto.estado)}">
+                        <option value="Nuevo" ${prospecto.estado === 'Nuevo' ? 'selected' : ''}>Nuevo</option>
+                        <option value="Contactado" ${prospecto.estado === 'Contactado' ? 'selected' : ''}>Contactado</option>
+                        <option value="En Proceso" ${prospecto.estado === 'En Proceso' ? 'selected' : ''}>En Proceso</option>
+                        <option value="Financiación" ${prospecto.estado === 'Financiación' ? 'selected' : ''}>Financiación</option>
+                        <option value="Compra" ${prospecto.estado === 'Compra' ? 'selected' : ''}>Compra</option>
+                        <option value="Venta Exitosa" ${prospecto.estado === 'Venta Exitosa' ? 'selected' : ''}>Venta Exitosa</option>
+                        <option value="Perdido" ${prospecto.estado === 'Perdido' ? 'selected' : ''}>Perdido (No interesado)</option>
+                    </select>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      ${prospecto.estado === 'Nuevo' ? 
+                          `<button onclick="contactarProspecto('${prospecto.id}')" 
+                                class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded transition shadow-sm flex items-center gap-1 animate-pulse" 
+                                title="Llamar ahora">
+                            <i class="fas fa-phone-alt text-xs"></i> <span>Llamar</span>
+                          </button>` 
+                        : 
+                          `<span class="text-green-600 font-bold flex items-center gap-1">
+                             <i class="fas fa-check-circle"></i> Contactado
+                           </span>`
+                      }
                   </td>
               `;
-
               cuerpoTabla.appendChild(fila);
           });
 
-          // Reinicializar DataTables si existe
+          // Reinicializar DataTables
           if ($.fn.DataTable.isDataTable('#tabla-prospectos')) {
               tablaProspectos.destroy();
           }
 
           tablaProspectos = $('#tabla-prospectos').DataTable({
-              language: {
-                  url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-              },
+              language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
               pageLength: 10,
-              responsive: true
+              responsive: true,
+              autoWidth: false,
+              order: [[0, 'desc']], // Ordenar por nombre por defecto o fecha si tuvieramos
+              columnDefs: [
+                  { orderable: false, targets: 5 } // No ordenar columna acciones
+              ]
           });
 
       } catch (error) {
@@ -816,30 +887,7 @@ async function confirmarFecha() {
       return textos[estado] || estado;
   }
 
-  // Función para contactar prospecto
-  async function contactarProspecto(citaId) {
-      try {
-          const response = await fetch('/asesor/prospectos/contactar', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-              },
-              body: `citaId=${citaId}`
-          });
 
-          if (response.ok) {
-              mostrarNotificacion('Prospecto marcado como contactado', 'success');
-              // Recargar la tabla
-              await cargarProspectos();
-              await cargarDatosIniciales(); // Actualizar métricas
-          } else {
-              throw new Error('Error en la respuesta del servidor');
-          }
-      } catch (error) {
-          console.error('Error al contactar prospecto:', error);
-          mostrarNotificacion('Error al contactar el prospecto', 'error');
-      }
-  }
 
   // Función para mostrar notificaciones - VERSIÓN MEJORADA
 function mostrarNotificacion(mensaje, tipo) {
@@ -1193,6 +1241,157 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+
+
+  // LOGICA REGISTRO MANUAL
+  async function registrarProspecto() {
+      const nombre = document.getElementById('reg-nombre').value;
+      const apellido = document.getElementById('reg-apellido').value;
+      const telefono = document.getElementById('reg-telefono').value;
+      const vehiculo = document.getElementById('reg-vehiculo').value;
+      const correo = document.getElementById('reg-correo').value;
+      const observaciones = document.getElementById('reg-observaciones').value;
+
+      if (!nombre || !apellido || !telefono || !vehiculo) {
+          mostrarNotificacion('Complete los campos obligatorios (*)', 'error');
+          return;
+      }
+
+      const formData = new URLSearchParams();
+      formData.append('nombre', nombre);
+      formData.append('apellido', apellido);
+      formData.append('telefono', telefono);
+      formData.append('correo', correo);
+      formData.append('vehiculoInteres', vehiculo);
+      formData.append('observaciones', observaciones);
+
+      try {
+          // Bloquear botón
+          const btn = event.target;
+          const textoOld = btn.innerHTML;
+          btn.innerHTML = 'Guardando...';
+          btn.disabled = true;
+
+          const response = await fetch('/asesor/prospectos/nuevo', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: formData
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+              mostrarNotificacion('Prospecto registrado correctamente', 'success');
+              cerrarModal('modal-registro');
+              
+              // Limpiar formulario
+              document.getElementById('reg-nombre').value = '';
+              document.getElementById('reg-apellido').value = '';
+              document.getElementById('reg-telefono').value = '';
+              document.getElementById('reg-vehiculo').value = '';
+              document.getElementById('reg-correo').value = '';
+              document.getElementById('reg-observaciones').value = '';
+
+              cargarProspectos();
+              if(typeof cargarDatosIniciales === 'function') cargarDatosIniciales();
+          } else {
+              throw new Error(result.message);
+          }
+      } catch (error) {
+          console.error("Error registro:", error);
+          mostrarNotificacion(error.message || 'Error al registrar', 'error');
+      } finally {
+           // Restaurar botón (buscarlo genéricamente por si event.target se perdió)
+           const btn = document.querySelector('#modal-registro button.btn-asesor');
+           if(btn) {
+               btn.innerHTML = '<i class="fas fa-save mr-2"></i>Guardar Prospecto';
+               btn.disabled = false;
+           }
+      }
+  }
+  
+  // Contactar prospecto (Actualizado para usar ID de prospecto)
+  async function contactarProspecto(prospectoId) {
+      if (!confirm('¿Marcar este prospecto como contactado?')) return;
+
+      try {
+          const response = await fetch('/asesor/prospectos/contactar', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `prospectoId=${prospectoId}`
+          });
+
+          if (response.ok) {
+              mostrarNotificacion('Estado actualizado Correctamente', 'success');
+              cargarProspectos();
+          } else {
+              throw new Error('Error al actualizar estado');
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          mostrarNotificacion('No se pudo actualizar el estado', 'error');
+      }
+  }
+
+  // Función para cambiar fase/estado dinámicamente
+  async function cambiarFase(prospectoId, nuevoEstado) {
+      try {
+          const response = await fetch('/asesor/prospectos/cambiar-estado', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `prospectoId=${prospectoId}&nuevoEstado=${nuevoEstado}`
+          });
+          
+          const result = await response.json();
+          if(result.success) {
+              mostrarNotificacion(`Estado actualizado a: ${nuevoEstado}`, 'success');
+              if(typeof cargarDatosIniciales === 'function') cargarDatosIniciales();
+          } else {
+              throw new Error(result.message);
+          }
+      } catch (error) {
+          mostrarNotificacion('Error actualizando fase', 'error');
+          console.error(error);
+          cargarProspectos(); // Revertir visualmente
+      }
+  }
+  
+  function obtenerEstiloSelect(estado) {
+      if(estado === 'Nuevo') return 'color: #2563eb; font-weight: bold;';
+      if(estado === 'En Proceso') return 'color: #d97706; font-weight: bold;';
+      if(estado === 'Financiación') return 'color: #9333ea; font-weight: bold;';
+      if(estado === 'Compra' || estado === 'Venta Exitosa') return 'color: #16a34a; font-weight: bold;';
+      if(estado === 'Perdido') return 'color: #dc2626;';
+      return 'color: #4b5563;';
+  }
+
+  // ---- AUTO REFRESCO ----
+  // Actualizar datos cada 10 segundos automáticamente
+  setInterval(() => {
+     try {
+         // Comprobar si el modal de registro está abierto para no interrumpir
+         const modal = document.getElementById('modal-registro');
+         const modalAbierto = modal && !modal.classList.contains('hidden');
+         
+         if (!modalAbierto) {
+             // Refrescar dashboard (Métricas)
+             if(typeof cargarDatosIniciales === 'function') cargarDatosIniciales();
+             
+             // Refrescar tabla prospectos solo si es visible
+             const seccionProspectos = document.getElementById('prospectos');
+             if(seccionProspectos && seccionProspectos.style.display !== 'none') {
+                  if(typeof cargarProspectos === 'function') cargarProspectos();
+             }
+         }
+     } catch(e) { console.error("Error auto-refresh", e); }
+  }, 1000); // Actualización en tiempo real (1 segundo) 
+
+</script>
+
+
+  
+
 </script>
 </body>
 </html>
