@@ -2286,6 +2286,24 @@
             });
         }
 
+        // ===================== LOGICA DE ROLES DE TRABAJADOR =====================
+        const roleCheckboxes = document.querySelectorAll('input[name="roles"]');
+
+        roleCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // Si se selecciona un rol, desmarcar todos los demás
+                    roleCheckboxes.forEach(otherCheckbox => {
+                        if (otherCheckbox !== this) {
+                            otherCheckbox.checked = false;
+                            // Aseguramos que estén habilitados por si acaso
+                            otherCheckbox.disabled = false;
+                        }
+                    });
+                }
+            });
+        });
+
         console.log('✅ Dashboard inicializado correctamente');
     });
 

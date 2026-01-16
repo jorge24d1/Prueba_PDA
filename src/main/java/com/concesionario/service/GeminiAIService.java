@@ -27,54 +27,42 @@ public class GeminiAIService {
     /**
      * ✅ MÉTODO MEJORADO: Con detección de alternativas
      */
+    /**
+     * ✅ MÉTODO MEJORADO: Prompt optimizado para Venta Consultiva
+     */
     public Mono<String> analizarYSeleccionarVehiculo(String mensajeUsuario, List<Vehiculo> vehiculosDisponibles) {
 
         if (vehiculosDisponibles.isEmpty()) {
-            return Mono.just("🤖 **Dante**: No encontré vehículos que coincidan exactamente con tu búsqueda. ¿Podrías ser más específico? Por ejemplo: 'SUV familiar', 'auto económico'.");
+            return Mono.just("🤖 **Dante**: Lo siento, no tengo vehículos disponibles en este momento. Por favor contacta a un asesor humano.");
         }
 
         String infoVehiculos = construirInfoVehiculos(vehiculosDisponibles);
 
-        // ✅ DETECTAR SI ES BÚSQUEDA DE "OTRO"
-        boolean esAlternativa = mensajeUsuario.toLowerCase().contains("otro") ||
-                mensajeUsuario.toLowerCase().contains("otra") ||
-                mensajeUsuario.toLowerCase().contains("diferente");
+        // ✅ DETECTAR INTENCIÓN BÁSICA
+        boolean esAlternativa = mensajeUsuario.toLowerCase().matches(".*(otro|otra|diferente|más|mas|opción|opcion|ver más).*");
+        
+        // PROMPT DE ALTO RENDIMIENTO PARA VENTA (Roleplay: Asesor Experto)
+        String prompt = "Eres Dante, el asesor experto de 'NextGen Motors'. Tu meta es vender autos siendo útil, persuasivo y amable.\n\n" +
 
-        String prompt = "Eres Dante, un asistente especializado en vehículos de concesionario.\n\n" +
+                "INVENTARIO ACTUAL (Solo ofrece estos autos):\n" + infoVehiculos + "\n\n" +
 
-                "CONTEXTO CONVERSACIONAL:\n" +
-                (esAlternativa ?
-                        "🔹 EL USUARIO PIDE UNA ALTERNATIVA/OTRO VEHÍCULO\n" +
-                                "🔹 DEBES seleccionar un vehículo DIFERENTE al anterior\n" +
-                                "🔹 Explica claramente en qué se diferencia esta nueva opción\n" :
-                        "🔹 PRIMERA BÚSQUEDA DEL USUARIO\n" +
-                                "🔹 Recomienda el vehículo más balanceado y relevante\n") +
+                "USUARIO DICE: \"" + mensajeUsuario + "\"\n\n" +
+                
+                "TUS INSTRUCCIONES:\n" +
+                "1. ANALIZA qué busca el usuario (familia, velocidad, economía, etc.). Si no es claro, usa tu intuición basada en lo que escribe.\n" +
+                "2. SELECCIONA el MEJOR vehículo del inventario para él.\n" +
+                (esAlternativa ? 
+                "   IMPORTANTE: El usuario quiere ver OTRAS opciones. Elige uno distinto al que probablemente ya vio.\n" :
+                "   Elige la opción más relevante y atractiva.\n") +
+                "3. VENDE EL AUTO: Describe por qué es perfecto para él. Menciona marca, modelo y una característica clave (motor, espacio, etc.).\n" +
+                "4. SÉ BREVE Y AMABLE. No hagas listas largas. Habla como un humano.\n" +
+                "5. Si NINGÚN auto encaja bien, sé honesto y sugiere el que más se acerque, explicando por qué.\n\n" +
 
-                "\nMENSAJE DEL USUARIO: \"" + mensajeUsuario + "\"\n\n" +
+                "FORMATO DE RESPUESTA OBLIGATORIO:\n" +
+                "Empieza con '🤖 **Dante**:' y luego tu mensaje.\n" +
+                "Ejemplo: '🤖 **Dante**: ¡Hola! Si buscas espacio, el Toyota Fortuner es ideal...'";
 
-                "VEHÍCULOS DISPONIBLES EN EL CONCESIONARIO:\n" + infoVehiculos + "\n\n" +
-
-                "INSTRUCCIONES CRÍTICAS:\n" +
-                "1. " + (esAlternativa ?
-                "SELECCIONA un vehículo DIFERENTE (preferiblemente otra marca/modelo)" :
-                "SELECCIONA el vehículo más relevante para la búsqueda") + "\n" +
-                "2. Responde de forma NATURAL y ENTUSIASTA\n" +
-                "3. Incluye detalles específicos del vehículo seleccionado\n" +
-                "4. " + (esAlternativa ?
-                "Destaca 2-3 características que hacen única esta alternativa" :
-                "Explica por qué este vehículo es ideal para el usuario") + "\n" +
-                "5. NO inventes vehículos que no estén en la lista\n\n" +
-
-                "FORMATO DE RESPUESTA:\n" +
-                (esAlternativa ?
-                        "Comienza con: '🤖 **Dante**: ¡Claro! Te muestro otra excelente opción...'\n" :
-                        "Comienza con: '🤖 **Dante**: ¡Perfecto! Encontré el vehículo ideal...'\n") +
-                "Incluye: modelo, año, precio, características principales\n" +
-                "Termina invitando a explorar más detalles o pedir otra opción";
-
-        System.out.println("🤖 PROMPT ENVIADO A GEMINI:");
-        System.out.println("Tipo: " + (esAlternativa ? "ALTERNATIVA" : "PRIMERA BÚSQUEDA"));
-        System.out.println("Vehículos disponibles: " + vehiculosDisponibles.size());
+        System.out.println("🤖 Dante AI - Prompt Generado (Inventario: " + vehiculosDisponibles.size() + " autos)");
 
         GeminiRequest request = crearRequest(prompt);
 
@@ -84,20 +72,26 @@ public class GeminiAIService {
                 .retrieve()
                 .bodyToMono(GeminiResponse.class)
                 .map(this::extraerTextoRespuesta)
-                .onErrorReturn("🤖 **Dante**: ¡Encontré un vehículo que podría interesarte! Basándome en tu búsqueda, te recomiendo explorar esta opción.");
+                .onErrorResume(e -> {
+                    System.err.println("❌ Error llamada Gemini: " + e.getMessage());
+                    return Mono.just("🤖 **Dante**: Tuve un pequeño problema técnico pensando tu respuesta. ¿Me das un segundo y me repites qué buscabas?");
+                });
     }
 
     private String construirInfoVehiculos(List<Vehiculo> vehiculos) {
         StringBuilder sb = new StringBuilder();
-        for (Vehiculo v : vehiculos) {
-            sb.append("• ").append(v.getMarca()).append(" ").append(v.getModelo())
-                    .append(" | Año: ").append(v.getAño())
-                    .append(" | Precio: $").append(String.format("%,.0f", v.getPrecio()))
-                    .append(" | Categoría: ").append(v.getCategoria())
-                    .append(" | Combustible: ").append(v.getCombustible() != null ? v.getCombustible() : "Gasolina")
-                    .append(" | Pasajeros: ").append(v.getPasajeros() != null ? v.getPasajeros() : "N/A")
-                    .append(" | Transmisión: ").append(v.getTransmision() != null ? v.getTransmision() : "N/A")
-                    .append("\n");
+        int maxVehiculos = Math.min(vehiculos.size(), 25); // Limitar contexto para no exceder tokens gratis si hay muchos
+        
+        for (int i = 0; i < maxVehiculos; i++) {
+            Vehiculo v = vehiculos.get(i);
+            sb.append("- ID:").append(v.getId()) // ID útil si quisiéramos links predecibles
+              .append(" | ").append(v.getMarca()).append(" ").append(v.getModelo())
+              .append(" (").append(v.getAño()).append(")")
+              .append(" | $").append(String.format("%,.0f", v.getPrecio()))
+              .append(" | ").append(v.getCategoria())
+              .append(" | ").append(v.getCombustible())
+              .append(" | Trans: ").append(v.getTransmision())
+              .append("\n");
         }
         return sb.toString();
     }
@@ -109,24 +103,22 @@ public class GeminiAIService {
 
         content.setParts(List.of(part));
         request.setContents(List.of(content));
-
+        
+        // Ajustes de generación para respuestas más creativas pero controladas
+        // (Opcional, si tu DTO lo soporta. Si no, lo dejamos básico)
         return request;
     }
 
     private String extraerTextoRespuesta(GeminiResponse response) {
-        if (response.getCandidates() != null &&
-                !response.getCandidates().isEmpty() &&
-                response.getCandidates().get(0).getContent() != null &&
-                response.getCandidates().get(0).getContent().getParts() != null &&
-                !response.getCandidates().get(0).getContent().getParts().isEmpty()) {
+        if (response.getCandidates() != null && !response.getCandidates().isEmpty() &&
+            response.getCandidates().get(0).getContent() != null &&
+            response.getCandidates().get(0).getContent().getParts() != null) {
 
             String respuesta = response.getCandidates().get(0).getContent().getParts().get(0).getText();
-            // ✅ Asegurar que la respuesta tenga el formato correcto
-            if (!respuesta.contains("🤖 **Dante**:") && !respuesta.startsWith("🤖")) {
-                respuesta = "🤖 **Dante**: " + respuesta;
-            }
-            return respuesta;
+            
+            // Limpieza básica
+            return respuesta.trim();
         }
-        return "🤖 **Dante**: ¡Encontré un vehículo que coincide con tu búsqueda! Te recomiendo explorar esta opción.";
+        return "🤖 **Dante**: No se me ocurre nada en este momento. ¿Podemos intentar otra búsqueda?";
     }
 }
