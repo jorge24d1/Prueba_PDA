@@ -54,4 +54,20 @@ class ApiService {
       print('📱 Token FCM enviado al servidor');
     }
   }
+
+  // Nuevo método para Chatbot Gemini
+  Future<Map<String, dynamic>> obtenerRecomendacion(String mensaje) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/recomendacion'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'mensaje': mensaje}),
+    );
+
+    if (response.statusCode == 200) {
+      // Decodificamos utf8 para caracteres especiales en español
+      return json.decode(utf8.decode(response.bodyBytes));
+    } else {
+      throw Exception('Error al conectar con Dante AI');
+    }
+  }
 }

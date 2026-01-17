@@ -28,6 +28,25 @@ public class UsuarioRestController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private com.concesionario.service.VehiculoRecomendacionService vehiculoRecomendacionService;
+
+    // 4. Endpoint para Chatbot Gemini AI
+    @PostMapping("/recomendacion")
+    public ResponseEntity<?> obtenerRecomendacion(@RequestBody Map<String, String> request) {
+        try {
+            String mensaje = request.get("mensaje");
+            if (mensaje == null || mensaje.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("respuesta", "Por favor escribe un mensaje."));
+            }
+
+            com.concesionario.dto.RecomendacionResponse respuesta = vehiculoRecomendacionService.procesarRecomendacion(mensaje);
+            return ResponseEntity.ok(respuesta); // Devuelve objeto con texto y lista de vehículos
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     // 1. Endpoint de Login para App Móvil
     @PostMapping("/login")
     public ResponseEntity<?> loginApp(@RequestParam String correo, @RequestParam String password) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_app/screens/chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -65,6 +66,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChatScreen()),
+          );
+        },
+        label: Text('Chat con Dante'),
+        icon: Icon(Icons.chat),
+        backgroundColor: Colors.blueAccent,
+      ),
     );
   }
 }
