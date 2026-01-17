@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/services/api_service.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile_app/screens/chat_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -37,7 +37,26 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Mis Citas')),
+      appBar: AppBar(
+        title: Text('Mis Citas'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () async {
+              // Cerrar sesión
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.clear(); // Borra userId y nombre
+
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (route) => false,
+              );
+            },
+            tooltip: 'Cerrar Sesión',
+          ),
+        ],
+      ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -60,7 +79,65 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
-                      trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                      trailing: Icon(Icons.info_outline, color: Colors.blue),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text('Detalles de la Cita'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Vehículo:",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(cita['vehiculo'] ?? 'No especificado'),
+                                SizedBox(height: 8),
+                                Text(
+                                  "Fecha Asignada:",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  cita['fechaAsignada'] ??
+                                      "Pendiente de asignación",
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  "Notas del Asesor:",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    cita['notasAdmin'] != null &&
+                                            cita['notasAdmin']
+                                                .toString()
+                                                .isNotEmpty
+                                        ? cita['notasAdmin']
+                                        : "Sin notas adicionales.",
+                                    style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text('Cerrar'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   );
                 },

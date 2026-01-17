@@ -240,6 +240,16 @@ public class AsesorRestController {
                     .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
             cita.setNotasAdmin(notas);
             citaRepository.save(cita);
+
+            // 🔔 NOTIFICACIÓN PUSH
+            if (cita.getUsuario() != null) {
+               notificationService.enviarNotificacion(
+                   cita.getUsuario().getId(), 
+                   "Nueva Nota en tu Cita", 
+                   "El asesor ha agregado una nota: " + (notas.length() > 50 ? notas.substring(0, 47) + "..." : notas)
+               );
+            }
+
             return ResponseEntity.ok("OK");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());

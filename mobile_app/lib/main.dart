@@ -1,21 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mobile_app/screens/login_screen.dart';
+import 'package:mobile_app/screens/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile_app/services/notification_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+// Handler para notificaciones en segundo plano (debe ser top-level)
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('📩 Notificación Background: ${message.messageId}');
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // IMPORTANTE: Esto requiere que google-services.json esté en android/app/
   try {
     await Firebase.initializeApp();
+    // Registrar el handler de background
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   } catch (e) {
-    print('⚠️ Error inicializando Firebase (¿Falta google-services.json?): $e');
+    print('⚠️ Error inicializando Firebase: $e');
   }
 
-  runApp(MyApp());
+  // Verificar sesión persistente
+  final prefs = await SharedPreferences.getInstance();
+  final userId = prefs.getString('userId');
+
+  // Si hay sesión activa, inicializamos notificaciones de una vez
+  if (userId != null) {
+    await NotificationService().initNotifications();
+  }
+
+  runApp(MyApp(initialRoute: userId != null ? '/home' : '/login'));
 }
 
 class MyApp extends StatelessWidget {
+  final String initialRoute;
+
+  MyApp({required this.initialRoute});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -25,7 +49,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: LoginScreen(),
+      initialRoute: initialRoute,
+      routes: {
+        '/login': (context) => LoginScreen(),
+        '/home': (context) => HomeScreen(),
+      },
     );
   }
 }
