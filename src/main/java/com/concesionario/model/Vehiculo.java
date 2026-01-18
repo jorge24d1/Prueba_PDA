@@ -22,6 +22,7 @@ public class Vehiculo {
     private String combustible;
     private Integer pasajeros;
     private String descripcion;
+    private String urlModelo3d;
 
     
     private boolean destacado = false;  
@@ -145,6 +146,14 @@ public class Vehiculo {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public String getUrlModelo3d() {
+        return urlModelo3d;
+    }
+
+    public void setUrlModelo3d(String urlModelo3d) {
+        this.urlModelo3d = urlModelo3d;
     }
 
     public boolean isDestacado() {

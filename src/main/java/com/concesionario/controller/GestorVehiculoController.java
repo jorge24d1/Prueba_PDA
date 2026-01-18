@@ -2,6 +2,7 @@ package com.concesionario.controller;
 
 import com.concesionario.model.Vehiculo;
 import com.concesionario.service.VehiculoService;
+import com.concesionario.service.SupabaseStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,9 @@ public class GestorVehiculoController {
     @Autowired
     private VehiculoService vehiculoService;
 
+    @Autowired
+    private SupabaseStorageService supabaseStorageService;
+
     // ==================== MÉTODOS PARA VEHÍCULOS ====================
 
     @PostMapping("/guardar-vehiculo")
@@ -36,6 +40,7 @@ public class GestorVehiculoController {
             @RequestParam int pasajeros,
             @RequestParam String descripcion,
             @RequestParam String colores,
+            @RequestParam(value = "modelo3d", required = false) MultipartFile modelo3d,
             @RequestParam MultipartFile imagen,
             RedirectAttributes redirectAttributes) throws IOException {
 
@@ -51,6 +56,18 @@ public class GestorVehiculoController {
         vehiculo.setPasajeros(pasajeros);
         vehiculo.setDescripcion(descripcion);
         vehiculo.setDestacado(false);
+
+        // Subir modelo 3D si existe
+        if (modelo3d != null && !modelo3d.isEmpty()) {
+            System.out.println("📦 [GestorVehiculoController] Modelo 3D detectado: " + modelo3d.getOriginalFilename());
+            try {
+                String urlModelo = supabaseStorageService.uploadFile(modelo3d);
+                System.out.println("✅ [GestorVehiculoController] Modelo 3D subido a: " + urlModelo);
+                vehiculo.setUrlModelo3d(urlModelo);
+            } catch (Exception e) {
+                System.err.println("❌ [GestorVehiculoController] Error subiendo modelo 3D: " + e.getMessage());
+            }
+        }
 
         // Procesar los colores
         if (colores != null && !colores.isEmpty()) {
@@ -86,6 +103,7 @@ public class GestorVehiculoController {
             @RequestParam Integer pasajeros,
             @RequestParam String colores,
             @RequestParam String descripcion,
+            @RequestParam(value = "modelo3d", required = false) MultipartFile modelo3d,
             RedirectAttributes redirectAttributes) {
 
         try {
@@ -107,6 +125,17 @@ public class GestorVehiculoController {
             vehiculoExistente.setCombustible(combustible);
             vehiculoExistente.setPasajeros(pasajeros);
             vehiculoExistente.setDescripcion(descripcion);
+
+            // Actualizar modelo 3D si se proporciona
+            if (modelo3d != null && !modelo3d.isEmpty()) {
+                System.out.println("📦 [GestorVehiculoController] Actualizando Modelo 3D...");
+                try {
+                    String urlModelo = supabaseStorageService.uploadFile(modelo3d);
+                    vehiculoExistente.setUrlModelo3d(urlModelo);
+                } catch (Exception e) {
+                    System.err.println("❌ [GestorVehiculoController] Error actualizando modelo 3D: " + e.getMessage());
+                }
+            }
 
             // Procesar colores
             if (colores != null && !colores.isEmpty()) {
@@ -151,6 +180,7 @@ public class GestorVehiculoController {
             @RequestParam int pasajeros,
             @RequestParam String descripcion,
             @RequestParam String colores,
+            @RequestParam(value = "modelo3d", required = false) MultipartFile modelo3d,
             @RequestParam MultipartFile imagen,
             RedirectAttributes redirectAttributes) throws IOException {
 
@@ -167,6 +197,16 @@ public class GestorVehiculoController {
             anuncio.setPasajeros(pasajeros);
             anuncio.setDescripcion(descripcion);
             anuncio.setDestacado(true); // Es un anuncio
+
+            // Subir modelo 3D si existe
+            if (modelo3d != null && !modelo3d.isEmpty()) {
+                try {
+                    String urlModelo = supabaseStorageService.uploadFile(modelo3d);
+                    anuncio.setUrlModelo3d(urlModelo);
+                } catch (Exception e) {
+                    System.err.println("❌ [GestorVehiculoController] Error subiendo modelo 3D anuncio: " + e.getMessage());
+                }
+            }
 
             // Procesar colores
             if (colores != null && !colores.isEmpty()) {

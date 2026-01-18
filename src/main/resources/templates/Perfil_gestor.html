@@ -333,6 +333,11 @@
                     <label for="imagen">Imagen del vehículo</label>
                     <input type="file" id="imagen" name="imagen" required accept="image/*">
                 </div>
+                <div class="form-group md:col-span-2">
+                    <label for="modelo3d">Modelo 3D (.glb)</label>
+                    <input type="file" id="modelo3d" name="modelo3d" accept=".glb">
+                    <p class="text-xs text-gray-500 mt-1">Opcional. Formato GLB para vista 3D.</p>
+                </div>
             </div>
             <div class="mt-6 flex justify-end space-x-4">
                 <button type="button" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700" onclick="cerrarModal('modal-vehiculo')">Cancelar</button>
@@ -417,6 +422,10 @@
                     <input type="file" id="editar-imagen" name="imagen" accept="image/*">
                     <img id="editar-imagen-preview" src="" alt="Imagen actual" class="mt-2 rounded-lg" style="max-width: 200px; display: none;">
                 </div>
+                <div class="form-group md:col-span-2">
+                    <label for="editar-modelo3d">Actualizar Modelo 3D (.glb)</label>
+                    <input type="file" id="editar-modelo3d" name="modelo3d" accept=".glb">
+                </div>
             </div>
             <div class="mt-6 flex justify-end space-x-4">
                 <button type="button" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700" onclick="cerrarModal('modal-editar-vehiculo')">Cancelar</button>
@@ -497,6 +506,10 @@
                 <div class="form-group md:col-span-2">
                     <label for="anuncio-imagen">Imagen del anuncio</label>
                     <input type="file" id="anuncio-imagen" name="imagen" required accept="image/*">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="anuncio-modelo3d">Modelo 3D (.glb)</label>
+                    <input type="file" id="anuncio-modelo3d" name="modelo3d" accept=".glb">
                 </div>
             </div>
             <div class="mt-6 flex justify-end space-x-4">

@@ -59,6 +59,8 @@ public class AdminController {
     private TrabajadorRepository TrabajadorRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private SupabaseStorageService supabaseStorageService;
 
     @GetMapping("/Dashboard")
     public String dashboard(Model model) {
@@ -234,6 +236,7 @@ public class AdminController {
             @RequestParam("combustible") String combustible,
             @RequestParam("pasajeros") Integer pasajeros,
             @RequestParam String colores,
+            @RequestParam(value = "modelo3d", required = false) MultipartFile modelo3d,
             @RequestParam("descripcion") String descripcion,
             Model model) {
 
@@ -243,6 +246,12 @@ public class AdminController {
             // ✅ CORRECCIÓN: Procesar la nueva imagen si se proporciona
             if (imagen != null && !imagen.isEmpty()) {
                 vehiculoService.actualizarImagenVehiculo(vehiculoExistente, imagen);
+            }
+
+            // ✅ NUEVO: Procesar el modelo 3D si se proporciona
+            if (modelo3d != null && !modelo3d.isEmpty()) {
+                String urlModelo = supabaseStorageService.uploadFile(modelo3d);
+                vehiculoExistente.setUrlModelo3d(urlModelo);
             }
 
             if (vehiculoExistente.getColores() == null) {
@@ -428,6 +437,7 @@ public class AdminController {
             @RequestParam String combustible,
             @RequestParam int pasajeros,
             @RequestParam String descripcion,
+            @RequestParam(value = "modelo3d", required = false) MultipartFile modelo3d,
             @RequestParam MultipartFile imagen,
             Model model) throws IOException {
 
@@ -444,6 +454,18 @@ public class AdminController {
             anuncio.setPasajeros(pasajeros);
             anuncio.setDescripcion(descripcion);
             anuncio.setDestacado(true); // Es un anuncio
+
+            // Subir modelo 3D si existe
+            if (modelo3d != null && !modelo3d.isEmpty()) {
+                System.out.println("📦 [AdminController] Modelo 3D anuncio detectado: " + modelo3d.getOriginalFilename());
+                try {
+                    String urlModelo = supabaseStorageService.uploadFile(modelo3d);
+                    System.out.println("✅ [AdminController] Modelo 3D anuncio subido a: " + urlModelo);
+                    anuncio.setUrlModelo3d(urlModelo);
+                } catch (Exception e) {
+                    System.err.println("❌ [AdminController] Error subiendo modelo 3D anuncio: " + e.getMessage());
+                }
+            }
 
             vehiculoService.crearAnuncio(anuncio, imagen);
             return "redirect:/admin/Dashboard";
@@ -473,6 +495,7 @@ public class AdminController {
             @RequestParam int pasajeros,
             @RequestParam String descripcion,
             @RequestParam String colores,
+            @RequestParam(value = "modelo3d", required = false) MultipartFile modelo3d,
             @RequestParam MultipartFile imagen) throws IOException {
 
         Vehiculo vehiculo = new Vehiculo();
@@ -487,6 +510,21 @@ public class AdminController {
         vehiculo.setPasajeros(pasajeros);
         vehiculo.setDescripcion(descripcion);
         vehiculo.setDestacado(false);
+
+        // Subir modelo 3D si existe
+        if (modelo3d != null && !modelo3d.isEmpty()) {
+            System.out.println("📦 [AdminController] Modelo 3D detectado: " + modelo3d.getOriginalFilename() + " (" + modelo3d.getSize() + " bytes)");
+            try {
+                String urlModelo = supabaseStorageService.uploadFile(modelo3d);
+                System.out.println("✅ [AdminController] Modelo 3D subido a: " + urlModelo);
+                vehiculo.setUrlModelo3d(urlModelo);
+            } catch (Exception e) {
+                System.err.println("❌ [AdminController] Error subiendo modelo 3D: " + e.getMessage());
+                // No detenemos el guardado del vehículo, pero logueamos el error
+            }
+        } else {
+             System.out.println("⚠️ [AdminController] No se recibió archivo de modelo 3D opciona o estaba vacío.");
+        }
 
         // Procesar los colores
         if (colores != null && !colores.isEmpty()) {

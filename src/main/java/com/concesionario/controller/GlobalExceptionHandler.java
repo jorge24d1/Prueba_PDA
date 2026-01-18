@@ -4,11 +4,25 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String handleMaxSizeException(MaxUploadSizeExceededException exc, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+        System.err.println("=== ERROR: ARCHIVO DEMASIADO GRANDE ===");
+        System.err.println("URL: " + request.getRequestURL());
+        
+        redirectAttributes.addFlashAttribute("error", "El archivo es demasiado grande. Por favor, sube un archivo menor a 500MB.");
+        
+        // Intentar redirigir a la misma página si es posible, o al dashboard por defecto
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/admin/Dashboard");
+    }
 
     @ExceptionHandler(Exception.class)
     public String handleAllExceptions(Exception e, HttpServletRequest request, Model model) {
