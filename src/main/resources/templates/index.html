@@ -11,6 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link th:href="@{/css/index.css}" rel="stylesheet">
+    <link th:href="@{/css/3d-viewer.css}" rel="stylesheet">
+    <!-- Model Viewer -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -119,6 +122,54 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- 3D Configurator Section -->
+    <section id="configurator-3d" class="py-12 bg-white dark:bg-gray-900">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-6">
+                <h2 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Dale un giro a tu Mazda 3 Hatchback</h2>
+                
+                <!-- Color Controls (Above) -->
+                <div class="mt-6 flex flex-col items-center gap-3">
+                    <div class="flex gap-4 items-center justify-center" id="color-controls">
+                       <button class="color-btn w-8 h-8 rounded-full border border-gray-300 shadow-sm transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-primary" data-color="#ff0000" data-name="Rojo Brillante" style="background-color: #ff0000;" title="Rojo Brillante"></button>
+                       <button class="color-btn w-8 h-8 rounded-full border border-gray-300 shadow-sm transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-primary" data-color="#0000ff" data-name="Azul Profundo" style="background-color: #0000ff;" title="Azul Profundo"></button>
+                       <button class="color-btn w-8 h-8 rounded-full border border-gray-300 shadow-sm transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-primary" data-color="#000000" data-name="Negro Azabache" style="background-color: #000000;" title="Negro Azabache"></button>
+                       <button class="color-btn w-8 h-8 rounded-full border border-gray-300 shadow-sm transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-primary" data-color="#ffffff" data-name="Blanco Perla" style="background-color: #ffffff;" title="Blanco Perla"></button>
+                       <button class="color-btn w-8 h-8 rounded-full border border-gray-300 shadow-sm transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-primary" data-color="#808080" data-name="Gris Metálico" style="background-color: #808080;" title="Gris Metálico"></button>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300" id="selected-color-name">Selecciona un color</p>
+                </div>
+            </div>
+            
+            <div class="viewer-container relative w-full h-[500px] bg-transparent flex flex-col items-center">
+                <!-- 3D Model -->
+                <model-viewer 
+                    id="car-viewer"
+                    src="https://dantex133.github.io/repoassets/mazda3.glb" 
+                    alt="Mazda 3 Hatchback 3D"
+                    auto-rotate
+                    camera-controls
+                    ar
+                    shadow-intensity="1"
+                    exposure="1.2"
+                    shadow-softness="1"
+                    camera-orbit="45deg 75deg 8m"
+                    field-of-view="30deg"
+                    poster="https://via.placeholder.com/800x400?text=Cargando+Mazda+3..."
+                    class="w-full h-full focus:outline-none">
+                </model-viewer>
+                
+                <!-- 360 Indicator -->
+                <div class="absolute bottom-4 flex flex-col items-center text-gray-400 pointer-events-none fade-out-on-interact">
+                    <i class="fas fa-sync-alt text-2xl mb-1 animation-spin-slow"></i>
+                    <span class="text-xs font-bold uppercase tracking-wider">360° VIEW</span>
+                </div>
+            </div>
+            
+            <p class="text-center text-xs text-gray-400 mt-2">* Imágenes de referencia. El equipamiento puede variar.</p>
         </div>
     </section>
 
@@ -317,6 +368,7 @@
 
 <script th:src="@{/js/chatbot.js}"></script>
 <script th:src="@{/js/index.js}"></script>
+<script th:src="@{/js/3d-viewer.js}"></script>
 
 
 </body>
