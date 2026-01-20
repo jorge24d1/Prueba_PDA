@@ -4,9 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // Cambiado: URL de producción en Azure
-  // static const String baseUrl = 'https://nextgen-motors2-bsbudccxcnadgabd.canadacentral-01.azurewebsites.net/api/usuario';
   static const String baseUrl =
-      'http://192.168.1.4:8080/api/usuario'; // Localhost IPv4
+      'https://nextgen-motors2-bsbudccxcnadgabd.canadacentral-01.azurewebsites.net/api/usuario';
+  // static const String baseUrl = 'http://192.168.1.4:8080/api/usuario'; // Localhost IPv4
 
   Future<Map<String, dynamic>> login(String correo, String password) async {
     final response = await http.post(
@@ -48,24 +48,10 @@ class ApiService {
     final userId = prefs.getString('userId');
 
     if (userId != null) {
-      print('📤 Enviando token al servidor para usuario $userId...');
-      try {
-        final response = await http.post(
-          Uri.parse('$baseUrl/$userId/fcm-token'),
-          body: {'token': token},
-        );
-        print(
-          '📥 Respuesta del servidor al guardar token: ${response.statusCode}',
-        );
-        if (response.statusCode != 200) {
-          print('❌ Error cuerpo respuesta: ${response.body}');
-        }
-      } catch (e) {
-        print('❌ Error enviando token al backend: $e');
-      }
-      print('📱 Token FCM enviado al servidor (intento finalizado)');
-    } else {
-      print('⚠️ No se envió el token porque no hay usuario logueado.');
+      await http.post(
+        Uri.parse('$baseUrl/$userId/fcm-token'),
+        body: {'token': token},
+      );
     }
   }
 

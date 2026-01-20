@@ -9,11 +9,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 // Handler para notificaciones en segundo plano (debe ser top-level)
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print(
-    '🌙 Notificación recibida en SEGUNDO PLANO (Background): ${message.messageId}',
-  );
-  print('   Título: ${message.notification?.title}');
-  print('   Cuerpo: ${message.notification?.body}');
+  print('📩 Notificación Background: ${message.messageId}');
 }
 
 void main() async {

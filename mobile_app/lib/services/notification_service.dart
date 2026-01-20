@@ -23,10 +23,7 @@ class NotificationService {
           iOS: initializationSettingsDarwin,
         );
 
-    print('🚀 Iniciando NotificationService...');
-
     await _localNotifications.initialize(initializationSettings);
-    print('✅ Notificaciones locales inicializadas');
 
     // 0.1 Crear Canal de Notificaciones (Importante para segundo plano en Android)
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -45,44 +42,33 @@ class NotificationService {
 
     if (androidImplementation != null) {
       await androidImplementation.createNotificationChannel(channel);
-      print('✅ Canal de notificaciones Android creado: ${channel.id}');
     } else {
       print('ℹ️ No se pudo obtener implementación Android (¿estás en iOS?)');
     }
 
     // 1. Pedir permiso (Firebase)
-    print('⏳ Solicitando permisos de notificación...');
+    // 1. Pedir permiso (Firebase)
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
 
-    print('📣 Estado de autorización: ${settings.authorizationStatus}');
-
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print('🔔 Permiso de notificaciones concedido');
 
       // 2. Obtener Token
-      try {
-        final token = await _firebaseMessaging.getToken();
-        if (token != null) {
-          print('🔑 FCM Token obtenido: $token');
-          // Enviar al backend
-          await _apiService.sendFcmToken(token);
-        } else {
-          print('⚠️ FCM Token es nulo');
-        }
-      } catch (e) {
-        print('❌ Error obteniendo FCM Token: $e');
+      final token = await _firebaseMessaging.getToken();
+      if (token != null) {
+        // Enviar al backend
+        await _apiService.sendFcmToken(token);
       }
 
       // 3. Escuchar en primer plano
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        print('📩 Notificación recibida en PRIMER PLANO (Foreground):');
-        print('   Título: ${message.notification?.title}');
-        print('   Cuerpo: ${message.notification?.body}');
-        print('   Data: ${message.data}');
+        print(
+          '📩 Notificación recibida en primer plano: ${message.notification?.title}',
+        );
 
         // Mostrar notificación local
         RemoteNotification? notification = message.notification;
