@@ -62,6 +62,27 @@ public class AdminController {
     @Autowired
     private SupabaseStorageService supabaseStorageService;
 
+    // 🔍 ENDPOINT DE DIAGNÓSTICO (Temporal)
+    @GetMapping("/test/status/v2")
+    @ResponseBody
+    public Map<String, Object> verificarEstadoSistema() {
+        Map<String, Object> estado = new HashMap<>();
+        estado.put("version", "v2-con-notificaciones-admin");
+        estado.put("fecha", LocalDateTime.now().toString());
+        
+        try {
+            boolean firebaseInit = !com.google.firebase.FirebaseApp.getApps().isEmpty();
+            estado.put("firebase_inicializado", firebaseInit);
+            if (firebaseInit) {
+                estado.put("firebase_nombre", com.google.firebase.FirebaseApp.getInstance().getName());
+            }
+        } catch (Exception e) {
+            estado.put("firebase_error", e.getMessage());
+        }
+        
+        return estado;
+    }
+
     @GetMapping("/Dashboard")
     public String dashboard(Model model) {
         // Estadísticas
