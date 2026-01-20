@@ -49,11 +49,11 @@ public class AdminController {
     @Autowired
     private CitaService citaService;
     @Autowired
-    private NotificacionService notificacionService;
+    private NotificacionService notificacionService; // DB Interna
+    @Autowired
+    private NotificationService notificationService; // Push Firebase (Nuevo)
     @Autowired
     private TrabajadorRepository trabajadorRepository;
-
-
 
     @Autowired
     private TrabajadorRepository TrabajadorRepository;
@@ -335,6 +335,15 @@ public class AdminController {
         cita.setLeida(true);
         citaService.guardarCita(cita);
 
+        // 🔔 NOTIFICACIÓN PUSH
+        if (cita.getUsuario() != null) {
+            notificationService.enviarNotificacion(
+                cita.getUsuario().getId(), 
+                "Actualización de Cita", 
+                "El administrador cambió el estado de tu cita a: " + estado
+            );
+        }
+
         return "OK";
     }
 
@@ -349,6 +358,15 @@ public class AdminController {
         LocalDateTime fechaHora = LocalDateTime.parse(fecha.replace(" ", "T"));
         cita.setFechaAsignada(fechaHora);
         citaService.guardarCita(cita);
+
+        // 🔔 NOTIFICACIÓN PUSH
+        if (cita.getUsuario() != null) {
+            notificationService.enviarNotificacion(
+                cita.getUsuario().getId(), 
+                "Cita Programada", 
+                "El administrador ha programado tu cita para el: " + fecha
+            );
+        }
 
         return "OK";
     }
@@ -370,6 +388,15 @@ public class AdminController {
 
         cita.setNotasAdmin(notas);
         citaService.guardarCita(cita);
+
+        // 🔔 NOTIFICACIÓN PUSH
+        if (cita.getUsuario() != null) {
+            notificationService.enviarNotificacion(
+                cita.getUsuario().getId(), 
+                "Nueva Nota en tu Cita", 
+                "Nota del administrador: " + (notas.length() > 50 ? notas.substring(0, 47) + "..." : notas)
+            );
+        }
 
         return "OK";
     }

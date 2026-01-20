@@ -260,18 +260,169 @@
     document.addEventListener('DOMContentLoaded', function() {
         const vehiculoId = [[${vehiculo?.id}]];
         let colorSeleccionado = null;
+        const viewer = document.getElementById('car-viewer');
+
+        // Mapa de colores extendido (Español/Inglés -> Hex)
+        const colorMap = {
+            // Básicos
+            'rojo': '#e60012', // Mazda Red Soul
+            'red': '#e60012',
+            'azul': '#19456b', // Deep Blue
+            'blue': '#19456b',
+            'negro': '#111111', // Jet Black
+            'black': '#111111',
+            'blanco': '#fcfcfc', // Snowflake White
+            'white': '#fcfcfc',
+            'gris': '#5a5e6b', // Machine Gray
+            'gray': '#5a5e6b',
+            'grey': '#5a5e6b',
+            'plata': '#c0c0c0', // Sonic Silver
+            'silver': '#c0c0c0',
+            
+            // Variaciones comunes
+            'amarillo': '#f5c300',
+            'verde': '#2e8b57',
+            'naranja': '#ff7d00',
+            'cafe': '#4b3621',
+            'marron': '#4b3621',
+            'beige': '#f5f5dc',
+            'crema': '#fffdd0',
+            'vino': '#722f37',
+            'azul oscuro': '#00008b',
+            'azul claro': '#87ceeb'
+        };
+
+        // Helper para convertir Hex a RGBA para model-viewer
+        function hexToRgba(hex) {
+            let c;
+            if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+                c = hex.substring(1).split('');
+                if (c.length === 3) {
+                    c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+                }
+                c = '0x' + c.join('');
+                return [
+                    ((c >> 16) & 255) / 255,
+                    ((c >> 8) & 255) / 255,
+                    (c & 255) / 255,
+                    1.0
+                ];
+            }
+            return [1, 1, 1, 1];
+        }
+
+        // Función inteligente para obtener color
+        function getColorRgba(input) {
+            if (!input) return [0.8, 0.8, 0.8, 1.0]; // Gris por defecto
+
+            // 1. Limpiar y normalizar entrada
+            const text = input.toString().trim().toLowerCase();
+
+            // 2. ¿Es ya un código HEX válido? (Ej: #ff0000)
+            if (/^#[0-9a-f]{3,6}$/i.test(text)) {
+                return hexToRgba(text);
+            }
+
+            // 3. Buscar en el mapa
+            if (colorMap[text]) {
+                return hexToRgba(colorMap[text]);
+            }
+
+            // 4. Fallback: Intentar usar nombres CSS estándar (ej: "purple")
+            // Creamos un elemento temporal para ver qué color calcula el navegador
+            const d = document.createElement("div");
+            d.style.color = text;
+            d.style.display = "none";
+            document.body.appendChild(d);
+            const computedColor = window.getComputedStyle(d).color; // Devuelve "rgb(r, g, b)"
+            document.body.removeChild(d);
+
+            // Si el navegador entendió el color, parseamos el "rgb(r, g, b)"
+            if (computedColor && computedColor !== '' && !computedColor.includes('rgba(0, 0, 0, 0)')) {
+                const match = computedColor.match(/\d+/g);
+                if (match && match.length >= 3) {
+                    return [
+                        parseInt(match[0]) / 255,
+                        parseInt(match[1]) / 255,
+                        parseInt(match[2]) / 255,
+                        1.0
+                    ];
+                }
+            }
+
+            // 5. Si todo falla -> Gris metálico
+            console.warn(`No se pudo reconocer el color: "${input}". Usando gris por defecto.`);
+            return [0.5, 0.5, 0.5, 1.0];
+        }
 
         console.log("ID del vehículo:", vehiculoId);
 
         // Función para seleccionar color
         window.seleccionarColor = function(elemento) {
+            // 1. Actualizar UI de botones
             document.querySelectorAll('.color-option').forEach(opt => {
                 opt.classList.remove('selected');
             });
             elemento.classList.add('selected');
-            colorSeleccionado = elemento.getAttribute('data-color');
+            
+            // 2. Guardar selección
+            const nombreColorRaw = elemento.getAttribute('data-color'); // El texto original (ej: "Rojo")
+            colorSeleccionado = nombreColorRaw;
             localStorage.setItem('colorVehiculo_' + vehiculoId, colorSeleccionado);
-            console.log("Color seleccionado:", colorSeleccionado);
+            console.log("Color seleccionado (raw):", colorSeleccionado);
+
+            // 3. Calcular valores RGBA robustos
+            const colorRgba = getColorRgba(nombreColorRaw);
+
+            // 4. Aplicar al modelo 3D
+            if (viewer && viewer.model) {
+                // Palabras clave para EXCLUIR partes
+                // Palabras clave para EXCLUIR partes del auto que no deben cambiar de color
+                const excludeKeywords = [
+                    // Vidrios y cristales
+                    'glass', 'window', 'windshield', 'luna', 'cristal', 'parabrisas',
+                    
+                    // Ruedas y neumáticos
+                    'tire', 'rubber', 'wheel', 'rim', 'llanta', 'caucho', 'goma', 'hub', 'disk', 'disc',
+                    
+                    // Metales y cromados (detalles)
+                    'chrome', 'chromium', 'cromo', 'metal', 'silver', 'acero', 'steel',
+                    
+                    // Luces y faros
+                    'light', 'lamp', 'faro', 'luz', 'led', 'bulb', 'reflector', 'signal', 'brake_light',
+                    
+                    // Interior
+                    'interior', 'seat', 'dash', 'asiento', 'tablero', 'steering', 'volante', 'console',
+                    
+                    // Plásticos y rejillas negras
+                    'plastic', 'grille', 'rejilla', 'black', 'negro', 'trim', 'moldura',
+                    
+                    // Frenos y placas
+                    'license', 'plate', 'matricula', 'brake', 'caliper', 'freno', 'pinza',
+                    
+                    // Logos y emblemas (LO QUE PEDISTE ESPECÍFICAMENTE)
+                    'logo', 'badge', 'emblem', 'mazda', 'brand', 'sign', 'symbol', 'escudo', 'marca', 'text'
+                ];
+                
+                let matsFound = 0;
+
+                viewer.model.materials.forEach(material => {
+                    const matName = material.name.toLowerCase();
+                    const isExcluded = excludeKeywords.some(keyword => matName.includes(keyword));
+
+                    if (!isExcluded) {
+                        material.pbrMetallicRoughness.setBaseColorFactor(colorRgba);
+                        console.log(`Pintando material: ${material.name}`);
+                        matsFound++;
+                    }
+                });
+
+                if (matsFound === 0) {
+                    console.warn('No se encontraron materiales aptos para pintar en este modelo.');
+                }
+            } else if (!viewer) {
+                console.warn("No se encontró el visor 3D para aplicar el color.");
+            }
         };
 
         function seleccionarCategoria(categoria, elemento) {
@@ -326,7 +477,21 @@
             irACita();
         });
 
-        // Cargar color seleccionado previamente
+        // Evento cuando el modelo termina de cargar
+        if (viewer) {
+            viewer.addEventListener('load', () => {
+                console.log('Modelo 3D cargado lista para pintar');
+                // Intentar aplicar color guardado si existe
+                const colorGuardado = localStorage.getItem('colorVehiculo_' + vehiculoId);
+                if (colorGuardado) {
+                    // Simular clic o llamar lógica
+                    const btn = document.querySelector(`.color-option[data-color="${colorGuardado}"]`);
+                    if(btn) window.seleccionarColor(btn);
+                }
+            });
+        }
+
+        // Cargar color seleccionado previamente (Visualmente)
         if (vehiculoId) {
             const colorGuardado = localStorage.getItem('colorVehiculo_' + vehiculoId);
             if (colorGuardado) {
