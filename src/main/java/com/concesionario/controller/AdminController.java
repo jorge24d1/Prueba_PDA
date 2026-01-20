@@ -184,7 +184,7 @@ public class AdminController {
         model.addAttribute("identificacion", identificacion);
         model.addAttribute("horaInicio", horaInicio != null ? horaInicio.toString() : "");
         model.addAttribute("horaFin", horaFin != null ? horaFin.toString() : "");
-        return "Admin/Dashboard";
+        return "admin/dashboard";
     }
     @PostMapping("/despedir-trabajador/{id}")
     @ResponseBody
