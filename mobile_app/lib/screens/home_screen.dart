@@ -45,7 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () async {
               // Cerrar sesión
               final prefs = await SharedPreferences.getInstance();
-              await prefs.clear(); // Borra userId y nombre
+              await prefs.remove('userId');
+              await prefs.remove('nombre');
+              // Don't use clear() to preserve biometric_enabled key
 
               Navigator.pushNamedAndRemoveUntil(
                 context,

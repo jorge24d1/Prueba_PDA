@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:mobile_app/screens/home_screen.dart';
 import 'package:mobile_app/services/notification_service.dart';
+import 'package:mobile_app/services/biometric_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -13,7 +14,10 @@ class _LoginScreenState extends State<LoginScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _apiService = ApiService();
+  final _biometricService = BiometricService();
   bool _isLoading = false;
+  bool _canCheckBiometrics = false;
+  bool _isBiometricEnabled = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -28,6 +32,35 @@ class _LoginScreenState extends State<LoginScreen>
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
     _animationController.forward();
+    _checkBiometrics();
+  }
+
+  Future<void> _checkBiometrics() async {
+    bool canCheck = await _biometricService.isBiometricAvailable();
+    bool isEnabled = await _biometricService.isBiometricLoginEnabled();
+    print('Biometric Debug: Can Check = $canCheck, Is Enabled = $isEnabled');
+    setState(() {
+      _canCheckBiometrics = canCheck;
+      _isBiometricEnabled = isEnabled;
+    });
+  }
+
+  Future<void> _authenticateWithBiometrics() async {
+    bool authenticated = await _biometricService.authenticate();
+    if (authenticated) {
+      setState(() => _isLoading = true);
+      final credentials = await _biometricService.getCredentials();
+      if (credentials['email'] != null && credentials['password'] != null) {
+        _emailController.text = credentials['email']!;
+        _passwordController.text = credentials['password']!;
+        _login(fromBiometric: true);
+      } else {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No hay credenciales guardadas')),
+        );
+      }
+    }
   }
 
   @override
@@ -36,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  void _login() async {
+  void _login({bool fromBiometric = false}) async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Por favor llena todos los campos')),
@@ -52,6 +85,12 @@ class _LoginScreenState extends State<LoginScreen>
       );
 
       if (response['success'] == true) {
+        if (!fromBiometric && _canCheckBiometrics) {
+          await _biometricService.enableBiometricLogin(
+            _emailController.text,
+            _passwordController.text,
+          );
+        }
         await NotificationService().initNotifications();
         Navigator.pushReplacement(
           context,
@@ -220,6 +259,34 @@ class _LoginScreenState extends State<LoginScreen>
                                   ),
                                 ),
 
+                          SizedBox(height: 20),
+
+                          SizedBox(height: 20),
+                          if (_canCheckBiometrics)
+                            IconButton(
+                              icon: Icon(
+                                Icons.fingerprint,
+                                size: 50,
+                                color: _isBiometricEnabled
+                                    ? primaryColor
+                                    : Colors.grey,
+                              ),
+                              onPressed: _isLoading
+                                  ? null
+                                  : (_isBiometricEnabled
+                                        ? _authenticateWithBiometrics
+                                        : () {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Inicia sesión con contraseña para activar la huella',
+                                                ),
+                                              ),
+                                            );
+                                          }),
+                            ),
                           SizedBox(height: 20),
                           Text(
                             '¿Olvidaste tu contraseña?',
