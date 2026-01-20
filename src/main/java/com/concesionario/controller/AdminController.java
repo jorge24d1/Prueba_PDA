@@ -10,6 +10,10 @@ import java.time.LocalTime;
 import java.util.*;
 import com.concesionario.dto.UsuarioDTO;
 import com.concesionario.model.Cita;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -84,6 +88,96 @@ public class AdminController {
     }
 
     @GetMapping("/Dashboard")
+    @GetMapping("/test/status/v2")
+    @ResponseBody
+    public Map<String, Object> testFirebaseStatusV2() {
+        Map<String, Object> status = new HashMap<>();
+        try {
+            FirebaseApp app = FirebaseApp.getInstance();
+            status.put("firebase_inicializado", true);
+            status.put("nombre_app", app.getName());
+            
+            // Intentar obtener credenciales (hack para ver el ID)
+            com.google.auth.state.GoogleCredentials credentials = (com.google.auth.state.GoogleCredentials) app.getOptions().getCredentials();
+             // NOTA: Esto es solo diagnóstico, podría fallar si el cast no es directo, pero intentemos ver si logramos sacar info
+            status.put("credential_class", credentials.getClass().getName());
+            
+        } catch (Exception e) {
+            status.put("firebase_inicializado", false);
+            status.put("error", e.getMessage());
+        }
+        return status;
+    }
+
+    @GetMapping("/test/force-notif")
+    @ResponseBody
+    public Map<String, Object> forceNotification() {
+        Map<String, Object> resultado = new HashMap<>();
+        resultado.put("timestamp", LocalDateTime.now().toString());
+        resultado.put("usuario_prueba", "jorgegod2025@gmail.com"); 
+        
+        try {
+            // 1. Buscar usuario
+            Usuario usuario = usuarioRepository.findByCorreo("jorgegod2025@gmail.com");
+            if (usuario == null) {
+                resultado.put("error", "Usuario no encontrado");
+                return resultado;
+            }
+            
+            // 2. Verificar Token
+            String token = usuario.getFcmToken();
+            resultado.put("token_intentado", token != null && token.length() > 10 ? token.substring(0, 10) + "..." : "NULL/VACIO");
+            
+            if (token == null || token.isEmpty()) {
+                resultado.put("envio_exitoso", false);
+                resultado.put("razon", "El usuario no tiene Token FCM registrado");
+                return resultado;
+            }
+
+            // 3. Verificar Credenciales en uso
+             FirebaseApp app = FirebaseApp.getInstance();
+             String serviceAccountId = "DESCONOCIDO";
+             try {
+                  // Intento sucio de reflexión para saber qué llave está usando
+                  Object creds = app.getOptions().getCredentials();
+                  resultado.put("credenciales_tipo", creds.getClass().getName());
+                  
+                  // Si estamos usando el hardcoded, debería ser ServiceAccountCredentials
+                  if (creds instanceof com.google.auth.oauth2.ServiceAccountCredentials) {
+                      serviceAccountId = ((com.google.auth.oauth2.ServiceAccountCredentials) creds).getPrivateKeyId();
+                  }
+             } catch (Exception ex) {
+                 serviceAccountId = "Error leyendo ID: " + ex.getMessage();
+             }
+             resultado.put("ACTUAL_KEY_ID_EN_SERVIDOR", serviceAccountId);
+
+
+            // 4. Intentar envío directo (Bypassing NotificationService para aislar errores)
+            Message message = Message.builder()
+                    .setToken(token)
+                    .setNotification(Notification.builder()
+                            .setTitle("PRUEBA DESDE AZURE (Hardcoded Key)")
+                            .setBody("Si lees esto, funcionó el fix de la llave 4.")
+                            .build())
+                    .putData("tipo", "PRUEBA")
+                    .build();
+
+            String response = FirebaseMessaging.getInstance().send(message);
+            resultado.put("envio_exitoso", true);
+            resultado.put("mensaje_id", response);
+
+        } catch (Exception e) {
+            resultado.put("envio_exitoso", false);
+            resultado.put("error_tipo", e.getClass().getSimpleName());
+            resultado.put("error_mensaje", e.getMessage());
+            // Stacktrace parcial
+            StackTraceElement[] trace = e.getStackTrace();
+            if (trace.length > 0) resultado.put("donde", trace[0].toString());
+        }
+        
+        return resultado;
+    }
+
     public String dashboard(Model model) {
         // Estadísticas
         long totalCitas = citaService.contarTodasLasCitas();
