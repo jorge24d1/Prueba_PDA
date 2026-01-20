@@ -137,6 +137,7 @@ public class AdminController {
         return resultado;
     }
 
+    @GetMapping("/dashboard")
     public String dashboard(Model model) {
         // Estadísticas
         long totalCitas = citaService.contarTodasLasCitas();
