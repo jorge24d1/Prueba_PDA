@@ -27,23 +27,26 @@ public class NotificationService {
                 
                 // Construir mensaje nativo de FCM en formato JSON
                 // Azure Notification Hubs recibe el payload de FCM y lo reenvía
-                String fcmPayload = "{" +
-                        "\"message\": {" +
-                        "    \"notification\": {" +
-                        "        \"title\": \"" + titulo + "\"," +
-                        "        \"body\": \"" + mensaje + "\"" +
-                        "    }," +
-                        "    \"data\": {" +
-                        "        \"click_action\": \"FLUTTER_NOTIFICATION_CLICK\"," +
-                        "        \"userId\": \"" + userId + "\"" +
-                        "    }" +
-                        "}" +
-                        "}";
-
-                // Enviar usando nuestro servicio REST personalizado
-                azureHubService.sendNotification(fcmPayload, usuario.getFcmToken());
+                // ==========================================
+                // ENVÍO DIRECTO VIA FIREBASE ADMIN ADD (BYPASS AZURE)
+                // ==========================================
                 
-                System.out.println("✅ Notificación enviada exitosamente vía Azure REST a: " + userId);
+                // 1. Construir el mensaje V1 usando el SDK oficial
+                // No necesitamos construir JSON manual, el objeto Message lo hace.
+                com.google.firebase.messaging.Message message = com.google.firebase.messaging.Message.builder()
+                        .setToken(usuario.getFcmToken())
+                        .setNotification(com.google.firebase.messaging.Notification.builder()
+                                .setTitle(titulo)
+                                .setBody(mensaje)
+                                .build())
+                        .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
+                        .putData("userId", userId)
+                        .build();
+
+                // 2. Enviar directamente a Google
+                String response = com.google.firebase.messaging.FirebaseMessaging.getInstance().send(message);
+                
+                System.out.println("✅ Notificación enviada DIRECTAMENTE vía Firebase SDK. ID: " + response);
                 
             } else {
                 System.out.println("⚠️ Usuario " + userId + " no tiene Token FCM registrado. No se envió notificación.");
