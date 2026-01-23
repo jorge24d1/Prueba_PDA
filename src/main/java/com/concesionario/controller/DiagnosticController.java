@@ -41,7 +41,7 @@ public class DiagnosticController {
             Map<String, String> response = new HashMap<>();
             response.put("status", "Enviado");
             response.put("userId", usuario.getId());
-            response.put("token_preview", fcmToken.substring(0, Math.min(fcmToken.length(), 10)) + "...");
+            response.put("token_full", fcmToken);
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
