@@ -60,6 +60,7 @@ public class SecurityConfig {
                                 "/STloginup.css",
                                 "/uploads/**",
                                 "/auth/**",
+                                "/test/status/**",
                                 "/api/usuario/**"
                         ).permitAll()
                         .requestMatchers("/perfil_gestor").hasRole("TRB_GESTOR")
