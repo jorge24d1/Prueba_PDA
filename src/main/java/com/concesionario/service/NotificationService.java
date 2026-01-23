@@ -28,13 +28,15 @@ public class NotificationService {
                 // Construir mensaje nativo de FCM en formato JSON
                 // Azure Notification Hubs recibe el payload de FCM y lo reenvía
                 String fcmPayload = "{" +
-                        "\"notification\": {" +
-                        "    \"title\": \"" + titulo + "\"," +
-                        "    \"body\": \"" + mensaje + "\"" +
-                        "}," +
-                        "\"data\": {" +
-                        "    \"click_action\": \"FLUTTER_NOTIFICATION_CLICK\"," +
-                        "    \"userId\": \"" + userId + "\"" +
+                        "\"message\": {" +
+                        "    \"notification\": {" +
+                        "        \"title\": \"" + titulo + "\"," +
+                        "        \"body\": \"" + mensaje + "\"" +
+                        "    }," +
+                        "    \"data\": {" +
+                        "        \"click_action\": \"FLUTTER_NOTIFICATION_CLICK\"," +
+                        "        \"userId\": \"" + userId + "\"" +
+                        "    }" +
                         "}" +
                         "}";
 
