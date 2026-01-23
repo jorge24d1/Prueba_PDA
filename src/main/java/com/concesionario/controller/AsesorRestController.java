@@ -190,13 +190,37 @@ public class AsesorRestController {
             cita.setEstado(estado);
             citaRepository.save(cita);
 
-            // 🔔 NOTIFICACIÓN PUSH
+            // 🔔 NOTIFICACIÓN PUSH PERSONALIZADA
             if (cita.getUsuario() != null) {
-               notificationService.enviarNotificacion(
-                   cita.getUsuario().getId(), 
-                   "Actualización de Cita", 
-                   "Tu cita ha cambiado de estado a: " + estado
-               );
+                String nombreVehiculo = "tu vehículo de interés";
+                if (cita.getVehiculo() != null) {
+                    nombreVehiculo = cita.getVehiculo().getMarca() + " " + cita.getVehiculo().getModelo();
+                } else if (cita.getNombreVehiculo() != null) {
+                    nombreVehiculo = cita.getNombreVehiculo();
+                }
+
+                String titulo = "";
+                String mensaje = "";
+
+                switch(estado) {
+                    case "Aprobada":
+                        titulo = "¡Cita Confirmada! 🚗✅";
+                        mensaje = "Buenas noticias. Tu cita en NextGen Motors para ver el " + nombreVehiculo + " ha sido aprobada. ¡Te esperamos!";
+                        break;
+                    case "Rechazada":
+                        titulo = "Actualización de Cita 📅";
+                        mensaje = "Lo sentimos, tu solicitud para el " + nombreVehiculo + " no pudo ser procesada en este horario. Por favor revisa los detalles.";
+                        break;
+                    case "Completada":
+                        titulo = "¡Gracias por visitarnos! 🤝";
+                        mensaje = "Fue un placer atenderte. Esperamos que hayas disfrutado tu experiencia con el " + nombreVehiculo + ".";
+                        break;
+                    default:
+                        titulo = "Estado de Cita Actualizado 🔄";
+                        mensaje = "Tu cita para el " + nombreVehiculo + " ahora está: " + estado + ".";
+                }
+
+               notificationService.enviarNotificacion(cita.getUsuario().getId(), titulo, mensaje);
             }
 
             return ResponseEntity.ok("OK");
@@ -218,12 +242,17 @@ public class AsesorRestController {
             cita.setFechaAsignada(fechaHora);
             citaRepository.save(cita);
 
-            // 🔔 NOTIFICACIÓN PUSH
+            // 🔔 NOTIFICACIÓN PUSH PERSONALIZADA
             if (cita.getUsuario() != null) {
+                String nombreVehiculo = "tu vehículo";
+                if (cita.getVehiculo() != null) {
+                    nombreVehiculo = cita.getVehiculo().getMarca() + " " + cita.getVehiculo().getModelo();
+                }
+
                notificationService.enviarNotificacion(
                    cita.getUsuario().getId(), 
-                   "Cita Asignada", 
-                   "Tu cita ha sido programada para el " + fecha + " a las " + hora
+                   "¡Fecha Asignada! 🗓️📍", 
+                   "Hemos programado tu cita para ver el " + nombreVehiculo + " el día " + fecha + " a las " + hora + ". ¡Nos vemos pronto!"
                );
             }
 
@@ -241,12 +270,12 @@ public class AsesorRestController {
             cita.setNotasAdmin(notas);
             citaRepository.save(cita);
 
-            // 🔔 NOTIFICACIÓN PUSH
+            // 🔔 NOTIFICACIÓN PUSH PERSONALIZADA
             if (cita.getUsuario() != null) {
                notificationService.enviarNotificacion(
                    cita.getUsuario().getId(), 
-                   "Nueva Nota en tu Cita", 
-                   "El asesor ha agregado una nota: " + (notas.length() > 50 ? notas.substring(0, 47) + "..." : notas)
+                   "Nuevo Mensaje del Asesor 💬", 
+                   "Tienes un nuevo comentario sobre tu cita: \"" + (notas.length() > 50 ? notas.substring(0, 47) + "..." : notas) + "\""
                );
             }
 
