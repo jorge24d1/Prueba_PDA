@@ -57,53 +57,20 @@ public class CitaService {
     // }
 
     public void guardarCitaSimple(Cita cita, Usuario usuario, Vehiculo vehiculo) {
-        cita.setCedula(usuario.getIdentificacionUser());
-        cita.setCorreoElectronico(usuario.getCorreoUser());
-
-
-        // Crear DTOs para embedding
-        UsuarioDTO usuarioDTO = new UsuarioDTO();
-        usuarioDTO.setId(usuario.getId());
-        usuarioDTO.setNombre(usuario.getNombreUser());
-        usuarioDTO.setApellido(usuario.getApellidoUser());
-        usuarioDTO.setCorreo(usuario.getCorreoUser());
-        usuarioDTO.setIdentificacion(usuario.getIdentificacionUser());
-
-        VehiculoDTO vehiculoDTO = new VehiculoDTO();
-        vehiculoDTO.setId(vehiculo.getId());
-        vehiculoDTO.setMarca(vehiculo.getMarca());
-        vehiculoDTO.setModelo(vehiculo.getModelo());
-        vehiculoDTO.setPrecio(vehiculo.getPrecio());
-        vehiculoDTO.setCategoria(vehiculo.getCategoria());
-        // vehiculoDTO.setColores(vehiculo.getColores());
-
-        // Establece relaciones embebidas
-        cita.setUsuario(usuarioDTO);
-        cita.setVehiculo(vehiculoDTO);
-        cita.setFechaCreacion(LocalDateTime.now());
-        cita.setAtendida(false);
-        cita.setLeida(false);
-        cita.setEstado("Pendiente");
-        
-        
-        cita.setNombres(null);
-        cita.setApellidos(null);
-        cita.setCedula(null);
-        cita.setCorreoElectronico(null);
-        // cita.setComentario(null);
-        // cita.setTelefono(null);
-        cita.setModelo(null);
-        cita.setVehiculoId(null);
-        cita.setNombreVehiculo(null);
-
+        prepararCitaEmbedding(cita, usuario, vehiculo);
+        // Lógica específica si la hubiera, en este caso es idéntica
         citaRepository.save(cita);
     }
 
     public void crearCitaConEmbedding(Cita cita, Usuario usuario, Vehiculo vehiculo) {
+        prepararCitaEmbedding(cita, usuario, vehiculo);
+        // Lógica específica si la hubiera
+        citaRepository.save(cita);
+    }
 
+    private void prepararCitaEmbedding(Cita cita, Usuario usuario, Vehiculo vehiculo) {
         cita.setCedula(usuario.getIdentificacionUser());
         cita.setCorreoElectronico(usuario.getCorreoUser());
-
 
         // Crear DTOs para embedding
         UsuarioDTO usuarioDTO = new UsuarioDTO();
@@ -114,12 +81,14 @@ public class CitaService {
         usuarioDTO.setIdentificacion(usuario.getIdentificacionUser());
 
         VehiculoDTO vehiculoDTO = new VehiculoDTO();
-        vehiculoDTO.setId(vehiculo.getId());
-        vehiculoDTO.setMarca(vehiculo.getMarca());
-        vehiculoDTO.setModelo(vehiculo.getModelo());
-        vehiculoDTO.setPrecio(vehiculo.getPrecio());
-        vehiculoDTO.setCategoria(vehiculo.getCategoria());
-        // vehiculoDTO.setColores(vehiculo.getColores());
+        if (vehiculo != null) {
+            vehiculoDTO.setId(vehiculo.getId());
+            vehiculoDTO.setMarca(vehiculo.getMarca());
+            vehiculoDTO.setModelo(vehiculo.getModelo());
+            vehiculoDTO.setPrecio(vehiculo.getPrecio());
+            vehiculoDTO.setCategoria(vehiculo.getCategoria());
+            // vehiculoDTO.setColores(vehiculo.getColores());
+        }
 
         // Establece relaciones embebidas
         cita.setUsuario(usuarioDTO);
@@ -128,19 +97,16 @@ public class CitaService {
         cita.setAtendida(false);
         cita.setLeida(false);
         cita.setEstado("Pendiente");
-        
-        
+
         cita.setNombres(null);
         cita.setApellidos(null);
         cita.setCedula(null);
         cita.setCorreoElectronico(null);
-        cita.setComentario(null);
+        cita.setComentario(null); // Unificado
         // cita.setTelefono(null);
         cita.setModelo(null);
         cita.setVehiculoId(null);
         cita.setNombreVehiculo(null);
-
-        citaRepository.save(cita);
     }
 
 

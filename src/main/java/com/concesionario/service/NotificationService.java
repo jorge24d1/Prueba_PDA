@@ -11,6 +11,9 @@ public class NotificationService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private AzureHubService azureHubService;
+
     /**
      * @param userId ID del usuario destinatario
      * @param titulo Título de la notificación
@@ -22,29 +25,30 @@ public class NotificationService {
             
             if (usuario != null && usuario.getFcmToken() != null && !usuario.getFcmToken().isEmpty()) {
                 
-                // Construir mensaje FCM
-                // Nota: Usamos Message.builder() del SDK de Firebase
-                com.google.firebase.messaging.Message message = com.google.firebase.messaging.Message.builder()
-                        .setToken(usuario.getFcmToken())
-                        .setNotification(com.google.firebase.messaging.Notification.builder()
-                                .setTitle(titulo)
-                                .setBody(mensaje)
-                                .build())
-                        .putData("click_action", "FLUTTER_NOTIFICATION_CLICK") // Para que Flutter sepa qué hacer al clickear
-                        .putData("userId", userId)
-                        .build();
+                // Construir mensaje nativo de FCM en formato JSON
+                // Azure Notification Hubs recibe el payload de FCM y lo reenvía
+                String fcmPayload = "{" +
+                        "\"notification\": {" +
+                        "    \"title\": \"" + titulo + "\"," +
+                        "    \"body\": \"" + mensaje + "\"" +
+                        "}," +
+                        "\"data\": {" +
+                        "    \"click_action\": \"FLUTTER_NOTIFICATION_CLICK\"," +
+                        "    \"userId\": \"" + userId + "\"" +
+                        "}" +
+                        "}";
 
-                // Enviar
-                String response = com.google.firebase.messaging.FirebaseMessaging.getInstance().send(message);
-                System.out.println("✅ Notificación enviada exitosamente: " + response);
+                // Enviar usando nuestro servicio REST personalizado
+                azureHubService.sendNotification(fcmPayload, usuario.getFcmToken());
+                
+                System.out.println("✅ Notificación enviada exitosamente vía Azure REST a: " + userId);
                 
             } else {
                 System.out.println("⚠️ Usuario " + userId + " no tiene Token FCM registrado. No se envió notificación.");
             }
         } catch (Exception e) {
-            // No lanzar excepción para evitar interrumpir el flujo principal del negocio
-            System.err.println("❌ Error enviando notificación Firebase: " + e.getMessage());
-            // Sugerencia: Si el error es que no se inicializó la App, es porque falta el JSON
+            System.err.println("❌ Error enviando notificación Azure: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

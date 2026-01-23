@@ -103,6 +103,8 @@
             <version>9.2.0</version>
         </dependency>
 
+        <!-- Azure Notification Hubs dependency removed due to resolution issues. Using direct REST API. -->
+
         <!-- Desarrollo -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

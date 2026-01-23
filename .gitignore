@@ -32,3 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 src/main/resources/serviceAccountKey.json
+src/main/resources/nextgen-c9f08-firebase-adminsdk-fbsvc-1cf71ae7de.json
+
+src/main/resources/nextgen-c9f08-firebase-adminsdk-fbsvc-1cf71ae7de.json

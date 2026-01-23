@@ -56,7 +56,7 @@ public class UsuarioController {
         try {
             Administrador administrador = administradorService.findByCorreoAdmin(email);
             if (administrador != null && administrador.tieneRol(Rol.ADMINISTRADOR)) {
-                return "redirect:/admin/Dashboard";
+                return "redirect:/admin/dashboard";
             }
         } catch (Exception e) {
 

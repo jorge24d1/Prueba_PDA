@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
         
         // Intentar redirigir a la misma página si es posible, o al dashboard por defecto
         String referer = request.getHeader("Referer");
-        return "redirect:" + (referer != null ? referer : "/admin/Dashboard");
+        return "redirect:" + (referer != null ? referer : "/admin/dashboard");
     }
 
     @ExceptionHandler(Exception.class)

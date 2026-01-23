@@ -123,7 +123,7 @@ public class SecurityConfig {
                 response.sendRedirect("/perfil_asesor");
             }
             else if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRADOR"))) {
-                response.sendRedirect("/admin/Dashboard");
+                response.sendRedirect("/admin/dashboard");
             }
             else if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_TRABAJADOR"))) {
                 response.sendRedirect("/trabajador/dashboard");

@@ -89,7 +89,7 @@ public class TrabajadorController {
         model.addAttribute("totalCitas", totalCitas);
         model.addAttribute("totalTrabajadores", totalTrabajadores);
 
-        return "Perfil_analisis";
+        return "perfil_analisis";
     }
 
     @GetMapping("/perfil_gestor")
@@ -117,7 +117,7 @@ public class TrabajadorController {
         model.addAttribute("totalVehiculos", totalVehiculos);
         model.addAttribute("totalAnuncios", totalAnuncios);
 
-        return "Perfil_gestor";
+        return "perfil_gestor";
     }
 
     @GetMapping("/perfil_asesor")

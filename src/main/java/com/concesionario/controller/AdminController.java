@@ -218,7 +218,7 @@ public class AdminController {
             trabajadorRepository.save(trabajador);
 
             redirectAttributes.addFlashAttribute("success", "Trabajador registrado exitosamente con roles: " + rolesStrings);
-            return "redirect:/admin/Dashboard";
+            return "redirect:/admin/dashboard";
 
         } catch (DataIntegrityViolationException e) {
             model.addAttribute("error", "Error: El correo o identificación ya existen");
@@ -369,11 +369,11 @@ public class AdminController {
             // el VehiculoService ahora usa Cloudinary automáticamente
             // Solo llamamos al servicio para guardar
             vehiculoService.guardarVehiculo(vehiculoExistente);
-            return "redirect:/admin/Dashboard";
+            return "redirect:/admin/dashboard";
 
         } catch (Exception e) {
             model.addAttribute("error", "Error al editar el vehículo: " + e.getMessage());
-            return "redirect:/admin/Dashboard";
+            return "redirect:/admin/dashboard";
         }
     }
 
@@ -382,7 +382,7 @@ public class AdminController {
         // ✅ MODIFICADO: Ya no necesitamos eliminar archivos locales
         // Cloudinary maneja el almacenamiento automáticamente
         vehiculoService.eliminarVehiculo(id);
-        return "redirect:/admin/Dashboard";
+        return "redirect:/admin/dashboard";
     }
 
     // ❌ ELIMINADO: Ya no necesitamos el método guardarImagen local
@@ -570,11 +570,11 @@ public class AdminController {
             }
 
             vehiculoService.crearAnuncio(anuncio, imagen);
-            return "redirect:/admin/Dashboard";
+            return "redirect:/admin/dashboard";
 
         } catch (Exception e) {
             model.addAttribute("error", "Error al crear el anuncio: " + e.getMessage());
-            return "redirect:/admin/Dashboard?error=Error+al+crear+anuncio";
+            return "redirect:/admin/dashboard?error=Error+al+crear+anuncio";
         }
     }
 
@@ -637,6 +637,6 @@ public class AdminController {
         }
 
         vehiculoService.crearVehiculoNormal(vehiculo, imagen);
-        return "redirect:/admin/Dashboard";
+        return "redirect:/admin/dashboard";
     }
 }
