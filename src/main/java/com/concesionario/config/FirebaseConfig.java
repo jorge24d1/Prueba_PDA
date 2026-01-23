@@ -17,34 +17,34 @@ public class FirebaseConfig {
     public FirebaseApp firebaseApp() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
             try {
-                // ⚠️ HARDCODED CREDENTIALS (Temporal para Fix Azure) - KEY ID: 5421a7b3dc
+                // ⚠️ HARDCODED CREDENTIALS (Updated)
                  String privateKey = "-----BEGIN PRIVATE KEY-----\n" +
-                        "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC6rri3BmrZuvCJ\n" +
-                        "8GaauhKTc16h4pGGS2Oem1pArQwb9i9JDVwr79YM3GG5M/G0zwJ8JwWlsMvxDNwE\n" +
-                        "qrHHZoLtTBlgaOMxmUTFOisqVIt9fYw4kvFATdQNplXy2lzKcHBI4obpRG6LxmsK\n" +
-                        "/ndRGeiN23CwIuMwboCRPaHkNKgdOZtJ3YA5oozFu7m3Fr/fhSVRXQ8rER+ItsDw\n" +
-                        "FI+9QXIiItvYAMAA9DT462HxDdKs3fDLWADPfT/fa3x/dCyqUOTeh1eKKFPYwHXy\n" +
-                        "luyXjSHB+ZG/9SVOjMdnsvpJ1Ow14LSm+DnyouaOUj8xHEEhUjSWq46d6yi/0p9x\n" +
-                        "WImqvgNRAgMBAAECggEAUMbIY12R/2tNqIoOg5XO8uFhSa/1IwRc8ySqfUDDdBfm\n" +
-                        "pvfycYqB9qenW1FYHVHTc/AYl/SzkjZrv1MywKKhNVePxXEtGWmF4cdFJThW8TJR\n" +
-                        "aatfW2Exx8Q4/W+x5eCYHVlzYdz77lwpNiUccMnCoBsbHAPEhVDTLcVa1xlXwujL\n" +
-                        "RNqcrmW9IOy+8zAWif2J/4S8JTvHkHCfjEWxYZuCthcwSP7cvKQxJZrDE+W6apxp\n" +
-                        "GX6w/vARlzl+zuq4Q3JddWd+A8XzUA/2WjI/UJfS1oxDTd3kHpWEhGpkOvhwMtOZ\n" +
-                        "GCh/Fv5TnpFyT7Qp9bnqSIvMLE61gxnxzd9yMMfYXwKBgQD10sdCcjcSLhZKa1YB\n" +
-                        "KAa+EWvRMjx++Q8KM58OWnzXhL9NZKWCUU23zQ8TIhISHDWtwnSHf0vFX7x+T2DO\n" +
-                        "vPDNVtQo+1fNsl4eaAMZBxG9yOK5RFrACTRA4sp911ma7JkXc1KBSJKeuao5VWva\n" +
-                        "zRsl0tGr2geQJW1pK3KP6GAASwKBgQDCaSwC1CZDmpOqQXczG9yiKdBJDbwRx1uz\n" +
-                        "msLm8GOr+6Rz0nJ+czc8G1Ydkzocq6kN6/Ym7R+2QkAAu/+j1d7wgqiQ7wWdUbNY\n" +
-                        "6qXwsFf4rBQUe8p6B7Hzr5rf5FPB0BTkq7/ofPLuTOvdyIc5L/4zqUJ1oAl6Prmc\n" +
-                        "oSpBWJThUwKBgHnH4QUO9i9ge5SElkfeX3C7yrEJdSTmF8hTCIIg2+YdEnSx3riv\n" +
-                        "tJPQ153/6/ni1cjuI7KYop32LrhYdLoWqijf0h03Xyk9KxlfJ+G3OdfOdFuZ/GdU\n" +
-                        "Z/mZIP20uORiP/l5HS+FF3Xgvu7GXbc4kzFqvoqnacXEdO58IrYeRaj/AoGBAMG4\n" +
-                        "/WMgNbTd3lEkhPwHwnZRBj0Vk5d/uVAiYh6v4hIpYjkLto1sj9i0QL6dy6VwJLg7\n" +
-                        "rgAh/5ylLZPNwjJm1o2BFSm/FDAsjnOG9q39etvP1P6IUD4DVv7FuKVrp06U44zt\n" +
-                        "3AB2KbjuK4bH4H9K5JpkCladj3Qh9uEt86ZD968DAoGAYeRw00uKTT7Cw+Imb6vO\n" +
-                        "KVcjlFfyDXgkrbpzmq9uOCIBMA5hLUJfK6kSoAVEoeYQ8q7PLWZkq+R8U4cNGls7\n" +
-                        "2x1aACHx4V8rXF8v8hNtAKli0iV3k7OtzhS3hlFW0uDwhA+oDFuDdmCttlmq+65x\n" +
-                        "DiTwL5Bp7QJfAytTORMGWY0=\n" +
+                        "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCXzMWmvudEKgou\n" +
+                        "eRKC4cLTMobTNa0vVXZo+NFVH7UwCYgWeM8ZVwPElB+wR6QZdvRj8MaFqAva1+MS\n" +
+                        "GaixsL7o2tpwf6gR8XpRkxA83AGcz2cXMlhsg6P3BLY+0KtinKwIpoknwz1dCqe1\n" +
+                        "HLHV2UDqiJ0v5QxK/H/M0xi9DQ9F5yky2IeVQiLFxEcSeXRvCXm8H8YzQ/RWPW7e\n" +
+                        "F9MNBOn4qshpdmZ1bzz2Uj5ToBt59UWqtklridSv2yHFghyCj+qygL5uTKqGzMb3\n" +
+                        "lSa6bcFbSjzhH2W7LKGmzAUs0OmnDa+d6YSdQAUXeVxfSz8ihQ2H9ijdbBV4MMaU\n" +
+                        "h95QcTnNAgMBAAECggEABY4dLun45U9d31os6ZSWIEvOuqH8kX6LfnHvRIc22+gt\n" +
+                        "Y8J4tGZby/DZFrFjJE9scs/X5AJEqiCRExN/Tz627dHnK+DFZ3VdKD5n2gz5viGq\n" +
+                        "QHi7haps8K2VIcgEeEUK1/zdiL1QseahlojTSo57HVocg9PaVvrV48qsiBaXQtPm\n" +
+                        "qvBFiEygi2rMEVlkxa0/NLTqRbisLqMMR05Soj25zDSABsrlhQlAcHyTWZbnW5sx\n" +
+                        "dJeknivF9grqpYzdU6li/0Mqb4vMLE0I0Xvf5cRSYFodwC1CLWT/CpC3GueDzUj4\n" +
+                        "UxKO9h4MTHS3QlXtvr0m9xOb1Il8dtpEtc1WAD0x/QKBgQDUCXCEDS9mEeVWjoKG\n" +
+                        "pp1kdfo3gHS871LLagiPbnBHuklmWqeYxHN5Yad7rfJ/ThC9Aob0rwolQNVEllc/\n" +
+                        "KEqwWUa6uhdrUyMkwcN6h2+NvODiPSRWl8VgkKzlWK3GnJ6YGFVkbUN/xId/q9E4\n" +
+                        "XYGh6F5c2qEpMHeKRwre07nyHwKBgQC3Rg4NXKXzB2mUYe+oUp0pKxfBJ43dorPR\n" +
+                        "ffU5z230MUFM7XEWWnoF7iZZGTc9eTiRXIfeKsqabOaxejkJ6gJ67bikKoXm2HLB\n" +
+                        "koC48IqM7KvOmdbfLXQ66BtRHML1jhHXlFtfIMHN9e+43cL1Fgpj4MkxOKCeLk/t\n" +
+                        "1zbtB+KOkwKBgF/jCOvenpG1BBZZifNkg4a7x3Sz9Za/T5zHjal3UvVM7AaKdoIi\n" +
+                        "TOoWXEwVBLXHUtB2xRr/0UG5iPhkWH4qNWR8avzkTNTvGtRzf3f4qVzajoQhDD7Q\n" +
+                        "kaSyqE1rBeLsTtgPIQayVrT/5hq5U3r+5jGWyJ2LDRh4X4a7y9Gqw8sXAoGBAIWx\n" +
+                        "1Q5qR6TCA4L67pkbqwodJXcCI7tKtWJdQEarysoYJEq564Ui+2DYGaFlg6aUh2+C\n" +
+                        "0JqBHMsKJj/RqUpSKv0B7W/UlVmRDCWpeb1vu6KSA8Ly9oxX3DIcn9DL6my29s0M\n" +
+                        "rJr4imh0wCtbmpyvN2Uk1Z/Sb1j079nQ5YCEAAGBAoGAUGS49l1uyJkIOL9kcTB3\n" +
+                        "MK0hIYjgoF6eODZXkgHi8RZJhNlSdHJpnoRCZzVJa7uCOh2hAAs+jMD02MhzjcoS\n" +
+                        "NPdEMncJyLB9qKNUUx1piGZfyazUWlzAQ2BRxJ4n7+VURCU+j84vBNwXZy5tkPTB\n" +
+                        "5SqcJXjFiZh2MOvaHSgiH1c=\n" +
                         "-----END PRIVATE KEY-----";
 
                  java.util.Map<String, Object> jsonMap = new java.util.HashMap<>();
