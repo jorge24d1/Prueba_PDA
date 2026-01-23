@@ -48,4 +48,21 @@ public class DiagnosticController {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
         }
     }
+    @Autowired
+    private com.concesionario.service.AzureHubService azureHubService;
+
+    // Probar envío crudo (Raw Payload) para depurar formato
+    @PostMapping("/send-raw")
+    public ResponseEntity<?> sendRawNotification(@RequestParam String token, @RequestBody String jsonBody) {
+        try {
+            System.out.println("Testing Raw Payload to: " + token);
+            System.out.println("Body: " + jsonBody);
+            
+            azureHubService.sendNotification(jsonBody, token);
+            
+            return ResponseEntity.ok("Enviado (Raw). Verifica tu celular.");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+        }
+    }
 }
