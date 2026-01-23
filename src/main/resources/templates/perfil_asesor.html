@@ -187,17 +187,17 @@
       <div class="table-container">
         <div class="overflow-x-auto">
           <table id="tabla-citas" class="w-full min-w-full">
-            <thead class="bg-gray-50 dark:bg-gray-700">
+            <thead class="text-white" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Auto</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha Solicitud</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Comentario</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estado</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha Asignada</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Notas</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Cliente</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider hidden md:table-cell">Tipo</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Auto</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Fecha Solicitud</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider hidden xl:table-cell">Comentario</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Estado</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Fecha Asignada</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider hidden xl:table-cell">Notas</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Acciones</th>
             </tr>
             </thead>
             <tbody id="cuerpo-tabla-citas" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -523,16 +523,16 @@
                   new Date(cita.fechaAsignada).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'}) : '-';
 
               fila.innerHTML = `
-                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${cita.cliente || 'Sin nombre'}</td>
-                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${cita.tipo}</td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-bold">${cita.cliente || 'Sin nombre'}</td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden md:table-cell">${cita.tipo}</td>
                   <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${cita.vehiculo}</td>
-                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${fechaSolicitud}</td>
-                  <td class="px-4 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">${cita.comentario}</td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden lg:table-cell">${fechaSolicitud}</td>
+                  <td class="px-4 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate hidden xl:table-cell" title="${cita.comentario}">${cita.comentario}</td>
                   <td class="px-4 py-4 whitespace-nowrap">
                       <span class="estado-badge ${obtenerClaseEstadoCita(cita.estado)}">${cita.estado}</span>
                   </td>
-                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${fechaAsignada}</td>
-                  <td class="px-4 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">${cita.notasAdmin}</td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden lg:table-cell">${fechaAsignada}</td>
+                  <td class="px-4 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate hidden xl:table-cell" title="${cita.notasAdmin || ''}">${cita.notasAdmin}</td>
                   <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
                       <div class="flex flex-wrap gap-1" id="botones-cita-${cita.id}">
                           ${generarBotonesCita(cita.estado, cita.id)}

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mobile_app/screens/login_screen.dart';
 import 'package:mobile_app/screens/home_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mobile_app/services/notification_service.dart';
+import 'package:mobile_app/screens/splash_screen.dart'; // Importante
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 // Handler para notificaciones en segundo plano (debe ser top-level)
@@ -23,23 +22,14 @@ void main() async {
     print('⚠️ Error inicializando Firebase: $e');
   }
 
-  // Verificar sesión persistente
-  final prefs = await SharedPreferences.getInstance();
-  final userId = prefs.getString('userId');
+  // Verificar sesión persistente (MOVIDO A SPLASH)
+  // final prefs = await SharedPreferences.getInstance();
+  // final userId = prefs.getString('userId');
 
-  // Si hay sesión activa, inicializamos notificaciones de una vez
-  if (userId != null) {
-    await NotificationService().initNotifications();
-  }
-
-  runApp(MyApp(initialRoute: userId != null ? '/home' : '/login'));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final String initialRoute;
-
-  MyApp({required this.initialRoute});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -48,8 +38,20 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: Color(0xFFF5F7FA), // Fondo gris muy suave
+        appBarTheme: AppBarTheme(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          titleTextStyle: TextStyle(
+            color: Colors.black87,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          iconTheme: IconThemeData(color: Colors.black87),
+        ),
       ),
-      initialRoute: initialRoute,
+      // initialRoute ya no es fijo, usamos home: Splash
+      home: SplashScreen(),
       routes: {
         '/login': (context) => LoginScreen(),
         '/home': (context) => HomeScreen(),
