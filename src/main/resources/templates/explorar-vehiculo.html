@@ -93,34 +93,69 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <!-- Imagen del vehículo -->
                 <!-- Imagen del vehículo o Modelo 3D -->
-                <div class="vehicle-image-container">
-                    <!-- Si HAY modelo 3D -->
-                    <div th:if="${vehiculo.urlModelo3d != null and !vehiculo.urlModelo3d.isEmpty()}" class="w-full h-[500px] bg-gray-100 rounded-lg overflow-hidden relative">
-                         <model-viewer 
-                            id="car-viewer"
-                            th:src="${vehiculo.urlModelo3d}" 
-                            th:alt="${vehiculo.marca + ' ' + vehiculo.modelo}"
-                            auto-rotate
-                            camera-controls
-                            ar
-                            shadow-intensity="1"
-                            exposure="1.2"
-                            shadow-softness="1"
-                            camera-orbit="45deg 75deg 8m"
-                            field-of-view="30deg"
-                            class="w-full h-full focus:outline-none">
-                        </model-viewer>
-                        <div class="absolute bottom-4 left-0 right-0 flex flex-col items-center text-gray-400 pointer-events-none">
-                            <i class="fas fa-sync-alt text-2xl mb-1 animation-spin-slow"></i>
-                            <span class="text-xs font-bold uppercase tracking-wider">360° VIEW</span>
+                <div class="vehicle-media-section">
+                    <div class="vehicle-image-container relative w-full h-[500px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                        <!-- 3D Viewer Wrapper -->
+                        <div id="wrapper-3d" th:if="${vehiculo.urlModelo3d != null and !vehiculo.urlModelo3d.isEmpty()}" class="w-full h-full">
+                             <model-viewer 
+                                id="car-viewer"
+                                th:src="${vehiculo.urlModelo3d}" 
+                                th:alt="${vehiculo.marca + ' ' + vehiculo.modelo}"
+                                auto-rotate
+                                camera-controls
+                                ar
+                                shadow-intensity="1"
+                                exposure="1.2"
+                                shadow-softness="1"
+                                camera-orbit="45deg 75deg 8m"
+                                field-of-view="30deg"
+                                class="w-full h-full focus:outline-none">
+                            </model-viewer>
+                            <div class="absolute bottom-4 left-0 right-0 flex flex-col items-center text-gray-400 pointer-events-none">
+                                <i class="fas fa-sync-alt text-2xl mb-1 animation-spin-slow"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider">360° VIEW</span>
+                            </div>
+                        </div>
+
+                        <!-- Image Wrapper (Hidden by default if 3D exists) -->
+                        <div id="wrapper-img" 
+                             th:classappend="${vehiculo.urlModelo3d != null and !vehiculo.urlModelo3d.isEmpty()} ? 'hidden' : ''"
+                             class="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-900">
+                            <img id="main-image" 
+                                 th:src="${vehiculo.imagenUrl}" 
+                                 alt="Vehículo" 
+                                 class="w-full h-full object-contain">
                         </div>
                     </div>
 
-                    <!-- Si NO hay modelo 3D, mostrar imagen -->
-                    <img th:unless="${vehiculo.urlModelo3d != null and !vehiculo.urlModelo3d.isEmpty()}" 
-                         th:src="${vehiculo.imagenUrl}" 
-                         alt="Vehículo" 
-                         class="vehicle-image">
+                    <!-- Thumbnails -->
+                    <div class="mt-4 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        <!-- 3D Button -->
+                        <button th:if="${vehiculo.urlModelo3d != null and !vehiculo.urlModelo3d.isEmpty()}"
+                                onclick="mostrar3D()"
+                                id="btn-3d"
+                                class="thumbnail-btn w-20 h-20 flex-shrink-0 rounded-lg border-2 border-primary overflow-hidden relative group transition-all">
+                            <div class="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 group-hover:bg-primary/10 transition-colors">
+                                <i class="fas fa-cube text-2xl text-gray-700 dark:text-gray-300"></i>
+                            </div>
+                            <span class="absolute bottom-1 left-0 right-0 text-center text-[10px] font-bold bg-white/80 dark:bg-black/50 text-gray-800 dark:text-white">3D</span>
+                        </button>
+                        
+                        <!-- Main Image -->
+                        <button onclick="mostrarImagen(this.getAttribute('data-src'), this)"
+                                th:data-src="${vehiculo.imagenUrl}"
+                                class="thumbnail-btn w-20 h-20 flex-shrink-0 rounded-lg border-2 border-transparent hover:border-primary overflow-hidden transition-all bg-gray-200">
+                            <img th:src="${vehiculo.imagenUrl}" class="w-full h-full object-cover">
+                        </button>
+                        
+                        <!-- Gallery -->
+                        <button th:each="img : ${vehiculo.galeria}"
+                                th:data-src="${img}"
+                                onclick="mostrarImagen(this.getAttribute('data-src'), this)"
+                                class="thumbnail-btn w-20 h-20 flex-shrink-0 rounded-lg border-2 border-transparent hover:border-primary overflow-hidden transition-all bg-gray-200">
+                            <img th:src="${img}" class="w-full h-full object-cover">
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Especificaciones y detalles -->
@@ -503,6 +538,40 @@
                         colorSeleccionado = colorGuardado;
                     }
                 });
+            }
+        }
+
+        // Funciones Galería
+        window.mostrar3D = function() {
+            const wrapper3D = document.getElementById('wrapper-3d');
+            const wrapperImg = document.getElementById('wrapper-img');
+            
+            if (wrapper3D) wrapper3D.classList.remove('hidden');
+            if (wrapperImg) wrapperImg.classList.add('hidden');
+            
+            actualizarBotonesActivos(document.getElementById('btn-3d'));
+        };
+
+        window.mostrarImagen = function(src, btn) {
+            const wrapper3D = document.getElementById('wrapper-3d');
+            const wrapperImg = document.getElementById('wrapper-img');
+            const mainImg = document.getElementById('main-image');
+
+            if (wrapper3D) wrapper3D.classList.add('hidden');
+            if (wrapperImg) wrapperImg.classList.remove('hidden');
+            if (mainImg) mainImg.src = src;
+
+            actualizarBotonesActivos(btn);
+        };
+
+        function actualizarBotonesActivos(btnActivo) {
+            document.querySelectorAll('.thumbnail-btn').forEach(btn => {
+                btn.classList.remove('border-primary');
+                btn.classList.add('border-transparent');
+            });
+            if (btnActivo) {
+                btnActivo.classList.remove('border-transparent');
+                btnActivo.classList.add('border-primary');
             }
         }
     });

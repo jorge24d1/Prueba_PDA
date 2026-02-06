@@ -41,9 +41,21 @@ public class VehiculoService {
         return vehiculoRepository.findByDestacadoFalse();
     }
 
-    public void crearVehiculoNormal(Vehiculo vehiculo, MultipartFile imagen) throws IOException {
+    public void crearVehiculoNormal(Vehiculo vehiculo, MultipartFile imagen, List<MultipartFile> galeriaImagenes) throws IOException {
         String rutaImagen = guardarImagenEnCloudinary(imagen);
         vehiculo.setImagenUrl(rutaImagen);
+        
+        // Procesar galería
+        if (galeriaImagenes != null && !galeriaImagenes.isEmpty()) {
+            List<String> urlsGaleria = new ArrayList<>();
+            for (MultipartFile img : galeriaImagenes) {
+                if (img != null && !img.isEmpty()) {
+                    urlsGaleria.add(guardarImagenEnCloudinary(img));
+                }
+            }
+            vehiculo.setGaleria(urlsGaleria);
+        }
+
         vehiculo.setDestacado(false); // Asegura que no sea destacado
         vehiculoRepository.save(vehiculo);
     }
@@ -102,6 +114,49 @@ public class VehiculoService {
         return vehiculoRepository.countByDestacadoTrue();
     }
 
+    // ==========================================
+    // MÉTODO DE BÚSQUEDA AVANZADA PARA N8N / API
+    // ==========================================
+    public List<Vehiculo> buscarVehiculos(String marca, String modelo, 
+                                          Integer anioMin, Integer anioMax, 
+                                          Double precioMin, Double precioMax, 
+                                          String categoria) {
+        
+        // 1. Obtener todos (o usar Criteria si fuera más complejo)
+        List<Vehiculo> todos = obtenerTodos();
+
+        // 2. Filtrar con Stream
+        return todos.stream()
+                .filter(v -> {
+                    // Filtro Marca
+                    if (marca != null && !marca.isEmpty() && 
+                        (v.getMarca() == null || !v.getMarca().toLowerCase().contains(marca.toLowerCase()))) {
+                        return false;
+                    }
+                    // Filtro Modelo
+                    if (modelo != null && !modelo.isEmpty() && 
+                        (v.getModelo() == null || !v.getModelo().toLowerCase().contains(modelo.toLowerCase()))) {
+                        return false;
+                    }
+                    // Filtro Año Min
+                    if (anioMin != null && v.getAño() < anioMin) return false;
+                    // Filtro Año Max
+                    if (anioMax != null && v.getAño() > anioMax) return false;
+                    // Filtro Precio Min
+                    if (precioMin != null && v.getPrecio() < precioMin) return false;
+                    // Filtro Precio Max
+                    if (precioMax != null && v.getPrecio() > precioMax) return false;
+                    // Filtro Categoria
+                    if (categoria != null && !categoria.isEmpty() && 
+                        (v.getCategoria() == null || !v.getCategoria().equalsIgnoreCase(categoria))) {
+                        return false;
+                    }
+                    
+                    return true;
+                })
+                .collect(Collectors.toList());
+    }
+
 
     private String guardarImagenEnCloudinary(MultipartFile imagen) throws IOException {
         try {
@@ -131,5 +186,22 @@ public class VehiculoService {
     public void actualizarImagenVehiculo(Vehiculo vehiculo, MultipartFile imagen) throws IOException {
         String rutaImagen = guardarImagenEnCloudinary(imagen);
         vehiculo.setImagenUrl(rutaImagen);
+    }
+
+    public void agregarImagenesGaleria(Vehiculo vehiculo, List<MultipartFile> nuevasImagenes) throws IOException {
+        if (nuevasImagenes == null || nuevasImagenes.isEmpty()) return;
+
+        List<String> galeriaActual = vehiculo.getGaleria();
+        if (galeriaActual == null) {
+            galeriaActual = new ArrayList<>();
+        }
+
+        for (MultipartFile img : nuevasImagenes) {
+            if (img != null && !img.isEmpty()) {
+                galeriaActual.add(guardarImagenEnCloudinary(img));
+            }
+        }
+        vehiculo.setGaleria(galeriaActual);
+        // Nota: no guardamos aquí, el controlador llama a guardarVehiculo después
     }
 }

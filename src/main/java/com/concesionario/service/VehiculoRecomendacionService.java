@@ -42,17 +42,23 @@ public class VehiculoRecomendacionService {
                 );
             }
 
-            // ✅ CUARTO: USAR GEMINI (Solo si hay vehículos relevantes)
-            String respuestaGemini = geminiAIService.analizarYSeleccionarVehiculo(mensajeUsuario, vehiculosFiltrados)
-                    .block();
+            // ✅ CUARTO: (MODIFICADO) YA NO USAMOS GEMINI LOCAL
+            // String respuestaGemini = geminiAIService.analizarYSeleccionarVehiculo(mensajeUsuario, vehiculosFiltrados).block();
 
-            // ✅ QUINTO: Seleccionar el vehículo con rotación
+            // En su lugar, seleccionamos uno por rotación y devolvemos texto genérico
             Vehiculo vehiculoSeleccionado = seleccionarMejorVehiculo(vehiculosFiltrados, mensajeUsuario);
+            
+            String respuestaSimple;
+            if (vehiculoSeleccionado != null) {
+                respuestaSimple = generarRespuestaVehiculo(mensajeUsuario, vehiculoSeleccionado);
+            } else {
+                 respuestaSimple = "🤖 **Dante**: No encontré un vehículo exacto, pero revisa estas opciones.";
+            }
 
             List<Vehiculo> vehiculoUnico = vehiculoSeleccionado != null ?
                     List.of(vehiculoSeleccionado) : List.of();
 
-            return new RecomendacionResponse(respuestaGemini, vehiculoUnico);
+            return new RecomendacionResponse(respuestaSimple, vehiculoUnico);
 
         } catch (Exception e) {
             System.out.println("❌ Error en procesarRecomendacion: " + e.getMessage());

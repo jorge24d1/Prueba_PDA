@@ -41,6 +41,9 @@ public class GestorVehiculoController {
             @RequestParam String descripcion,
             @RequestParam String colores,
             @RequestParam(value = "modelo3d", required = false) MultipartFile modelo3d,
+            @RequestParam(value = "galeria1", required = false) MultipartFile galeria1,
+            @RequestParam(value = "galeria2", required = false) MultipartFile galeria2,
+            @RequestParam(value = "galeria3", required = false) MultipartFile galeria3,
             @RequestParam MultipartFile imagen,
             RedirectAttributes redirectAttributes) throws IOException {
 
@@ -77,7 +80,13 @@ public class GestorVehiculoController {
             vehiculo.setColores(listaColores);
         }
 
-        vehiculoService.crearVehiculoNormal(vehiculo, imagen);
+        // Procesar galería
+        List<MultipartFile> galeria = new ArrayList<>();
+        if (galeria1 != null && !galeria1.isEmpty()) galeria.add(galeria1);
+        if (galeria2 != null && !galeria2.isEmpty()) galeria.add(galeria2);
+        if (galeria3 != null && !galeria3.isEmpty()) galeria.add(galeria3);
+
+        vehiculoService.crearVehiculoNormal(vehiculo, imagen, galeria);
         redirectAttributes.addFlashAttribute("success", "Vehículo guardado exitosamente");
         return "redirect:/perfil_gestor";
     }
@@ -104,6 +113,9 @@ public class GestorVehiculoController {
             @RequestParam String colores,
             @RequestParam String descripcion,
             @RequestParam(value = "modelo3d", required = false) MultipartFile modelo3d,
+            @RequestParam(value = "galeria1", required = false) MultipartFile galeria1,
+            @RequestParam(value = "galeria2", required = false) MultipartFile galeria2,
+            @RequestParam(value = "galeria3", required = false) MultipartFile galeria3,
             RedirectAttributes redirectAttributes) {
 
         try {
@@ -146,6 +158,16 @@ public class GestorVehiculoController {
                 vehiculoExistente.setColores(listaColores);
             } else {
                 vehiculoExistente.setColores(new ArrayList<>());
+            }
+
+            // Procesar galería (añadir nuevas imágenes)
+            List<MultipartFile> nuevasImagenes = new ArrayList<>();
+            if (galeria1 != null && !galeria1.isEmpty()) nuevasImagenes.add(galeria1);
+            if (galeria2 != null && !galeria2.isEmpty()) nuevasImagenes.add(galeria2);
+            if (galeria3 != null && !galeria3.isEmpty()) nuevasImagenes.add(galeria3);
+            
+            if (!nuevasImagenes.isEmpty()) {
+                vehiculoService.agregarImagenesGaleria(vehiculoExistente, nuevasImagenes);
             }
 
             vehiculoService.guardarVehiculo(vehiculoExistente);

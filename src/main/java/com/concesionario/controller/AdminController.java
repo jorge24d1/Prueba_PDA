@@ -636,7 +636,7 @@ public class AdminController {
             vehiculo.setColores(listaColores);
         }
 
-        vehiculoService.crearVehiculoNormal(vehiculo, imagen);
+        vehiculoService.crearVehiculoNormal(vehiculo, imagen, null);
         return "redirect:/admin/dashboard";
     }
 }

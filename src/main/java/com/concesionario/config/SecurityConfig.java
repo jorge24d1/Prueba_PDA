@@ -61,7 +61,8 @@ public class SecurityConfig {
                                 "/uploads/**",
                                 "/auth/**",
                                 "/test/status/**",
-                                "/api/usuario/**"
+                                "/api/usuario/**",
+                                "/api/n8n/**"
                         ).permitAll()
                         .requestMatchers("/perfil_gestor").hasRole("TRB_GESTOR")
                         .requestMatchers("/perfil_analisis").hasRole("TRB_ANALISIS")

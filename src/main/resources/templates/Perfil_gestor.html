@@ -338,6 +338,25 @@
                     <input type="file" id="modelo3d" name="modelo3d" accept=".glb">
                     <p class="text-xs text-gray-500 mt-1">Opcional. Formato GLB para vista 3D.</p>
                 </div>
+                
+                <!-- Galería de imágenes (Opcional) -->
+                <div class="form-group md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Galería de Fotos (Opcional)</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="galeria1" class="text-xs mb-1 block">Foto Extra 1</label>
+                            <input type="file" id="galeria1" name="galeria1" accept="image/*" class="text-sm">
+                        </div>
+                        <div>
+                            <label for="galeria2" class="text-xs mb-1 block">Foto Extra 2</label>
+                            <input type="file" id="galeria2" name="galeria2" accept="image/*" class="text-sm">
+                        </div>
+                        <div>
+                            <label for="galeria3" class="text-xs mb-1 block">Foto Extra 3</label>
+                            <input type="file" id="galeria3" name="galeria3" accept="image/*" class="text-sm">
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="mt-6 flex justify-end space-x-4">
                 <button type="button" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700" onclick="cerrarModal('modal-vehiculo')">Cancelar</button>
@@ -425,6 +444,25 @@
                 <div class="form-group md:col-span-2">
                     <label for="editar-modelo3d">Actualizar Modelo 3D (.glb)</label>
                     <input type="file" id="editar-modelo3d" name="modelo3d" accept=".glb">
+                </div>
+                
+                <!-- Galería de imágenes (Edición) -->
+                <div class="form-group md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Añadir más fotos a la Galería</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="editar-galeria1" class="text-xs mb-1 block">Foto Extra 1</label>
+                            <input type="file" id="editar-galeria1" name="galeria1" accept="image/*" class="text-sm">
+                        </div>
+                        <div>
+                            <label for="editar-galeria2" class="text-xs mb-1 block">Foto Extra 2</label>
+                            <input type="file" id="editar-galeria2" name="galeria2" accept="image/*" class="text-sm">
+                        </div>
+                        <div>
+                            <label for="editar-galeria3" class="text-xs mb-1 block">Foto Extra 3</label>
+                            <input type="file" id="editar-galeria3" name="galeria3" accept="image/*" class="text-sm">
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="mt-6 flex justify-end space-x-4">

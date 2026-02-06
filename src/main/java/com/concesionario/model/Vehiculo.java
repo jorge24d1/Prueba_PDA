@@ -27,6 +27,7 @@ public class Vehiculo {
     
     private boolean destacado = false;  
     private List<String> colores = new ArrayList<>(); 
+    private List<String> galeria = new ArrayList<>(); // Nueva lista para galería de imáganes 
     
     
     public Vehiculo() {
@@ -170,5 +171,13 @@ public class Vehiculo {
 
     public void setColores(List<String> colores) {
         this.colores = colores;
+    }
+
+    public List<String> getGaleria() {
+        return galeria;
+    }
+
+    public void setGaleria(List<String> galeria) {
+        this.galeria = galeria;
     }
 }
