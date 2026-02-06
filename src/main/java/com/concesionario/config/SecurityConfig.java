@@ -12,8 +12,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -29,6 +28,15 @@ public class SecurityConfig {
 
     @Autowired
     private TrabajadorDetailsService trabajadorDetailsService;
+
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
+
+    @Autowired
+    private CustomOidcUserService customOidcUserService;
+
+    @Autowired
+    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -76,6 +84,15 @@ public class SecurityConfig {
                         .loginProcessingUrl("/login")
                         .successHandler(authenticationSuccessHandler())
                         .failureUrl("/login?error=true")
+                        .permitAll()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                                .oidcUserService(customOidcUserService) // Register OIDC service
+                        )
+                        .successHandler(oAuth2LoginSuccessHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -147,8 +164,5 @@ public class SecurityConfig {
         return new HttpSessionEventPublisher();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+
 }

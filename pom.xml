@@ -105,6 +105,19 @@
 
         <!-- Azure Notification Hubs dependency removed due to resolution issues. Using direct REST API. -->
 
+        <!-- Dotenv (.env config) -->
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <!-- Social Login (OAuth2) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+
         <!-- Desarrollo -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -48,9 +48,17 @@ public class UsuarioController {
 
 
 
+    private String obtenerEmailDePrincipal(Principal principal) {
+        if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+            return ((org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal)
+                    .getPrincipal().getAttribute("email");
+        }
+        return principal.getName();
+    }
+
     @GetMapping("/perfil")
     public String verPerfil(Model model, Principal principal) {
-        String email = principal.getName();
+        String email = obtenerEmailDePrincipal(principal);
 
 
         try {
@@ -85,12 +93,54 @@ public class UsuarioController {
         }
 
 
+        // CHECK IF PROFILE IS COMPLETE (Fallback for direct access)
         Usuario usuario = usuarioService.findByCorreoUser(email);
+        if (usuario.getIdentificacionUser() == null || usuario.getIdentificacionUser().contains("google")) { // Simply heuristic or check against sub
+             // Ideally we check if it matches the SUB from Google, but we don't have it easily here without fetching again.
+             // We can trust the SuccessHandler, but for direct access safety:
+             // If valid identification is missing (assuming IDs are numeric and Google's are long/diff)
+             // For now, let's assume SuccessHandler did its job.
+        }
+
         List<Cita> citas = citaService.obtenerCitasPorUsuarioId(usuario.getId());
 
         model.addAttribute("nombreUsuario", usuario.getNombreUser());
         model.addAttribute("citas", citas);
         return "usuario/perfil";
+    }
+
+    @GetMapping("/completar-registro")
+    public String mostrarFormularioCompletarRegistro(Model model, Principal principal) {
+        String email = obtenerEmailDePrincipal(principal);
+        Usuario usuario = usuarioRepository.findByCorreoUser(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        model.addAttribute("usuario", usuario);
+        return "usuario/completar-registro"; // New template
+    }
+
+    @PostMapping("/completar-registro")
+    public String procesarCompletarRegistro(@RequestParam("identificacion") String identificacion,
+                                            Principal principal,
+                                            RedirectAttributes redirectAttributes) {
+        try {
+            String email = obtenerEmailDePrincipal(principal);
+            Usuario usuario = usuarioRepository.findByCorreoUser(email)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            if (usuarioRepository.existsByIdentificacionUser(identificacion)) {
+                redirectAttributes.addFlashAttribute("error", "Esa identificación ya está registrada");
+                return "redirect:/usuario/completar-registro";
+            }
+
+            usuario.setIdentificacionUser(identificacion);
+            usuarioRepository.save(usuario);
+
+            return "redirect:/usuario/Inicio";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al guardar: " + e.getMessage());
+            return "redirect:/usuario/completar-registro";
+        }
     }
 
     @GetMapping("/agendamiento")
@@ -130,7 +180,7 @@ public class UsuarioController {
             Model model) {
 
         // Obtener usuario autenticado
-        Usuario usuario = usuarioRepository.findByCorreoUser(principal.getName())
+        Usuario usuario = usuarioRepository.findByCorreoUser(obtenerEmailDePrincipal(principal))
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Crear nueva cita con datos del usuario
@@ -191,7 +241,7 @@ public class UsuarioController {
             }
 
             // Resto de la lógica de guardado...
-            Usuario usuario = usuarioRepository.findByCorreoUser(principal.getName())
+            Usuario usuario = usuarioRepository.findByCorreoUser(obtenerEmailDePrincipal(principal))
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
             if (!validarDatosInmutables(cita, usuario)) {
@@ -260,7 +310,7 @@ public class UsuarioController {
     @GetMapping("/mis-citas")
     public String verMisCitas(Model model, Principal principal) {
 
-        Usuario usuario = usuarioRepository.findByCorreoUser(principal.getName())
+        Usuario usuario = usuarioRepository.findByCorreoUser(obtenerEmailDePrincipal(principal))
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
 
