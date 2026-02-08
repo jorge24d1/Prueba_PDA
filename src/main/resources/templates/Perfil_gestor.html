@@ -343,7 +343,8 @@
                             <div class="flex gap-2">
                                 <input type="text" id="color-nombre-crear"
                                     placeholder="Escribe el nombre del color (ej: Rojo Fuego)"
-                                    class="flex-1 form-control text-sm">
+                                    class="flex-1 form-control text-sm"
+                                    onkeydown="if(event.key === 'Enter'){ event.preventDefault(); agregarColor('crear', 'colores'); }">
                                 <button type="button" onclick="agregarColor('crear', 'colores')"
                                     class="btn-secondary px-3 py-2 whitespace-nowrap">
                                     <i class="fas fa-plus mr-1"></i> Agregar
@@ -477,7 +478,8 @@
                             <div class="flex gap-2">
                                 <input type="text" id="color-nombre-editar"
                                     placeholder="Escribe el nombre del color (ej: Azul Mar)"
-                                    class="flex-1 form-control text-sm">
+                                    class="flex-1 form-control text-sm"
+                                    onkeydown="if(event.key === 'Enter'){ event.preventDefault(); agregarColor('editar', 'editar-colores'); }">
                                 <button type="button" onclick="agregarColor('editar', 'editar-colores')"
                                     class="btn-secondary px-3 py-2 whitespace-nowrap">
                                     <i class="fas fa-plus mr-1"></i> Agregar
@@ -611,7 +613,8 @@
                             <div class="flex gap-2">
                                 <input type="text" id="color-nombre-anuncio"
                                     placeholder="Escribe el nombre del color (ej: Negro Mate)"
-                                    class="flex-1 form-control text-sm">
+                                    class="flex-1 form-control text-sm"
+                                    onkeydown="if(event.key === 'Enter'){ event.preventDefault(); agregarColor('anuncio', 'anuncio-colores'); }">
                                 <button type="button" onclick="agregarColor('anuncio', 'anuncio-colores')"
                                     class="btn-secondary px-3 py-2 whitespace-nowrap">
                                     <i class="fas fa-plus mr-1"></i> Agregar
