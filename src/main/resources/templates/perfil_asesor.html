@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Asesor - NextGenMotors</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link th:href="@{/css/perfil-asesor.css}" rel="stylesheet">
+  <style>
+
+
+  </style>
+</head>
+<body class="dark:bg-background-dark">
+<!-- Barra de navegación -->
+<nav class="navbar">
+  <div class="nav-logo">
+    <span class="logo-nexgen">NextGen</span>
+    <span class="logo-motors">Motors</span>
+  </div>
+
+  <!-- AGREGAR BOTÓN HAMBURGUESA -->
+  <button class="menu-toggle" id="menuToggle">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <div class="nav-links">
+    <a th:href="@{/usuario/Inicio}">Inicio</a>
+    <a href="/vehiculos">Nuestros Modelos</a>
+    <a th:href="@{/usuario/agendamiento}">Agendamiento online</a>
+  </div>
+</nav>
+
+<!-- AGREGAR OVERLAY PARA MÓVIL -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<!-- Contenedor principal -->
+<div class="main-container">
+  <!-- Barra lateral -->
+  <section id="sidebar">
+    <a href="#" class="brand">
+      <i class="fas fa-user-tie mr-2"></i>
+      <span id="nombre-asesor">Cargando...</span>
+    </a>
+    <ul class="side-menu top">
+      <li><a href="#bienvenida"><i class='fas fa-chart-line'></i><span>Dashboard</span></a></li>
+      <li><a href="#prospectos"><i class='fas fa-users'></i><span>Mis Prospectos</span></a></li>
+      <li><a href="#vehiculos"><i class='fas fa-car'></i><span>Vehículos</span></a></li>
+      <li><a href="#agenda"><i class='fas fa-calendar-alt'></i><span>Agenda</span></a></li>
+
+      <li><a href="#" onclick="confirmarCerrarSesion()" class="logout"><i class='fas fa-sign-out-alt'></i><span>Cerrar Sesión</span></a></li>
+    </ul>
+  </section>
+
+  <!-- Contenido principal -->
+  <main>
+    <!-- Bienvenida ASESOR -->
+    <section id="bienvenida">
+      <h1 class="text-3xl font-bold mb-4">Bienvenido, <span id="nombre-bienvenida">Cargando...</span></h1>
+      <p class="text-lg opacity-90">Panel de gestión comercial. Gestiona tus prospectos, agenda citas y alcanza tus metas de ventas.</p>
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="metric-card">
+          <div class="metric-value" id="total-prospectos">0</div>
+          <div class="text-sm text-gray-600 dark:text-gray-300">Prospectos Activos</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="ventas-mes">0</div>
+          <div class="text-sm text-gray-600 dark:text-gray-300">Ventas Este Mes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="tasa-conversion">0%</div>
+          <div class="text-sm text-gray-600 dark:text-gray-300">Tasa de Conversión</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="comisiones">$0</div>
+          <div class="text-sm text-gray-600 dark:text-gray-300">Comisiones Pendientes</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PROSPECTOS SECTION ===================== -->
+    <!-- ===================== PROSPECTOS SECTION (Diseño Limpio) ===================== -->
+    <section id="prospectos">
+      <div class="head-title mb-6">
+        <h2 class="text-2xl font-bold">Gestión de Prospectos</h2>
+        <p class="text-gray-600 dark:text-gray-300">Administra tus clientes potenciales</p>
+      </div>
+
+      <div class="table-container bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-bold text-gray-800"><i class="fas fa-users mr-2 text-blue-600"></i>Mis Prospectos</h3>
+          <button onclick="mostrarModal('modal-registro')" class="btn-asesor flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-sm transition transform hover:scale-105">
+            <i class="fas fa-plus"></i> Nuevo Prospecto
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table id="tabla-prospectos" class="w-full min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Cliente</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Contacto</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Vehículo Interés</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Observaciones</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="cuerpo-tabla-prospectos" class="bg-white divide-y divide-gray-200">
+            <!-- JS llenará esto -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== VEHÍCULOS SECTION ===================== -->
+    <section id="vehiculos">
+      <div class="head-title mb-6">
+        <h2 class="text-2xl font-bold">Catálogo de Vehículos</h2>
+        <p class="text-gray-600 dark:text-gray-300">Explora los vehículos disponibles para ofrecer a tus clientes</p>
+      </div>
+
+      <!-- Filtros -->
+      <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <select id="filtro-tipo" class="form-control" onchange="filtrarVehiculos()">
+          <option value="TODOS">Todos los tipos</option>
+          <option value="SUV">SUV</option>
+          <option value="Deportivo">Deportivo</option>
+          <option value="Sedán">Sedán</option>
+          <option value="Hatchback">Hatchback</option>
+          <option value="Pickup">Pickup</option>
+        </select>
+
+        <select id="filtro-marca" class="form-control" onchange="filtrarVehiculos()">
+          <option value="TODAS">Todas las marcas</option>
+          <!-- Las marcas se cargarán dinámicamente -->
+        </select>
+
+        <input type="text" id="busqueda-modelo" class="form-control" placeholder="Buscar por modelo..." onkeyup="filtrarVehiculos()">
+
+        <button onclick="resetearFiltros()" class="btn-secondary">Limpiar Filtros</button>
+      </div>
+
+      <div id="contenedor-vehiculos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Los vehículos se cargarán dinámicamente aquí -->
+        <div class="text-center py-8 col-span-3">
+          <div class="loading mx-auto"></div>
+          <span class="ml-2">Cargando vehículos...</span>
+        </div>
+      </div>
+
+      <!-- Mensaje cuando no hay vehículos -->
+      <div id="sin-vehiculos" class="hidden text-center py-8">
+        <i class="fas fa-car text-4xl mb-2 text-gray-300"></i>
+        <p class="text-lg font-medium">No se encontraron vehículos</p>
+        <p class="text-gray-500">Intenta con otros filtros de búsqueda</p>
+      </div>
+    </section>
+
+    <!-- ===================== AGENDA SECTION ===================== -->
+    <section id="agenda">
+      <div class="head-title mb-6">
+        <h2 class="text-2xl font-bold">Gestión de Citas</h2>
+        <p class="text-gray-600 dark:text-gray-300">Administra las citas asignadas a tus prospectos</p>
+      </div>
+
+      <div class="mb-6">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div>
+            <h3 class="text-xl font-semibold">Mis Citas</h3>
+          </div>
+          <select id="filtro-estado" class="w-full lg:w-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            <option value="TODAS">Todas las citas</option>
+            <option value="Pendiente">Pendientes</option>
+            <option value="Aprobada">Aprobadas</option>
+            <option value="Rechazada">Rechazadas</option>
+            <option value="Contactado">Contactados</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="overflow-x-auto">
+          <table id="tabla-citas" class="w-full min-w-full">
+            <thead class="text-white" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Cliente</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider hidden md:table-cell">Tipo</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Auto</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Fecha Solicitud</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider hidden xl:table-cell">Comentario</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Estado</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Fecha Asignada</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider hidden xl:table-cell">Notas</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="cuerpo-tabla-citas" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <!-- Los datos se cargarán dinámicamente aquí -->
+            <tr>
+              <td colspan="9" class="text-center py-8">
+                <div class="loading mx-auto"></div>
+                <span class="ml-2">Cargando citas...</span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal para Asignar Fecha -->
+    <div id="modal-fecha" class="modal">
+      <div class="modal-content">
+        <span class="close text-2xl cursor-pointer float-right hover:text-gray-600 transition-colors" onclick="cerrarModal('modal-fecha')">&times;</span>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Asignar Fecha</h2>
+        <div class="space-y-6">
+          <div class="form-group">
+            <label for="fecha-asignacion">Fecha</label>
+            <input type="date" id="fecha-asignacion" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="hora-asignacion">Hora</label>
+            <input type="time" id="hora-asignacion" class="form-control">
+          </div>
+          <div class="flex flex-col lg:flex-row gap-4 pt-4">
+            <button onclick="confirmarFecha()" class="btn-asesor flex-1">Confirmar</button>
+            <button type="button" class="btn-secondary" onclick="cerrarModal('modal-fecha')">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Notas -->
+    <div id="modal-notas" class="modal">
+      <div class="modal-content">
+        <span class="close text-2xl cursor-pointer float-right hover:text-gray-600 transition-colors" onclick="cerrarModal('modal-notas')">&times;</span>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Notas de Seguimiento</h2>
+        <div class="space-y-6">
+          <div class="form-group">
+            <label for="texto-notas">Notas</label>
+            <textarea id="texto-notas" class="form-control" rows="5" placeholder="Agregar notas de seguimiento..."></textarea>
+          </div>
+          <div class="flex flex-col lg:flex-row gap-4 pt-4">
+            <button onclick="guardarNotas()" class="btn-asesor flex-1">Guardar</button>
+            <button type="button" class="btn-secondary" onclick="cerrarModal('modal-notas')">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL REGISTRO MANUAL SIMPLE -->
+    <div id="modal-registro" class="modal">
+      <div class="modal-content" style="max-width: 500px;">
+        <span class="close text-2xl cursor-pointer float-right" onclick="cerrarModal('modal-registro')">&times;</span>
+        <h2 class="text-2xl font-bold mb-4">Nuevo Prospecto</h2>
+        
+        <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Nombre *</label>
+              <input type="text" id="reg-nombre" class="form-control" required placeholder="Nombre del cliente">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Apellido *</label>
+              <input type="text" id="reg-apellido" class="form-control" required placeholder="Apellido">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Teléfono *</label>
+              <input type="tel" id="reg-telefono" class="form-control" required placeholder="Número de contacto">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Vehículo de Interés *</label>
+                <!-- Input simple o select básico -->
+                <input type="text" id="reg-vehiculo" class="form-control" placeholder="Ej: Mazda CX-5 Rojo">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Email</label>
+              <input type="email" id="reg-correo" class="form-control" placeholder="Opcional">
+            </div>
+            <div>
+               <label class="block text-sm font-bold text-gray-700 mb-1">Observaciones</label>
+               <textarea id="reg-observaciones" class="form-control" rows="3" placeholder="Comentarios adicionales..."></textarea>
+            </div>
+
+            <button onclick="registrarProspecto()" class="btn-asesor w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow mt-2">
+               <i class="fas fa-save mr-2"></i>Guardar Prospecto
+            </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+<!-- Modal de confirmación para cerrar sesión -->
+<div id="logoutModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-icon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h3 class="modal-title">¿Cerrar Sesión?</h3>
+    <p class="modal-message">
+      ¿Estás seguro de que quieres cerrar tu sesión? Tendrás que volver a iniciar sesión para acceder a tu cuenta.
+    </p>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="cancelarCerrarSesion()">
+        Cancelar
+      </button>
+      <button class="modal-btn modal-btn-confirm" onclick="cerrarSesion()">
+        <i class="fas fa-sign-out-alt mr-2"></i>
+        Sí, Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script th:inline="none">
+  // Variables globales
+  let tablaProspectos;
+  let tablaCitas;
+  let citaActualId = null;
+
+  // Navegación entre secciones
+  document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('main section').forEach(section => {
+          section.style.display = 'none';
+      });
+      document.getElementById('bienvenida').style.display = 'block';
+
+      document.querySelectorAll('.side-menu a').forEach(link => {
+          link.addEventListener('click', function(e) {
+              if (this.getAttribute('href').startsWith('#')) {
+                  e.preventDefault();
+                  document.querySelectorAll('main section').forEach(section => {
+                      section.style.display = 'none';
+                  });
+                  const targetId = this.getAttribute('href').substring(1);
+                  document.getElementById(targetId).style.display = 'block';
+
+                  // Cargar datos específicos cuando se cambia de sección
+                  if (targetId === 'prospectos') {
+                      cargarProspectos();
+                  } else if (targetId === 'agenda') {
+                      cargarCitas();
+                  }
+              }
+          });
+      });
+
+      // Cargar datos iniciales
+      cargarDatosIniciales();
+  });
+
+  // Cargar datos iniciales
+  async function cargarDatosIniciales() {
+      // Cargar marcas y filtros para el formulario de prospectos eliminado/simplificado
+      // await cargarFiltrosVehiculos(); // Eliminado porque ya no existe
+
+      try {
+          // Cargar información del asesor
+          const response = await fetch('/asesor/datos');
+          if (!response.ok) throw new Error('Error en la respuesta del servidor');
+          const datosAsesor = await response.json();
+
+          document.getElementById('nombre-asesor').textContent = datosAsesor.nombre;
+          document.getElementById('nombre-bienvenida').textContent = datosAsesor.nombre;
+          document.getElementById('total-prospectos').textContent = datosAsesor.totalProspectos;
+          document.getElementById('ventas-mes').textContent = datosAsesor.ventasMes;
+          document.getElementById('tasa-conversion').textContent = datosAsesor.tasaConversion + '%';
+          document.getElementById('comisiones').textContent = '$' + datosAsesor.comisiones.toLocaleString();
+      } catch (error) {
+          console.error('Error al cargar datos del asesor:', error);
+      }
+  }
+
+  // Función para cargar prospectos
+  async function cargarProspectos() {
+      try {
+          const response = await fetch('/asesor/prospectos');
+          if (!response.ok) throw new Error('Error en la respuesta del servidor');
+
+          const prospectos = await response.json();
+
+          const cuerpoTabla = document.getElementById('cuerpo-tabla-prospectos');
+          cuerpoTabla.innerHTML = '';
+
+          if (prospectos.length === 0) {
+              cuerpoTabla.innerHTML = `
+                  <tr>
+                      <td colspan="6" class="text-center py-4 text-gray-500">
+                          No hay prospectos asignados
+                      </td>
+                  </tr>
+              `;
+              return;
+          }
+
+
+
+          prospectos.forEach(prospecto => {
+              const fila = document.createElement('tr');
+              fila.className = "hover:bg-gray-50 transition-colors";
+              
+              const claseEstado = obtenerClaseEstado(prospecto.estado);
+              const textoEstado = obtenerTextoEstado(prospecto.estado);
+              
+              // Datos seguros
+              const nombre = prospecto.nombreCompleto || 'Sin Nombre';
+              const telefono = prospecto.telefono || 'Sin Teléfono';
+              const email = prospecto.email || '';
+              const vehiculo = prospecto.vehiculoInteres || 'No especificado';
+              const observaciones = prospecto.observaciones || '-';
+
+              fila.innerHTML = `
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-bold text-gray-900">${nombre}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900"><i class="fas fa-phone mr-1 text-gray-400"></i>${telefono}</div>
+                    ${email ? `<div class="text-xs text-gray-500 mt-1"><i class="fas fa-envelope mr-1 text-gray-400"></i>${email}</div>` : ''}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900 font-medium">${vehiculo}</div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm text-gray-500 truncate max-w-xs" title="${observaciones}">${observaciones}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <select onchange="cambiarFase('${prospecto.id}', this.value)" 
+                            class="block w-full pl-3 pr-10 py-1 text-xs border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                            style="min-width: 130px; ${obtenerEstiloSelect(prospecto.estado)}">
+                        <option value="Nuevo" ${prospecto.estado === 'Nuevo' ? 'selected' : ''}>Nuevo</option>
+                        <option value="Contactado" ${prospecto.estado === 'Contactado' ? 'selected' : ''}>Contactado</option>
+                        <option value="En Proceso" ${prospecto.estado === 'En Proceso' ? 'selected' : ''}>En Proceso</option>
+                        <option value="Financiación" ${prospecto.estado === 'Financiación' ? 'selected' : ''}>Financiación</option>
+                        <option value="Compra" ${prospecto.estado === 'Compra' ? 'selected' : ''}>Compra</option>
+                        <option value="Venta Exitosa" ${prospecto.estado === 'Venta Exitosa' ? 'selected' : ''}>Venta Exitosa</option>
+                        <option value="Perdido" ${prospecto.estado === 'Perdido' ? 'selected' : ''}>Perdido (No interesado)</option>
+                    </select>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      ${prospecto.estado === 'Nuevo' ? 
+                          `<button onclick="contactarProspecto('${prospecto.id}')" 
+                                class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded transition shadow-sm flex items-center gap-1 animate-pulse" 
+                                title="Llamar ahora">
+                            <i class="fas fa-phone-alt text-xs"></i> <span>Llamar</span>
+                          </button>` 
+                        : 
+                          `<span class="text-green-600 font-bold flex items-center gap-1">
+                             <i class="fas fa-check-circle"></i> Contactado
+                           </span>`
+                      }
+                  </td>
+              `;
+              cuerpoTabla.appendChild(fila);
+          });
+
+          // Reinicializar DataTables
+          if ($.fn.DataTable.isDataTable('#tabla-prospectos')) {
+              tablaProspectos.destroy();
+          }
+
+          tablaProspectos = $('#tabla-prospectos').DataTable({
+              language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
+              pageLength: 10,
+              responsive: true,
+              autoWidth: false,
+              order: [[0, 'desc']], // Ordenar por nombre por defecto o fecha si tuvieramos
+              columnDefs: [
+                  { orderable: false, targets: 5 } // No ordenar columna acciones
+              ]
+          });
+
+      } catch (error) {
+          console.error('Error al cargar prospectos:', error);
+          mostrarNotificacion('Error al cargar los prospectos', 'error');
+      }
+  }
+
+  // ===================== GESTIÓN DE CITAS =====================
+
+  // Función para cargar citas
+  async function cargarCitas() {
+      try {
+          const response = await fetch('/asesor/citas');
+          if (!response.ok) throw new Error('Error en la respuesta del servidor');
+
+          const citas = await response.json();
+          const cuerpoTabla = document.getElementById('cuerpo-tabla-citas');
+          cuerpoTabla.innerHTML = '';
+
+          if (citas.length === 0) {
+              cuerpoTabla.innerHTML = `
+                  <tr>
+                      <td colspan="9" class="text-center py-8 text-gray-500">
+                          <div class="flex flex-col items-center justify-center">
+                              <i class="fas fa-calendar-times text-4xl mb-2 text-gray-300"></i>
+                              <p class="text-lg font-medium">No hay citas asignadas</p>
+                          </div>
+                      </td>
+                  </tr>
+              `;
+              return;
+          }
+
+          citas.forEach(cita => {
+              const fila = document.createElement('tr');
+              fila.setAttribute('data-id', cita.id);
+              fila.className = 'hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors';
+
+              // Formatear fechas
+              const fechaSolicitud = cita.fechaSolicitud ?
+                  new Date(cita.fechaSolicitud).toLocaleDateString('es-ES') : '-';
+
+              const fechaAsignada = cita.fechaAsignada ?
+                  new Date(cita.fechaAsignada).toLocaleDateString('es-ES') + ' ' +
+                  new Date(cita.fechaAsignada).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'}) : '-';
+
+              fila.innerHTML = `
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-bold">${cita.cliente || 'Sin nombre'}</td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden md:table-cell">${cita.tipo}</td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${cita.vehiculo}</td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden lg:table-cell">${fechaSolicitud}</td>
+                  <td class="px-4 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate hidden xl:table-cell" title="${cita.comentario}">${cita.comentario}</td>
+                  <td class="px-4 py-4 whitespace-nowrap">
+                      <span class="estado-badge ${obtenerClaseEstadoCita(cita.estado)}">${cita.estado}</span>
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden lg:table-cell">${fechaAsignada}</td>
+                  <td class="px-4 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate hidden xl:table-cell" title="${cita.notasAdmin || ''}">${cita.notasAdmin}</td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                      <div class="flex flex-wrap gap-1" id="botones-cita-${cita.id}">
+                          ${generarBotonesCita(cita.estado, cita.id)}
+                      </div>
+                  </td>
+              `;
+
+              cuerpoTabla.appendChild(fila);
+          });
+
+          // Inicializar DataTables
+          if ($.fn.DataTable.isDataTable('#tabla-citas')) {
+              tablaCitas.destroy();
+          }
+
+          tablaCitas = $('#tabla-citas').DataTable({
+              language: {
+                  url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+              },
+              pageLength: 10,
+              responsive: true
+          });
+
+          // Configurar filtro
+          document.getElementById('filtro-estado').addEventListener('change', function() {
+              const estado = this.value;
+              filtrarCitasPorEstado(estado);
+          });
+
+          // Event listeners para botones de citas
+          document.addEventListener('click', function(e) {
+              if (e.target.classList.contains('btn-gestion-cita')) {
+                  const citaId = e.target.getAttribute('data-id');
+                  const accion = e.target.getAttribute('data-accion');
+                  citaActualId = citaId;
+
+                  manejarAccionCita(accion, e.target);
+              }
+          });
+
+      } catch (error) {
+          console.error('Error al cargar citas:', error);
+          mostrarNotificacion('Error al cargar las citas', 'error');
+      }
+  }
+
+  // Función para generar botones según el estado de la cita
+  function generarBotonesCita(estado, citaId) {
+      let botones = '';
+
+      switch(estado) {
+          case 'Pendiente':
+              botones = `
+                  <button class="btn-gestion-cita btn-aprobar" data-id="${citaId}" data-accion="aprobar">Aprobar</button>
+                  <button class="btn-gestion-cita btn-rechazar" data-id="${citaId}" data-accion="rechazar">Rechazar</button>
+                  <button class="btn-gestion-cita btn-notas" data-id="${citaId}" data-accion="notas">Notas</button>
+              `;
+              break;
+          case 'Aprobada':
+              botones = `
+                  <button class="btn-gestion-cita btn-asignar-fecha" data-id="${citaId}" data-accion="asignar-fecha">Asignar Fecha</button>
+                  <button class="btn-gestion-cita btn-pendiente" data-id="${citaId}" data-accion="pendiente">A Pendiente</button>
+                  <button class="btn-gestion-cita btn-notas" data-id="${citaId}" data-accion="notas">Notas</button>
+              `;
+              break;
+          case 'Rechazada':
+          case 'Contactado':
+              botones = `
+                  <button class="btn-gestion-cita btn-pendiente" data-id="${citaId}" data-accion="pendiente">A Pendiente</button>
+                  <button class="btn-gestion-cita btn-notas" data-id="${citaId}" data-accion="notas">Notas</button>
+              `;
+              break;
+          default:
+              botones = `<button class="btn-gestion-cita btn-notas" data-id="${citaId}" data-accion="notas">Notas</button>`;
+      }
+
+      return botones;
+  }
+
+  // Función para obtener clase CSS del estado de cita
+  function obtenerClaseEstadoCita(estado) {
+      const estados = {
+          'Pendiente': 'estado-pendiente',
+          'Aprobada': 'estado-aprobada',
+          'Rechazada': 'estado-rechazada',
+          'Contactado': 'estado-contactado'
+      };
+      return estados[estado] || 'estado-pendiente';
+  }
+
+  // Manejar acciones de citas - ACTUALIZADO
+function manejarAccionCita(accion, boton) {
+    switch(accion) {
+        case 'aprobar':
+            cambiarEstadoCita('Aprobada');
+            break;
+        case 'rechazar':
+            cambiarEstadoCita('Rechazada');
+            break;
+        case 'asignar-fecha':
+            mostrarModal('modal-fecha');
+            break;
+        case 'pendiente':
+            cambiarEstadoCita('Pendiente');
+            break;
+        case 'notas':
+            cargarNotasActuales();
+            mostrarModal('modal-notas');
+            break;
+    }
+}
+
+  // Cambiar estado de cita
+  async function cambiarEstadoCita(nuevoEstado) {
+    try {
+        const boton = event.target;
+        const textoOriginal = boton.innerHTML;
+
+        // Mostrar loading en el botón
+        boton.innerHTML = '<div class="loading-small"></div>';
+        boton.disabled = true;
+
+        const response = await fetch(`/asesor/citas/${citaActualId}/cambiar-estado`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `estado=${nuevoEstado}`
+        });
+
+        if (response.ok) {
+            mostrarNotificacion(`Estado cambiado a ${nuevoEstado}`, 'success');
+
+            // ACTUALIZACIÓN EN TIEMPO REAL - SIN ENDPOINTS EXTRAS
+            const fila = document.querySelector(`tr[data-id="${citaActualId}"]`);
+            if (fila) {
+                // 1. Actualizar el badge de estado
+                const badgeEstado = fila.querySelector('.estado-badge');
+                if (badgeEstado) {
+                    badgeEstado.className = `estado-badge ${obtenerClaseEstadoCita(nuevoEstado)}`;
+                    badgeEstado.textContent = nuevoEstado;
+                }
+
+                // 2. Actualizar los botones inmediatamente
+                const contenedorBotones = fila.querySelector(`#botones-cita-${citaActualId}`);
+                if (contenedorBotones) {
+                    contenedorBotones.innerHTML = generarBotonesCita(nuevoEstado, citaActualId);
+                }
+
+                // 3. Añadir animación de confirmación
+                fila.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
+                setTimeout(() => {
+                    fila.style.backgroundColor = '';
+                }, 1000);
+            }
+
+        } else {
+            throw new Error('Error en la respuesta del servidor');
+        }
+
+        // Restaurar botón
+        boton.innerHTML = textoOriginal;
+        boton.disabled = false;
+
+    } catch (error) {
+        console.error('Error al cambiar estado:', error);
+        mostrarNotificacion('Error al cambiar el estado', 'error');
+
+        // Restaurar botón en caso de error
+        if (event.target) {
+            event.target.innerHTML = textoOriginal;
+            event.target.disabled = false;
+        }
+    }
+}
+// Función para actualizar una fila de cita en tiempo real
+async function actualizarFilaCitaEnTiempoReal(citaId, nuevoEstado) {
+    try {
+        // Obtener datos actualizados de la cita específica
+        const response = await fetch(`/asesor/citas/${citaId}/datos`);
+        if (!response.ok) throw new Error('Error al obtener datos actualizados');
+
+        const citaActualizada = await response.json();
+
+        // Encontrar la fila en la tabla
+        const fila = document.querySelector(`tr[data-id="${citaId}"]`);
+        if (!fila) return;
+
+        // Actualizar el estado visual
+        const celdaEstado = fila.querySelector('td:nth-child(6)');
+        const badgeEstado = celdaEstado.querySelector('.estado-badge');
+
+        if (badgeEstado) {
+            badgeEstado.className = `estado-badge ${obtenerClaseEstadoCita(nuevoEstado)}`;
+            badgeEstado.textContent = nuevoEstado;
+        }
+
+        // Actualizar los botones
+        const celdaAcciones = fila.querySelector('td:nth-child(9)');
+        const contenedorBotones = celdaAcciones.querySelector(`#botones-cita-${citaId}`);
+
+        if (contenedorBotones) {
+            contenedorBotones.innerHTML = generarBotonesCita(nuevoEstado, citaId);
+        }
+
+        // Si hay notas actualizadas, actualizarlas también
+        if (citaActualizada.notasAdmin) {
+            const celdaNotas = fila.querySelector('td:nth-child(8)');
+            celdaNotas.textContent = citaActualizada.notasAdmin;
+        }
+
+        // Si se asignó fecha, actualizar
+        if (citaActualizada.fechaAsignada) {
+            const celdaFecha = fila.querySelector('td:nth-child(7)');
+            const fechaFormateada = new Date(citaActualizada.fechaAsignada).toLocaleDateString('es-ES') + ' ' +
+                                  new Date(citaActualizada.fechaAsignada).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+            celdaFecha.textContent = fechaFormateada;
+        }
+
+    } catch (error) {
+        console.error('Error al actualizar fila en tiempo real:', error);
+        // Si falla la actualización individual, recargar toda la tabla
+        await cargarCitas();
+    }
+}
+
+  // Cargar notas actuales de la cita
+  function cargarNotasActuales() {
+      const fila = document.querySelector(`tr[data-id="${citaActualId}"]`);
+      if (fila) {
+          const notasActuales = fila.querySelector('td:nth-child(8)').textContent;
+          document.getElementById('texto-notas').value = notasActuales !== 'Sin notas' ? notasActuales : '';
+      }
+  }
+
+  // Confirmar asignación de fecha
+ // Confirmar asignación de fecha - VERSIÓN SIMPLIFICADA
+async function confirmarFecha() {
+    const fecha = document.getElementById('fecha-asignacion').value;
+    const hora = document.getElementById('hora-asignacion').value;
+
+    if (!fecha || !hora) {
+        mostrarNotificacion('Por favor selecciona fecha y hora', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/asesor/citas/${citaActualId}/asignar-fecha`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `fecha=${fecha}&hora=${hora}`
+        });
+
+        if (response.ok) {
+            mostrarNotificacion('Fecha asignada correctamente', 'success');
+            cerrarModal('modal-fecha');
+
+            // ACTUALIZACIÓN EN TIEMPO REAL
+            const fila = document.querySelector(`tr[data-id="${citaActualId}"]`);
+            if (fila) {
+                // Actualizar la fecha en la tabla
+                const celdaFecha = fila.querySelector('td:nth-child(7)');
+                const fechaCompleta = `${fecha} ${hora}`;
+                const fechaFormateada = new Date(fechaCompleta).toLocaleDateString('es-ES') + ' ' +
+                                      new Date(fechaCompleta).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+                celdaFecha.textContent = fechaFormateada;
+
+                // Actualizar botones (por si cambia el estado automáticamente)
+                const contenedorBotones = fila.querySelector(`#botones-cita-${citaActualId}`);
+                if (contenedorBotones) {
+                    contenedorBotones.innerHTML = generarBotonesCita('Aprobada', citaActualId);
+                }
+            }
+        } else {
+            throw new Error('Error en la respuesta del servidor');
+        }
+    } catch (error) {
+        console.error('Error al asignar fecha:', error);
+        mostrarNotificacion('Error al asignar fecha', 'error');
+    }
+}
+
+  // Guardar notas de la cita
+  async function guardarNotas() {
+    const notas = document.getElementById('texto-notas').value;
+
+    try {
+        const response = await fetch(`/asesor/citas/${citaActualId}/guardar-notas`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `notas=${encodeURIComponent(notas)}`
+        });
+
+        if (response.ok) {
+            mostrarNotificacion('Notas guardadas correctamente', 'success');
+            cerrarModal('modal-notas');
+            // Actualizar solo las notas en tiempo real
+            const fila = document.querySelector(`tr[data-id="${citaActualId}"]`);
+            if (fila) {
+                const celdaNotas = fila.querySelector('td:nth-child(8)');
+                celdaNotas.textContent = notas || 'Sin notas';
+            }
+        } else {
+            throw new Error('Error en la respuesta del servidor');
+        }
+    } catch (error) {
+        console.error('Error al guardar notas:', error);
+        mostrarNotificacion('Error al guardar notas', 'error');
+    }
+}
+
+  // Filtrar citas por estado
+  function filtrarCitasPorEstado(estado) {
+      if (!tablaCitas) return;
+
+      if (estado === 'TODAS') {
+          tablaCitas.search('').draw();
+      } else {
+          tablaCitas.column(5).search(estado).draw();
+      }
+  }
+
+  // ===================== FUNCIONES EXISTENTES =====================
+
+  // Función para mapear estados a clases CSS
+  function obtenerClaseEstado(estado) {
+      const estados = {
+          'Pendiente': 'estado-pendiente',
+          'Contactado': 'estado-contactado',
+          'Test Drive': 'estado-testdrive',
+          'Negociación': 'estado-negociacion',
+          'Aprobada': 'estado-aprobada',
+          'Cancelada': 'estado-cancelada'
+      };
+      return estados[estado] || 'estado-pendiente';
+  }
+
+  // Función para mapear estados a texto legible
+  function obtenerTextoEstado(estado) {
+      const textos = {
+          'Pendiente': 'Pendiente',
+          'Contactado': 'Contactado',
+          'Test Drive': 'Test Drive',
+          'Negociación': 'Negociación',
+          'Aprobada': 'Aprobada',
+          'Cancelada': 'Cancelada'
+      };
+      return textos[estado] || estado;
+  }
+
+
+
+  // Función para mostrar notificaciones - VERSIÓN MEJORADA
+function mostrarNotificacion(mensaje, tipo) {
+    // Crear elemento de notificación
+    const notificacion = document.createElement('div');
+    notificacion.className = `fixed top-20 right-4 p-4 rounded-lg shadow-lg z-[100] border-l-4 transform transition-all duration-300 ${
+        tipo === 'success'
+            ? 'bg-green-50 text-green-800 border-green-500 dark:bg-green-900 dark:text-green-200'
+            : 'bg-red-50 text-red-800 border-red-500 dark:bg-red-900 dark:text-red-200'
+    }`;
+
+    // Agregar icono según el tipo
+    const icono = tipo === 'success' ? '✅' : '❌';
+    notificacion.innerHTML = `
+        <div class="flex items-center">
+            <span class="text-lg mr-2">${icono}</span>
+            <span class="font-medium">${mensaje}</span>
+        </div>
+    `;
+
+    // Asegurarse de que esté por encima del navbar
+    notificacion.style.zIndex = '10000';
+    notificacion.style.maxWidth = '400px';
+    notificacion.style.minWidth = '300px';
+
+    document.body.appendChild(notificacion);
+
+    // Animación de entrada
+    setTimeout(() => {
+        notificacion.style.transform = 'translateX(0)';
+    }, 10);
+
+    // Remover después de 4 segundos con animación de salida
+    setTimeout(() => {
+        notificacion.style.transform = 'translateX(100%)';
+        notificacion.style.opacity = '0';
+
+        setTimeout(() => {
+            if (document.body.contains(notificacion)) {
+                document.body.removeChild(notificacion);
+            }
+        }, 300);
+    }, 4000);
+}
+
+
+  // Funciones para manejar los modales
+  function mostrarModal(modalId) {
+      document.getElementById(modalId).style.display = 'block';
+  }
+
+  function cerrarModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+  }
+
+  // Cerrar modales al hacer clic fuera
+  window.onclick = function(event) {
+      if (event.target.className === 'modal') {
+          event.target.style.display = 'none';
+      }
+  }
+
+  // Funciones para el modal de cierre de sesión
+function confirmarCerrarSesion() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.add('active');
+}
+
+function cancelarCerrarSesion() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.remove('active');
+}
+
+function cerrarSesion() {
+    // Mostrar loading en el botón
+    const confirmButton = document.querySelector('.modal-btn-confirm');
+    const originalText = confirmButton.innerHTML;
+    confirmButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Cerrando...';
+    confirmButton.disabled = true;
+
+    // Redirigir al logout después de un breve delay
+    setTimeout(() => {
+        window.location.href = '/logout';
+    }, 1000);
+}
+  // Menú móvil
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+        sidebar.classList.add('mobile-open');
+        sidebarOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('mobile-open');
+        sidebarOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    menuToggle.addEventListener('click', openSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
+
+    // Cerrar sidebar al hacer clic en un enlace
+    document.querySelectorAll('.side-menu a').forEach(link => {
+        link.addEventListener('click', closeSidebar);
+    });
+
+    // Cerrar con tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('mobile-open')) {
+            closeSidebar();
+        }
+    });
+});
+</script>
+<script>
+  // ===================== GESTIÓN DE VEHÍCULOS =====================
+
+// Variables globales para vehículos
+let vehiculosData = [];
+let marcasDisponibles = [];
+let categoriasDisponibles = [];
+
+// Función para cargar vehículos
+async function cargarVehiculos() {
+    try {
+        const response = await fetch('/asesor/vehiculos');
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+
+        vehiculosData = await response.json();
+
+        // Cargar marcas y categorías
+        await cargarFiltros();
+
+        // Mostrar vehículos
+        mostrarVehiculos(vehiculosData);
+
+    } catch (error) {
+        console.error('Error al cargar vehículos:', error);
+        mostrarNotificacion('Error al cargar los vehículos', 'error');
+    }
+}
+
+// Función para cargar filtros
+async function cargarFiltros() {
+    try {
+        // Cargar marcas
+        const responseMarcas = await fetch('/asesor/vehiculos/marcas');
+        marcasDisponibles = await responseMarcas.json();
+
+        // Cargar categorías
+        const responseCategorias = await fetch('/asesor/vehiculos/categorias');
+        categoriasDisponibles = await responseCategorias.json();
+
+        // Llenar select de marcas
+        const selectMarca = document.getElementById('filtro-marca');
+        selectMarca.innerHTML = '<option value="TODAS">Todas las marcas</option>';
+        marcasDisponibles.forEach(marca => {
+            selectMarca.innerHTML += `<option value="${marca}">${marca}</option>`;
+        });
+
+        // Llenar select de categorías
+        const selectCategoria = document.getElementById('filtro-tipo');
+        selectCategoria.innerHTML = '<option value="TODOS">Todos los tipos</option>';
+        categoriasDisponibles.forEach(categoria => {
+            selectCategoria.innerHTML += `<option value="${categoria}">${categoria}</option>`;
+        });
+
+    } catch (error) {
+        console.error('Error al cargar filtros:', error);
+    }
+}
+
+// Función para mostrar vehículos en la grid
+function mostrarVehiculos(vehiculos) {
+    const contenedor = document.getElementById('contenedor-vehiculos');
+    const sinVehiculos = document.getElementById('sin-vehiculos');
+
+    if (vehiculos.length === 0) {
+        contenedor.classList.add('hidden');
+        sinVehiculos.classList.remove('hidden');
+        return;
+    }
+
+    contenedor.classList.remove('hidden');
+    sinVehiculos.classList.add('hidden');
+
+    contenedor.innerHTML = '';
+
+    vehiculos.forEach(vehiculo => {
+        const vehiculoCard = crearCardVehiculo(vehiculo);
+        contenedor.appendChild(vehiculoCard);
+    });
+}
+
+// Función para crear card de vehículo
+function crearCardVehiculo(vehiculo) {
+    const card = document.createElement('div');
+    card.className = 'prospecto-card';
+
+    // Determinar clase del badge según categoría
+    const claseBadge = obtenerClaseBadgeCategoria(vehiculo.categoria);
+
+    // Formatear precio
+    const precioFormateado = new Intl.NumberFormat('es-ES', {
+        style: 'currency',
+        currency: 'USD'
+    }).format(vehiculo.precio);
+
+    // Imagen por defecto si no hay
+    const imagenUrl = vehiculo.imagenUrl || 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
+
+    card.innerHTML = `
+        <div class="flex justify-between items-start mb-4">
+            <h3 class="font-bold text-lg">${vehiculo.marca} ${vehiculo.modelo}</h3>
+            <span class="text-sm font-semibold ${claseBadge} px-2 py-1 rounded">${vehiculo.categoria || 'Sin categoría'}</span>
+        </div>
+        <img src="${imagenUrl}" alt="${vehiculo.marca} ${vehiculo.modelo}"
+             class="w-full h-48 object-cover rounded-lg mb-4">
+        <div class="mb-4">
+            <p class="text-gray-600 dark:text-gray-300 mb-2"><strong>Precio:</strong> ${precioFormateado}</p>
+            <p class="text-gray-600 dark:text-gray-300 mb-2"><strong>Año:</strong> ${vehiculo.año}</p>
+            <p class="text-gray-600 dark:text-gray-300 mb-2"><strong>Motor:</strong> ${vehiculo.motor || 'No especificado'}</p>
+            <p class="text-gray-600 dark:text-gray-300"><strong>Transmisión:</strong> ${vehiculo.transmision || 'No especificado'}</p>
+        </div>
+        <button class="btn-asesor w-full" onclick="compartirVehiculo('${vehiculo.id}')">
+            <i class="fas fa-share mr-2"></i>Compartir con Cliente
+        </button>
+    `;
+
+    return card;
+}
+
+// Función para obtener clase CSS según categoría
+function obtenerClaseBadgeCategoria(categoria) {
+    const clases = {
+        'SUV': 'bg-blue-100 text-blue-800',
+        'Deportivo': 'bg-purple-100 text-purple-800',
+        'Sedán': 'bg-green-100 text-green-800',
+        'Hatchback': 'bg-yellow-100 text-yellow-800',
+        'Pickup': 'bg-red-100 text-red-800',
+        'Camioneta': 'bg-indigo-100 text-indigo-800'
+    };
+    return clases[categoria] || 'bg-gray-100 text-gray-800';
+}
+
+// Función para filtrar vehículos
+function filtrarVehiculos() {
+    const tipo = document.getElementById('filtro-tipo').value;
+    const marca = document.getElementById('filtro-marca').value;
+    const busqueda = document.getElementById('busqueda-modelo').value.toLowerCase();
+
+    let vehiculosFiltrados = vehiculosData;
+
+    // Filtrar por tipo
+    if (tipo !== 'TODOS') {
+        vehiculosFiltrados = vehiculosFiltrados.filter(v => v.categoria === tipo);
+    }
+
+    // Filtrar por marca
+    if (marca !== 'TODAS') {
+        vehiculosFiltrados = vehiculosFiltrados.filter(v => v.marca === marca);
+    }
+
+    // Filtrar por búsqueda
+    if (busqueda) {
+        vehiculosFiltrados = vehiculosFiltrados.filter(v =>
+            v.modelo.toLowerCase().includes(busqueda) ||
+            v.marca.toLowerCase().includes(busqueda)
+        );
+    }
+
+    mostrarVehiculos(vehiculosFiltrados);
+}
+
+// Función para resetear filtros
+function resetearFiltros() {
+    document.getElementById('filtro-tipo').value = 'TODOS';
+    document.getElementById('filtro-marca').value = 'TODAS';
+    document.getElementById('busqueda-modelo').value = '';
+    mostrarVehiculos(vehiculosData);
+}
+
+// Función para compartir vehículo (placeholder)
+// Función para compartir vehículo con todos los clientes
+async function compartirVehiculo(vehiculoId) {
+    if (!confirm('¿Estás seguro de que quieres enviar este vehículo por correo a TODOS los clientes?')) {
+        return;
+    }
+
+    // Guardar referencia al botón ANTES de async
+    const boton = event.target;
+    const textoOriginal = boton.innerHTML;
+
+    try {
+        // Mostrar loading
+        boton.innerHTML = '<div class="loading mx-auto"></div> Enviando...';
+        boton.disabled = true;
+
+        const response = await fetch(`/asesor/vehiculos/${vehiculoId}/compartir`, {
+            method: 'POST'
+            // Quita headers si no son necesarios
+        });
+
+        const resultado = await response.json();
+
+        if (resultado.success) {
+            mostrarNotificacion('✅ ' + resultado.message, 'success');
+        } else {
+            mostrarNotificacion('❌ ' + resultado.message, 'error');
+        }
+
+    } catch (error) {
+        console.error('Error al compartir vehículo:', error);
+        mostrarNotificacion('❌ Error al enviar la promoción', 'error');
+    } finally {
+        // Restaurar botón SIEMPRE
+        boton.innerHTML = '<i class="fas fa-share mr-2"></i>Compartir con Cliente';
+        boton.disabled = false;
+    }
+}
+
+// Modificar la navegación para cargar vehículos
+document.addEventListener('DOMContentLoaded', function() {
+
+
+    // Añadir este caso en el event listener de navegación
+    document.querySelectorAll('.side-menu a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (this.getAttribute('href').startsWith('#')) {
+                e.preventDefault();
+                document.querySelectorAll('main section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                const targetId = this.getAttribute('href').substring(1);
+                document.getElementById(targetId).style.display = 'block';
+
+                // Cargar datos específicos cuando se cambia de sección
+                if (targetId === 'prospectos') {
+                    cargarProspectos();
+                } else if (targetId === 'agenda') {
+                    cargarCitas();
+                } else if (targetId === 'vehiculos') {
+                    cargarVehiculos(); // ← AÑADIR ESTA LÍNEA
+                }
+            }
+        });
+    });
+});
+
+
+
+  // LOGICA REGISTRO MANUAL
+  async function registrarProspecto() {
+      const nombre = document.getElementById('reg-nombre').value;
+      const apellido = document.getElementById('reg-apellido').value;
+      const telefono = document.getElementById('reg-telefono').value;
+      const vehiculo = document.getElementById('reg-vehiculo').value;
+      const correo = document.getElementById('reg-correo').value;
+      const observaciones = document.getElementById('reg-observaciones').value;
+
+      if (!nombre || !apellido || !telefono || !vehiculo) {
+          mostrarNotificacion('Complete los campos obligatorios (*)', 'error');
+          return;
+      }
+
+      const formData = new URLSearchParams();
+      formData.append('nombre', nombre);
+      formData.append('apellido', apellido);
+      formData.append('telefono', telefono);
+      formData.append('correo', correo);
+      formData.append('vehiculoInteres', vehiculo);
+      formData.append('observaciones', observaciones);
+
+      try {
+          // Bloquear botón
+          const btn = event.target;
+          const textoOld = btn.innerHTML;
+          btn.innerHTML = 'Guardando...';
+          btn.disabled = true;
+
+          const response = await fetch('/asesor/prospectos/nuevo', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: formData
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+              mostrarNotificacion('Prospecto registrado correctamente', 'success');
+              cerrarModal('modal-registro');
+              
+              // Limpiar formulario
+              document.getElementById('reg-nombre').value = '';
+              document.getElementById('reg-apellido').value = '';
+              document.getElementById('reg-telefono').value = '';
+              document.getElementById('reg-vehiculo').value = '';
+              document.getElementById('reg-correo').value = '';
+              document.getElementById('reg-observaciones').value = '';
+
+              cargarProspectos();
+              if(typeof cargarDatosIniciales === 'function') cargarDatosIniciales();
+          } else {
+              throw new Error(result.message);
+          }
+      } catch (error) {
+          console.error("Error registro:", error);
+          mostrarNotificacion(error.message || 'Error al registrar', 'error');
+      } finally {
+           // Restaurar botón (buscarlo genéricamente por si event.target se perdió)
+           const btn = document.querySelector('#modal-registro button.btn-asesor');
+           if(btn) {
+               btn.innerHTML = '<i class="fas fa-save mr-2"></i>Guardar Prospecto';
+               btn.disabled = false;
+           }
+      }
+  }
+  
+  // Contactar prospecto (Actualizado para usar ID de prospecto)
+  async function contactarProspecto(prospectoId) {
+      if (!confirm('¿Marcar este prospecto como contactado?')) return;
+
+      try {
+          const response = await fetch('/asesor/prospectos/contactar', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `prospectoId=${prospectoId}`
+          });
+
+          if (response.ok) {
+              mostrarNotificacion('Estado actualizado Correctamente', 'success');
+              cargarProspectos();
+          } else {
+              throw new Error('Error al actualizar estado');
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          mostrarNotificacion('No se pudo actualizar el estado', 'error');
+      }
+  }
+
+  // Función para cambiar fase/estado dinámicamente
+  async function cambiarFase(prospectoId, nuevoEstado) {
+      try {
+          const response = await fetch('/asesor/prospectos/cambiar-estado', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `prospectoId=${prospectoId}&nuevoEstado=${nuevoEstado}`
+          });
+          
+          const result = await response.json();
+          if(result.success) {
+              mostrarNotificacion(`Estado actualizado a: ${nuevoEstado}`, 'success');
+              if(typeof cargarDatosIniciales === 'function') cargarDatosIniciales();
+          } else {
+              throw new Error(result.message);
+          }
+      } catch (error) {
+          mostrarNotificacion('Error actualizando fase', 'error');
+          console.error(error);
+          cargarProspectos(); // Revertir visualmente
+      }
+  }
+  
+  function obtenerEstiloSelect(estado) {
+      if(estado === 'Nuevo') return 'color: #2563eb; font-weight: bold;';
+      if(estado === 'En Proceso') return 'color: #d97706; font-weight: bold;';
+      if(estado === 'Financiación') return 'color: #9333ea; font-weight: bold;';
+      if(estado === 'Compra' || estado === 'Venta Exitosa') return 'color: #16a34a; font-weight: bold;';
+      if(estado === 'Perdido') return 'color: #dc2626;';
+      return 'color: #4b5563;';
+  }
+
+  // ---- AUTO REFRESCO ----
+  setInterval(() => {
+     try {
+         // Comprobar si el modal de registro está abierto para no interrumpir
+         const modal = document.getElementById('modal-registro');
+         const modalAbierto = modal && !modal.classList.contains('hidden');
+         
+         if (!modalAbierto) {
+             // Refrescar dashboard (Métricas)
+             if(typeof cargarDatosIniciales === 'function') cargarDatosIniciales();
+             
+             // Refrescar tabla prospectos solo si es visible
+             const seccionProspectos = document.getElementById('prospectos');
+             if(seccionProspectos && seccionProspectos.style.display !== 'none') {
+                  if(typeof cargarProspectos === 'function') cargarProspectos();
+             }
+         }
+     } catch(e) { console.error("Error auto-refresh", e); }
+  }, 1000); // Actualización en tiempo real (1 segundo) 
+
+</script>
+
+
+  
+
+</script>
+</body>
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${vehiculo.marca + ' ' + vehiculo.modelo}">Explorar Vehículo</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link th:href="@{/css/explorar-vehiculo.css}" rel="stylesheet">
+    <link th:href="@{/css/3d-viewer.css}" rel="stylesheet">
+    <!-- Model Viewer -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0f66bd",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        display: ["Manrope", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px",
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="flex min-h-screen flex-col">
+    <!-- Barra de navegación -->
+    <header class="sticky top-0 z-50 border-b border-gray-200/50 dark:border-gray-700/50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <a class="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white" th:href="@{/usuario/Inicio}">
+                        <div class="h-20 w-20 rounded-lg flex items-center justify-center overflow-hidden">
+                            <img src="https://res.cloudinary.com/dktrgjt6b/image/upload/v1760657181/NEXTGEN_MOTORS_-_LOGO_ncwuwb.png" alt="NextGenMotors" class="h-full w-full object-contain">
+                        </div>
+                        <span class="font-display"><span class="text-primary">NextGen</span>Motors</span>
+                    </a>
+                    <nav class="hidden md:flex items-center gap-6">
+                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" th:href="@{/usuario/Inicio}">Inicio</a>
+                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="/vehiculos">Nuestros Modelos</a>
+                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" th:href="@{/usuario/agendamiento}">Agendamiento</a>
+
+                    </nav>
+                </div>
+                <div class="flex items-center gap-4">
+                    <!-- Usuario NO autenticado - Mostrar Iniciar Sesión -->
+                    <div th:if="${#authorization.expression('!isAuthenticated()')}">
+                        <a href="/login" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors hidden sm:block">Iniciar sesión</a>
+                        <button class="rounded-full p-2 text-gray-600 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors sm:hidden">
+                            <a class="fas fa-sign-in-alt" href="/login"></a>
+                        </button>
+                    </div>
+
+                    <!-- Usuario autenticado - Mostrar solo el icono de perfil -->
+                    <div th:if="${#authorization.expression('isAuthenticated()')}">
+                        <button class="rounded-full p-2 text-gray-600 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
+                            <a class="fas fa-user" href="/usuario/perfil"></a>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="flex-grow py-8">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <!-- Encabezado del vehículo -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-900 dark:text-white" th:text="${vehiculo.marca + ' ' + vehiculo.modelo}"></h1>
+                <div class="mt-2 text-xl text-gray-600 dark:text-gray-400" th:text="${vehiculo.año} + ' • ' + ${vehiculo.categoria}"></div>
+                <div class="mt-4 text-3xl font-bold text-primary" th:text="'$' + ${#numbers.formatDecimal(vehiculo.precio, 1, 2, 'COMMA')}"></div>
+            </div>
+
+            <!-- Contenido del vehículo -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Imagen del vehículo -->
+                <!-- Imagen del vehículo o Modelo 3D -->
+                <div class="vehicle-media-section">
+                    <div class="vehicle-image-container relative w-full h-[500px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                        <!-- 3D Viewer Wrapper -->
+                        <div id="wrapper-3d" th:if="${vehiculo.urlModelo3d != null and !vehiculo.urlModelo3d.isEmpty()}" class="w-full h-full">
+                             <model-viewer 
+                                id="car-viewer"
+                                th:src="${vehiculo.urlModelo3d}" 
+                                th:alt="${vehiculo.marca + ' ' + vehiculo.modelo}"
+                                auto-rotate
+                                camera-controls
+                                ar
+                                shadow-intensity="1"
+                                exposure="1.2"
+                                shadow-softness="1"
+                                camera-orbit="45deg 75deg 8m"
+                                field-of-view="30deg"
+                                class="w-full h-full focus:outline-none">
+                            </model-viewer>
+                            <div class="absolute bottom-4 left-0 right-0 flex flex-col items-center text-gray-400 pointer-events-none">
+                                <i class="fas fa-sync-alt text-2xl mb-1 animation-spin-slow"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider">360° VIEW</span>
+                            </div>
+                        </div>
+
+                        <!-- Image Wrapper (Hidden by default if 3D exists) -->
+                        <div id="wrapper-img" 
+                             th:classappend="${vehiculo.urlModelo3d != null and !vehiculo.urlModelo3d.isEmpty()} ? 'hidden' : ''"
+                             class="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-900">
+                            <img id="main-image" 
+                                 th:src="${vehiculo.imagenUrl}" 
+                                 alt="Vehículo" 
+                                 class="w-full h-full object-contain">
+                        </div>
+                    </div>
+
+                    <!-- Thumbnails -->
+                    <div class="mt-4 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        <!-- 3D Button -->
+                        <button th:if="${vehiculo.urlModelo3d != null and !vehiculo.urlModelo3d.isEmpty()}"
+                                onclick="mostrar3D()"
+                                id="btn-3d"
+                                class="thumbnail-btn w-20 h-20 flex-shrink-0 rounded-lg border-2 border-primary overflow-hidden relative group transition-all">
+                            <div class="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 group-hover:bg-primary/10 transition-colors">
+                                <i class="fas fa-cube text-2xl text-gray-700 dark:text-gray-300"></i>
+                            </div>
+                            <span class="absolute bottom-1 left-0 right-0 text-center text-[10px] font-bold bg-white/80 dark:bg-black/50 text-gray-800 dark:text-white">3D</span>
+                        </button>
+                        
+                        <!-- Main Image -->
+                        <button onclick="mostrarImagen(this.getAttribute('data-src'), this)"
+                                th:data-src="${vehiculo.imagenUrl}"
+                                class="thumbnail-btn w-20 h-20 flex-shrink-0 rounded-lg border-2 border-transparent hover:border-primary overflow-hidden transition-all bg-gray-200">
+                            <img th:src="${vehiculo.imagenUrl}" class="w-full h-full object-cover">
+                        </button>
+                        
+                        <!-- Gallery -->
+                        <button th:each="img : ${vehiculo.galeria}"
+                                th:data-src="${img}"
+                                onclick="mostrarImagen(this.getAttribute('data-src'), this)"
+                                class="thumbnail-btn w-20 h-20 flex-shrink-0 rounded-lg border-2 border-transparent hover:border-primary overflow-hidden transition-all bg-gray-200">
+                            <img th:src="${img}" class="w-full h-full object-cover">
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Especificaciones y detalles -->
+                <div class="space-y-8">
+                    <!-- Especificaciones -->
+                    <div class="specs-container">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Especificaciones</h2>
+
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <i class="fas fa-tachometer-alt spec-icon"></i>
+                                <div>
+                                    <span class="spec-label">Motor:</span>
+                                    <span th:text="${vehiculo.motor ?: 'N/A'}"></span>
+                                </div>
+                            </div>
+                            <div class="spec-item">
+                                <i class="fas fa-gas-pump spec-icon"></i>
+                                <div>
+                                    <span class="spec-label">Combustible:</span>
+                                    <span th:text="${vehiculo.combustible ?: 'N/A'}"></span>
+                                </div>
+                            </div>
+                            <div class="spec-item">
+                                <i class="fas fa-cog spec-icon"></i>
+                                <div>
+                                    <span class="spec-label">Transmisión:</span>
+                                    <span th:text="${vehiculo.transmision ?: 'N/A'}"></span>
+                                </div>
+                            </div>
+                            <div class="spec-item">
+                                <i class="fas fa-users spec-icon"></i>
+                                <div>
+                                    <span class="spec-label">Pasajeros:</span>
+                                    <span th:text="${vehiculo.pasajeros != null ? vehiculo.pasajeros : 'N/A'}"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección de colores -->
+                        <div class="color-section" th:if="${vehiculo.colores != null and !vehiculo.colores.isEmpty()}">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Colores disponibles</h3>
+                            <div class="color-options">
+                                <div th:each="color : ${vehiculo.colores}"
+                                     class="color-option"
+                                     th:text="${color}"
+                                     th:data-color="${color}"
+                                     onclick="seleccionarColor(this)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Descripción</h2>
+                        <div class="vehicle-description" th:text="${vehiculo.descripcion ?: 'Este vehículo no tiene descripción disponible.'}"></div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="action-buttons">
+                        <a href="#" class="btn-cotizar" id="cotizarBtn" onclick="irACita()">
+                            <i class="fas fa-file-alt"></i> SOLICITAR COTIZACIÓN
+                        </a>
+                        <a href="/vehiculos" class="btn-back">
+                            <i class="fas fa-arrow-left"></i> VOLVER
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-background-light dark:bg-background-dark border-t border-gray-200 dark:border-gray-800">
+        <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="footer-column">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Vehículos</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/vehiculos" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Nuevos modelos</a></li>
+                        <li><a href="/vehiculos" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Promociones</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Servicios</h3>
+                    <ul class="space-y-2">
+                        <li><a th:href="@{/usuario/Inicio}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Agendar servicio</a></li>
+                        <li><a href="/garantias" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Garantías</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Concesionario</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/nosotros" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Sobre nosotros</a></li>
+                        <li><a href="/ubicaciones" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Ubicaciones</a></li>
+                        <li><a href="#contact" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Contáctanos</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Legal</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/terminos" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Términos y condiciones</a></li>
+                        <li><a href="/cookies" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Cookies y Aviso legal</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-8 text-center">
+                <p class="text-sm text-gray-500 dark:text-gray-400">&copy; 2023 NextGenMotors. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- Botón de WhatsApp -->
+
+
+<script th:src="@{/js/chatbot.js}"></script>
+<script>
+    // Barra de navegación al hacer scroll
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('header');
+        if (window.scrollY > 50) {
+            header.classList.add('shadow-md');
+        } else {
+            header.classList.remove('shadow-md');
+        }
+    });
+</script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        const vehiculoId = [[${vehiculo?.id}]];
+        let colorSeleccionado = null;
+        const viewer = document.getElementById('car-viewer');
+
+        // Mapa de colores extendido (Español/Inglés -> Hex)
+        const colorMap = {
+            // Básicos
+            'rojo': '#e60012', // Mazda Red Soul
+            'red': '#e60012',
+            'azul': '#19456b', // Deep Blue
+            'blue': '#19456b',
+            'negro': '#111111', // Jet Black
+            'black': '#111111',
+            'blanco': '#fcfcfc', // Snowflake White
+            'white': '#fcfcfc',
+            'gris': '#5a5e6b', // Machine Gray
+            'gray': '#5a5e6b',
+            'grey': '#5a5e6b',
+            'plata': '#c0c0c0', // Sonic Silver
+            'silver': '#c0c0c0',
+            
+            // Variaciones comunes
+            'amarillo': '#f5c300',
+            'verde': '#2e8b57',
+            'naranja': '#ff7d00',
+            'cafe': '#4b3621',
+            'marron': '#4b3621',
+            'beige': '#f5f5dc',
+            'crema': '#fffdd0',
+            'vino': '#722f37',
+            'azul oscuro': '#00008b',
+            'azul claro': '#87ceeb'
+        };
+
+        
+
+        // Helper para convertir Hex a RGBA para model-viewer
+        function hexToRgba(hex) {
+            let c;
+            if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+                c = hex.substring(1).split('');
+                if (c.length === 3) {
+                    c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+                }
+                c = '0x' + c.join('');
+                return [
+                    ((c >> 16) & 255) / 255,
+                    ((c >> 8) & 255) / 255,
+                    (c & 255) / 255,
+                    1.0
+                ];
+            }
+            return [1, 1, 1, 1];
+        }
+
+        // Función inteligente para obtener color
+        function getColorRgba(input) {
+            if (!input) return [0.8, 0.8, 0.8, 1.0]; // Gris por defecto
+
+            // 1. Limpiar y normalizar entrada
+            const text = input.toString().trim().toLowerCase();
+
+            // 2. ¿Es ya un código HEX válido? (Ej: #ff0000)
+            if (/^#[0-9a-f]{3,6}$/i.test(text)) {
+                return hexToRgba(text);
+            }
+
+            // 3. Buscar en el mapa
+            if (colorMap[text]) {
+                return hexToRgba(colorMap[text]);
+            }
+
+            // 4. Fallback: Intentar usar nombres CSS estándar (ej: "purple")
+            // Creamos un elemento temporal para ver qué color calcula el navegador
+            const d = document.createElement("div");
+            d.style.color = text;
+            d.style.display = "none";
+            document.body.appendChild(d);
+            const computedColor = window.getComputedStyle(d).color; // Devuelve "rgb(r, g, b)"
+            document.body.removeChild(d);
+
+            // Si el navegador entendió el color, parseamos el "rgb(r, g, b)"
+            if (computedColor && computedColor !== '' && !computedColor.includes('rgba(0, 0, 0, 0)')) {
+                const match = computedColor.match(/\d+/g);
+                if (match && match.length >= 3) {
+                    return [
+                        parseInt(match[0]) / 255,
+                        parseInt(match[1]) / 255,
+                        parseInt(match[2]) / 255,
+                        1.0
+                    ];
+                }
+            }
+
+            // 5. Si todo falla -> Gris metálico
+            console.warn(`No se pudo reconocer el color: "${input}". Usando gris por defecto.`);
+            return [0.5, 0.5, 0.5, 1.0];
+        }
+
+        console.log("ID del vehículo:", vehiculoId);
+
+        // Función para seleccionar color
+        window.seleccionarColor = function(elemento) {
+            // 1. Actualizar UI de botones
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            elemento.classList.add('selected');
+            
+            // 2. Guardar selección
+            const nombreColorRaw = elemento.getAttribute('data-color'); // El texto original (ej: "Rojo")
+            colorSeleccionado = nombreColorRaw;
+            localStorage.setItem('colorVehiculo_' + vehiculoId, colorSeleccionado);
+            console.log("Color seleccionado (raw):", colorSeleccionado);
+
+            // 3. Calcular valores RGBA robustos
+            const colorRgba = getColorRgba(nombreColorRaw);
+
+            // 4. Aplicar al modelo 3D
+            if (viewer && viewer.model) {
+                // Palabras clave para EXCLUIR partes
+                // Palabras clave para EXCLUIR partes del auto que no deben cambiar de color
+                const excludeKeywords = [
+                    // Vidrios y cristales
+                    'glass', 'window', 'windshield', 'luna', 'cristal', 'parabrisas',
+                    
+                    // Ruedas y neumáticos
+                    'tire', 'rubber', 'wheel', 'rim', 'llanta', 'caucho', 'goma', 'hub', 'disk', 'disc',
+                    
+                    // Metales y cromados (detalles)
+                    'chrome', 'chromium', 'cromo', 'metal', 'silver', 'acero', 'steel',
+                    
+                    // Luces y faros
+                    'light', 'lamp', 'faro', 'luz', 'led', 'bulb', 'reflector', 'signal', 'brake_light',
+                    
+                    // Interior
+                    'interior', 'seat', 'dash', 'asiento', 'tablero', 'steering', 'volante', 'console',
+                    
+                    // Plásticos y rejillas negras
+                    'plastic', 'grille', 'rejilla', 'black', 'negro', 'trim', 'moldura',
+                    
+                    // Frenos y placas
+                    'license', 'plate', 'matricula', 'brake', 'caliper', 'freno', 'pinza',
+                    
+                    // Logos y emblemas (LO QUE PEDISTE ESPECÍFICAMENTE)
+                    'logo', 'badge', 'emblem', 'mazda', 'brand', 'sign', 'symbol', 'escudo', 'marca', 'text'
+                ];
+                
+                let matsFound = 0;
+
+                viewer.model.materials.forEach(material => {
+                    const matName = material.name.toLowerCase();
+                    const isExcluded = excludeKeywords.some(keyword => matName.includes(keyword));
+
+                    if (!isExcluded) {
+                        material.pbrMetallicRoughness.setBaseColorFactor(colorRgba);
+                        console.log(`Pintando material: ${material.name}`);
+                        matsFound++;
+                    }
+                });
+
+                if (matsFound === 0) {
+                    console.warn('No se encontraron materiales aptos para pintar en este modelo.');
+                }
+            } else if (!viewer) {
+                console.warn("No se encontró el visor 3D para aplicar el color.");
+            }
+        };
+
+        function seleccionarCategoria(categoria, elemento) {
+            // Limpiar selecciones previas
+            document.querySelectorAll('.categoria-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // Seleccionar nueva categoría
+            elemento.classList.add('selected');
+            document.getElementById('tipo').value = categoria;
+
+            // No limpiar la selección de vehículo si ya hay uno seleccionado
+            const vehiculoSelect = document.getElementById('vehiculo');
+            const tieneVehiculoSeleccionado = vehiculoSelect.value !== '';
+
+            if (categoria === 'Otros') {
+                document.getElementById('comentarioContainer').style.display = 'block';
+            } else {
+                document.getElementById('comentarioContainer').style.display = 'none';
+            }
+
+            // Solo resetear si no hay vehículo seleccionado
+            if (!tieneVehiculoSeleccionado) {
+                vehiculoSelect.selectedIndex = 0;
+                document.getElementById('nombreVehiculo').value = '';
+                document.getElementById('colorVehiculo').innerHTML = '<option value="">-- Selecciona un color --</option>';
+                document.getElementById('colorContainer').style.display = 'none';
+            }
+        }
+
+        // Función para ir a cita
+        window.irACita = function() {
+            if (!vehiculoId) {
+                console.error("No hay ID de vehículo");
+                return;
+            }
+
+            let url = '/usuario/cita?vehiculoId=' + vehiculoId;
+
+            if (colorSeleccionado) {
+                url += '&color=' + encodeURIComponent(colorSeleccionado);
+            }
+
+            console.log("Redirigiendo a:", url);
+            window.location.href = url;
+        };
+
+        // Configurar el botón
+        document.getElementById('cotizarBtn')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            irACita();
+        });
+
+        // Evento cuando el modelo termina de cargar
+        if (viewer) {
+            viewer.addEventListener('load', () => {
+                console.log('Modelo 3D cargado lista para pintar');
+                // Intentar aplicar color guardado si existe
+                const colorGuardado = localStorage.getItem('colorVehiculo_' + vehiculoId);
+                if (colorGuardado) {
+                    // Simular clic o llamar lógica
+                    const btn = document.querySelector(`.color-option[data-color="${colorGuardado}"]`);
+                    if(btn) window.seleccionarColor(btn);
+                }
+            });
+        }
+
+        // Cargar color seleccionado previamente (Visualmente)
+        if (vehiculoId) {
+            const colorGuardado = localStorage.getItem('colorVehiculo_' + vehiculoId);
+            if (colorGuardado) {
+                document.querySelectorAll('.color-option').forEach(opt => {
+                    if (opt.getAttribute('data-color') === colorGuardado) {
+                        opt.classList.add('selected');
+                        colorSeleccionado = colorGuardado;
+                    }
+                });
+            }
+        }
+
+        // Funciones Galería
+        window.mostrar3D = function() {
+            const wrapper3D = document.getElementById('wrapper-3d');
+            const wrapperImg = document.getElementById('wrapper-img');
+            
+            if (wrapper3D) wrapper3D.classList.remove('hidden');
+            if (wrapperImg) wrapperImg.classList.add('hidden');
+            
+            actualizarBotonesActivos(document.getElementById('btn-3d'));
+        };
+
+        window.mostrarImagen = function(src, btn) {
+            const wrapper3D = document.getElementById('wrapper-3d');
+            const wrapperImg = document.getElementById('wrapper-img');
+            const mainImg = document.getElementById('main-image');
+
+            if (wrapper3D) wrapper3D.classList.add('hidden');
+            if (wrapperImg) wrapperImg.classList.remove('hidden');
+            if (mainImg) mainImg.src = src;
+
+            actualizarBotonesActivos(btn);
+        };
+
+        function actualizarBotonesActivos(btnActivo) {
+            document.querySelectorAll('.thumbnail-btn').forEach(btn => {
+                btn.classList.remove('border-primary');
+                btn.classList.add('border-transparent');
+            });
+            if (btnActivo) {
+                btnActivo.classList.remove('border-transparent');
+                btnActivo.classList.add('border-primary');
+            }
+        }
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

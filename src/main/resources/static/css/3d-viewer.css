@@ -1,0 +1,62 @@
+/* CSS for 3D Viewer Section */
+
+#configurator-3d {
+    position: relative;
+    /* Clean white background to match reference */
+    background-color: white; 
+}
+
+.dark #configurator-3d {
+    background-color: #101922; /* Keep dark mode consistent with theme */
+}
+
+model-viewer {
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    --poster-color: transparent;
+    outline: none;
+}
+
+/* Color Buttons Styles */
+.color-btn {
+    cursor: pointer;
+    position: relative;
+}
+
+/* Selection Ring Effect */
+.color-btn.active::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border: 1px solid #0f66bd; /* Primary color */
+    border-radius: 50%;
+    animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* 360 Animation */
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animation-spin-slow {
+    animation: spin-slow 8s linear infinite;
+}
+
+.fade-out-on-interact {
+    transition: opacity 0.5s ease;
+}
+
+/* Hide 360 indicator when user interacts if you want */
+model-viewer:focus-within + .fade-out-on-interact {
+    opacity: 0;
+}

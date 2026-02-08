@@ -1,0 +1,23 @@
+@relation clientes
+
+@attribute Cantidad_Citas numeric
+@attribute Antiguedad_Cuenta numeric
+@attribute Estado_de_Ultima_Cita {Aprobada,Pendiente,Rechazada}
+@attribute Interes_Vehiculo {Si,No}
+@attribute Tiempo_Entre_Citas numeric
+@attribute Cliente_Potencial {Si,No}
+
+@data
+% Ejemplos de SI (50%)
+3,45,Aprobada,Si,10,Si
+5,120,Pendiente,Si,5,Si
+4,80,Aprobada,Si,8,Si
+6,200,Aprobada,Si,3,Si
+7,150,Aprobada,Si,2,Si
+
+% Ejemplos de NO (50%)
+1,1000,Rechazada,No,50,No
+2,600,Pendiente,No,15,No
+1,800,Rechazada,No,40,No
+2,700,Pendiente,No,25,No
+1,900,Rechazada,No,60,No

@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crédito Automotriz - NexGen Motors Concesionario Oficial</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                "FILL" 0,
+                "wght" 400,
+                "GRAD" 0,
+                "opsz" 24;
+        }
+
+        /* Estilos personalizados para crédito */
+        .hero {
+            background: linear-gradient(135deg, #0f66bd 0%, #1e40af 100%);
+            color: white;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-button {
+            display: inline-block;
+            background: white;
+            color: #0f66bd;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .hero-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .dark .section-title {
+            color: #f1f5f9;
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .dark .section-subtitle {
+            color: #94a3b8;
+        }
+
+        /* Opciones de financiamiento */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .option-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .dark .option-card {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            border-color: #0f66bd;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .option-icon {
+            width: 5rem;
+            height: 5rem;
+            background: rgba(15, 102, 189, 0.1);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .option-icon i {
+            font-size: 2rem;
+            color: #0f66bd;
+        }
+
+        .option-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .dark .option-name {
+            color: #f1f5f9;
+        }
+
+        .option-description {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .dark .option-description {
+            color: #94a3b8;
+        }
+
+        .option-button {
+            display: inline-block;
+            color: #0f66bd;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .option-button:hover {
+            color: #0a4d8c;
+        }
+
+        /* Calculadora */
+        .calculator-container {
+            background: white;
+            border-radius: 1rem;
+            padding: 3rem;
+            border: 1px solid #e2e8f0;
+            margin-top: 2rem;
+        }
+
+        .dark .calculator-container {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .calculator-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .calculator-form label {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .dark .calculator-form label {
+            color: #f1f5f9;
+        }
+
+        .calculator-form input,
+        .calculator-form select {
+            padding: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            background: white;
+            transition: border-color 0.3s;
+        }
+
+        .dark .calculator-form input,
+        .dark .calculator-form select {
+            background: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        .calculator-form input:focus,
+        .calculator-form select:focus {
+            outline: none;
+            border-color: #0f66bd;
+            box-shadow: 0 0 0 3px rgba(15, 102, 189, 0.1);
+        }
+
+        .calculator-results {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+        }
+
+        .dark .result-item {
+            background: #334155;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .dark .result-label {
+            color: #cbd5e1;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: #0f66bd;
+            font-size: 1.125rem;
+        }
+
+        .calculator-button {
+            background: #0f66bd;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+
+        .calculator-button:hover {
+            background: #0a4d8c;
+        }
+
+        /* Requisitos */
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .requirement-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dark .requirement-card {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .requirement-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .dark .requirement-title {
+            color: #f1f5f9;
+        }
+
+        .requirement-title i {
+            color: #0f66bd;
+        }
+
+        .requirement-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .requirement-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            color: #64748b;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .dark .requirement-list li {
+            border-color: #334155;
+            color: #94a3b8;
+        }
+
+        .requirement-list li:before {
+            content: "✓";
+            color: #10b981;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Partners */
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+            align-items: center;
+        }
+
+        .partner-logo {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dark .partner-logo {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .partner-logo img {
+            max-width: 100%;
+            height: auto;
+            filter: grayscale(100%);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .partner-logo:hover img {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+
+        /* Testimonios */
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dark .testimonial-card {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .dark .testimonial-text {
+            color: #94a3b8;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 3rem;
+            height: 3rem;
+            background: #d1d5db;
+            border-radius: 50%;
+        }
+
+        .dark .author-avatar {
+            background: #475569;
+        }
+
+        .author-info h4 {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .dark .author-info h4 {
+            color: #f1f5f9;
+        }
+
+        .author-info p {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .dark .author-info p {
+            color: #94a3b8;
+        }
+
+        /* CTA */
+        .cta {
+            background: linear-gradient(135deg, #0f66bd 0%, #1e40af 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            border-radius: 1rem;
+            margin: 4rem 0;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #0f66bd;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* WhatsApp */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #25D366;
+            color: white;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+        }
+
+        /* NUEVOS ESTILOS RESPONSIVOS */
+
+        /* Menú hamburguesa */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #475569;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        .dark .menu-toggle {
+            color: #cbd5e1;
+        }
+
+        /* Menú móvil */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: white;
+            z-index: 60;
+            transition: right 0.3s ease;
+            padding: 2rem;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .dark .mobile-menu {
+            background: #1e293b;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .dark .mobile-menu-close {
+            color: #cbd5e1;
+        }
+
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav a {
+            color: #475569;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            transition: color 0.3s;
+        }
+
+        .dark .mobile-nav a {
+            color: #cbd5e1;
+            border-bottom: 1px solid #374151;
+        }
+
+        .mobile-nav a:hover {
+            color: #0f66bd;
+        }
+
+        /* Ajustes responsivos generales */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 4rem 1rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.75rem;
+            }
+
+            .section-subtitle {
+                font-size: 1rem;
+            }
+
+            .calculator-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .calculator-container {
+                padding: 2rem 1.5rem;
+            }
+
+            .cta {
+                padding: 3rem 1rem;
+            }
+
+            .cta h2 {
+                font-size: 1.75rem;
+            }
+
+            .options-grid,
+            .requirements-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .partners-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 3rem 1rem;
+            }
+
+            .hero-content h1 {
+                font-size: 1.75rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .option-card,
+            .requirement-card,
+            .testimonial-card {
+                padding: 1.5rem;
+            }
+
+            .calculator-container {
+                padding: 1.5rem 1rem;
+            }
+
+            .cta {
+                padding: 2rem 1rem;
+                margin: 2rem 0;
+            }
+
+            .cta h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Ajustes específicos para el logo en móviles */
+        @media (max-width: 640px) {
+            .logo-container {
+                gap: 0.5rem;
+            }
+
+            .logo-img {
+                width: 3rem;
+                height: 3rem;
+            }
+
+            .logo-text {
+                font-size: 1rem;
+            }
+        }
+
+        /* Ajustes para espaciado general */
+        @media (max-width: 768px) {
+            section {
+                padding: 3rem 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            section {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0f66bd",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        display: ["Manrope", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px",
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="flex min-h-screen flex-col">
+    <!-- Barra de navegación -->
+    <header class="sticky top-0 z-50 border-b border-gray-200/50 dark:border-gray-700/50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <a class="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white logo-container" href="/">
+                        <div class="h-16 w-16 sm:h-20 sm:w-20 rounded-lg flex items-center justify-center overflow-hidden logo-img">
+                            <img src="https://res.cloudinary.com/dktrgjt6b/image/upload/v1760657181/NEXTGEN_MOTORS_-_LOGO_ncwuwb.png" alt="NextGenMotors" class="h-full w-full object-contain">
+                        </div>
+                        <span class="font-display logo-text"><span class="text-primary">NextGen</span>Motors</span>
+                    </a>
+                    <nav class="hidden md:flex items-center gap-6">
+                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="/vehiculos">Vehículos</a>
+                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" th:href="@{/usuario/agendamiento}">Agendamiento online</a>
+                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="/usuario/cita">Cita</a>
+                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="/usuario/perfil">Perfil</a>
+                    </nav>
+                </div>
+                <div class="flex items-center gap-4">
+                    <!-- Usuario NO autenticado - Mostrar Iniciar Sesión -->
+                    <div th:if="${#authorization.expression('!isAuthenticated()')}">
+                        <a href="/login" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors hidden sm:block">Iniciar sesión</a>
+                        <button class="rounded-full p-2 text-gray-600 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors sm:hidden">
+                            <a class="fas fa-sign-in-alt" href="/login"></a>
+                        </button>
+                    </div>
+
+                    <!-- Usuario autenticado - Mostrar solo el icono de perfil -->
+                    <div th:if="${#authorization.expression('isAuthenticated()')}">
+                        <button class="rounded-full p-2 text-gray-600 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
+                            <a class="fas fa-user" href="/usuario/perfil"></a>
+                        </button>
+                    </div>
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menú móvil -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Menú</h3>
+            <button class="mobile-menu-close" id="mobileMenuClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="mobile-nav">
+            <a th:href="@{/usuario/Inicio}">Inicio</a>
+            <a href="/vehiculos">Nuestros Modelos</a>
+            <a th:href="@{/usuario/agendamiento}">Agendamiento online</a>
+
+            <!-- Opciones condicionales para móvil -->
+            <div th:if="${#authorization.expression('!isAuthenticated()')}">
+                <a href="/login">Iniciar sesión</a>
+            </div>
+            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                <a href="/usuario/perfil">Mi Perfil</a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Crédito Automotriz NexGen Motors</h1>
+            <p>Obtén las mejores condiciones de financiamiento para tu nuevo vehículo. ¡Aprobación rápida y tasas competitivas!</p>
+            <a href="#calculator" class="hero-button">Calcula tu crédito</a>
+        </div>
+    </section>
+
+    <!-- Opciones de Financiamiento -->
+    <section class="financing-options py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 class="section-title">Opciones de Financiamiento</h2>
+            <p class="section-subtitle">Encuentra el plan que mejor se adapte a tus necesidades y haz realidad tu sueño de tener un vehículo NexGen</p>
+
+            <div class="options-grid">
+                <div class="option-card">
+                    <div class="option-icon">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <h3 class="option-name">Crédito Tradicional</h3>
+                    <p class="option-description">Financiamiento a plazos fijos con pagos mensuales. Elige entre 12 a 60 meses con tasas desde el 8.9% anual.</p>
+                    <a href="#calculator" class="option-button">Más información</a>
+                </div>
+
+                <div class="option-card">
+                    <div class="option-icon">
+                        <i class="fas fa-business-time"></i>
+                    </div>
+                    <h3 class="option-name">Plan Empresarial</h3>
+                    <p class="option-description">Soluciones especiales para empresas y flotillas con beneficios fiscales y planes personalizados según tus necesidades.</p>
+                    <a href="#calculator" class="option-button">Más información</a>
+                </div>
+
+                <div class="option-card">
+                    <div class="option-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h3 class="option-name">Plan Renovación</h3>
+                    <p class="option-description">Cambia tu auto usado por un nuevo NexGen con facilidad. Aplicamos el valor de tu auto como enganche.</p>
+                    <a href="#calculator" class="option-button">Más información</a>
+                </div>
+
+                <div class="option-card">
+                    <div class="option-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="option-name">Leasing Operativo</h3>
+                    <p class="option-description">Ideal para empresas que buscan deducciones fiscales. Paga solo la depreciación del vehículo durante el contrato.</p>
+                    <a href="#calculator" class="option-button">Más información</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculadora -->
+    <section class="calculator py-16 bg-gray-50 dark:bg-gray-900" id="calculator">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 class="section-title">Calculadora de Pagos</h2>
+            <p class="section-subtitle">Simula tu crédito y descubre cuál es el plan de pagos que mejor se ajusta a tu presupuesto</p>
+
+            <div class="calculator-container">
+                <div class="calculator-grid">
+                    <div class="calculator-form">
+                        <label for="vehicle-price">Precio del vehículo (MXN)</label>
+                        <input type="number" id="vehicle-price" placeholder="Ej: 450,000" min="100000" max="3000000">
+
+                        <label for="down-payment">Enganche (MXN)</label>
+                        <input type="number" id="down-payment" placeholder="Ej: 90,000" min="0" max="3000000">
+
+                        <label for="loan-term">Plazo (meses)</label>
+                        <select id="loan-term">
+                            <option value="12">12 meses</option>
+                            <option value="24">24 meses</option>
+                            <option value="36" selected>36 meses</option>
+                            <option value="48">48 meses</option>
+                            <option value="60">60 meses</option>
+                        </select>
+
+                        <label for="interest-rate">Tasa de interés anual (%)</label>
+                        <input type="number" id="interest-rate" placeholder="Ej: 9.5" step="0.1" min="5" max="25" value="9.5">
+                    </div>
+
+                    <div class="calculator-results">
+                        <div class="result-item">
+                            <div class="result-label">Monto a financiar</div>
+                            <div class="result-value" id="financed-amount">$0</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Pago mensual estimado</div>
+                            <div class="result-value" id="monthly-payment">$0</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Intereses totales</div>
+                            <div class="result-value" id="total-interest">$0</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Costo total del crédito</div>
+                            <div class="result-value" id="total-cost">$0</div>
+                        </div>
+                        <button class="calculator-button" id="calculate-button">Calcular</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Requisitos -->
+    <section class="requirements py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 class="section-title">Requisitos para tu Crédito</h2>
+            <p class="section-subtitle">Prepara tu documentación para un proceso de aprobación rápido y sencillo</p>
+
+            <div class="requirements-grid">
+                <div class="requirement-card">
+                    <h3 class="requirement-title"><i class="fas fa-user-tie"></i> Personas Físicas</h3>
+                    <ul class="requirement-list">
+                        <li>Identificación oficial vigente (INE/IFE, pasaporte)</li>
+                        <li>Comprobante de domicilio no mayor a 3 meses</li>
+                        <li>Comprobante de ingresos (3 últimos recibos de nómina o estados de cuenta)</li>
+                        <li>Referencias personales y bancarias</li>
+                        <li>Historial crediticio positivo</li>
+                        <li>Edad mínima: 18 años, máxima: 70 al término del crédito</li>
+                    </ul>
+                </div>
+
+                <div class="requirement-card">
+                    <h3 class="requirement-title"><i class="fas fa-building"></i> Personas Morales</h3>
+                    <ul class="requirement-list">
+                        <li>Acta constitutiva de la empresa</li>
+                        <li>Identificación oficial del representante legal</li>
+                        <li>Comprobante de domicilio fiscal</li>
+                        <li>Estados financieros del último año</li>
+                        <li>Declaraciones de impuestos</li>
+                        <li>Referencias comerciales y bancarias</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners -->
+    <section class="partners py-16 bg-gray-50 dark:bg-gray-900">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 class="section-title">Bancos Aliados</h2>
+            <p class="section-subtitle">Trabajamos con las instituciones financieras más sólidas del país</p>
+
+            <div class="partners-grid">
+                <div class="partner-logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bancomer_logo.svg/1200px-Bancomer_logo.svg.png" alt="BBVA">
+                </div>
+                <div class="partner-logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Santander_Bank_logo.svg/1200px-Santander_Bank_logo.svg.png" alt="Santander">
+                </div>
+                <div class="partner-logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/HSBC_logo.svg/1200px-HSBC_logo.svg.png" alt="HSBC">
+                </div>
+                <div class="partner-logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Scotiabank_Logo_2012.svg/1200px-Scotiabank_Logo_2012.svg.png" alt="Scotiabank">
+                </div>
+                <div class="partner-logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Banamex_logo.svg/1200px-Banamex_logo.svg.png" alt="Citibanamex">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonios -->
+    <section class="testimonials py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 class="section-title">Lo que dicen nuestros clientes</h2>
+            <p class="section-subtitle">Experiencias reales de personas que financiaron su vehículo con nosotros</p>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"El proceso de financiamiento fue muy sencillo y rápido. Me aprobaron el crédito en menos de 24 horas y con una tasa mejor de lo que esperaba. ¡Ahora disfruto de mi NexGen X1!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar"></div>
+                        <div class="author-info">
+                            <h4>Roberto Sánchez</h4>
+                            <p>Dueño de NexGen X1 2023</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"Como empresario, el plan de leasing operativo me ha permitido renovar mi flotilla con beneficios fiscales importantes. Excelente asesoría por parte del equipo de NexGen Motors."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar"></div>
+                        <div class="author-info">
+                            <h4>Carlos Mendoza</h4>
+                            <p>Dueño de 5 NexGen E1 para su empresa</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"Aprobamos el crédito para mi NexGen S1 con mi historial crediticio que no era perfecto. Trabajaron conmigo para encontrar un plan de pagos que pudiera manejar cómodamente."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar"></div>
+                        <div class="author-info">
+                            <h4>Laura González</h4>
+                            <p>Dueña de NexGen S1 2022</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <h2>¿Listo para adquirir tu NexGen?</h2>
+            <p>Nuestros asesores financieros están disponibles para ayudarte a encontrar la mejor opción de crédito para tu nuevo vehículo.</p>
+            <a href="/usuario/cita" class="cta-button">Solicitar crédito ahora</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-background-light dark:bg-background-dark border-t border-gray-200 dark:border-gray-800">
+        <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="footer-column">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Vehículos</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/vehiculos" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Nuevos modelos</a></li>
+                        <li><a href="/vehiculos" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Promociones</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Servicios</h3>
+                    <ul class="space-y-2">
+                        <li><a th:href="@{/usuario/Inicio}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Agendar servicio</a></li>
+                        <li><a href="/garantias" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Garantías</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Concesionario</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/nosotros" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Sobre nosotros</a></li>
+                        <li><a href="/ubicaciones" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Ubicaciones</a></li>
+                        <li><a href="#contact" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Contáctanos</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Legal</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/terminos" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Términos y condiciones</a></li>
+                        <li><a href="/cookies" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Cookies y Aviso legal</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-8 text-center">
+                <p class="text-sm text-gray-500 dark:text-gray-400">&copy; 2023 NextGenMotors. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- Botón de WhatsApp -->
+<a href="https://wa.me/525512345678" class="whatsapp-float" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+</a>
+
+<script>
+    // JavaScript para la calculadora
+    document.addEventListener('DOMContentLoaded', function() {
+        const calculateButton = document.getElementById('calculate-button');
+
+        calculateButton.addEventListener('click', function() {
+            calculateLoan();
+        });
+
+        // Calcular automáticamente cuando cambien los valores
+        const inputs = ['vehicle-price', 'down-payment', 'loan-term', 'interest-rate'];
+        inputs.forEach(inputId => {
+            document.getElementById(inputId).addEventListener('input', calculateLoan);
+        });
+
+        function calculateLoan() {
+            const vehiclePrice = parseFloat(document.getElementById('vehicle-price').value) || 0;
+            const downPayment = parseFloat(document.getElementById('down-payment').value) || 0;
+            const loanTerm = parseInt(document.getElementById('loan-term').value) || 36;
+            const interestRate = parseFloat(document.getElementById('interest-rate').value) || 9.5;
+
+            const financedAmount = vehiclePrice - downPayment;
+
+            if (financedAmount <= 0) {
+                alert('El enganche no puede ser mayor o igual al precio del vehículo');
+                return;
+            }
+
+            const monthlyRate = (interestRate / 100) / 12;
+            const monthlyPayment = (financedAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -loanTerm));
+            const totalPayment = monthlyPayment * loanTerm;
+            const totalInterest = totalPayment - financedAmount;
+
+            // Actualizar resultados
+            document.getElementById('financed-amount').textContent = formatCurrency(financedAmount);
+            document.getElementById('monthly-payment').textContent = formatCurrency(monthlyPayment);
+            document.getElementById('total-interest').textContent = formatCurrency(totalInterest);
+            document.getElementById('total-cost').textContent = formatCurrency(totalPayment);
+        }
+
+        function formatCurrency(amount) {
+            return '$' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+
+        // Calcular al cargar la página
+        calculateLoan();
+    });
+
+    // Menú móvil
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+    const mobileMenuClose = document.getElementById('mobileMenuClose');
+
+    function openMobileMenu() {
+        mobileMenu.classList.add('active');
+        mobileMenuOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileMenu() {
+        mobileMenu.classList.remove('active');
+        mobileMenuOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    menuToggle.addEventListener('click', openMobileMenu);
+    mobileMenuClose.addEventListener('click', closeMobileMenu);
+    mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+
+    // Cerrar menú móvil con tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+            closeMobileMenu();
+        }
+    });
+
+    // Barra de navegación al hacer scroll
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('header');
+        if (window.scrollY > 50) {
+            header.classList.add('shadow-md');
+        } else {
+            header.classList.remove('shadow-md');
+        }
+    });
+</script>
+</body>
+</html>

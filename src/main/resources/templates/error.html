@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link th:href="@{/css/error.css}" rel="stylesheet">
+  <title>Error - Concesionario</title>
+
+</head>
+<body>
+<div class="error-container">
+  <div class="error-icon">⚠️</div>
+  <h1>¡Ups! Algo salió mal</h1>
+  <p>Hemos encontrado un error inesperado en el sistema.</p>
+
+  <div class="error-details">
+    <strong>Estado:</strong> <span th:text="${status}">500</span><br>
+    <strong>Mensaje:</strong> <span th:text="${errorMessage}">Internal Server Error</span><br>
+    <strong>Excepción:</strong> <span th:text="${exception}">No disponible</span><br>
+    <strong>Ruta:</strong> <span th:text="${path}">/usuario/cita</span><br>
+    <strong>Timestamp:</strong> <span th:text="${timestamp}">2025-10-30T19:59:09</span>
+  </div>
+
+  <div>
+    <a href="/" class="btn">Ir al Inicio</a>
+    <button onclick="history.back()" class="btn btn-secondary">Volver Atrás</button>
+    <button onclick="location.reload()" class="btn btn-secondary">Reintentar</button>
+  </div>
+
+  <div style="margin-top: 20px; font-size: 12px; color: #6c757d;">
+    Si el problema persiste, contacte al administrador del sistema.
+  </div>
+</div>
+</body>
+</html>

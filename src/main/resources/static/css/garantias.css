@@ -1,0 +1,424 @@
+ .material-symbols-outlined {
+            font-variation-settings:
+                "FILL" 0,
+                "wght" 400,
+                "GRAD" 0,
+                "opsz" 24;
+        }
+
+        .faq-item {
+            transition: all 0.3s ease;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        /* NUEVOS ESTILOS RESPONSIVOS */
+
+        /* Menú hamburguesa */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #475569;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        .dark .menu-toggle {
+            color: #cbd5e1;
+        }
+
+        /* Menú móvil */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: white;
+            z-index: 60;
+            transition: right 0.3s ease;
+            padding: 2rem;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .dark .mobile-menu {
+            background: #1e293b;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .dark .mobile-menu-close {
+            color: #cbd5e1;
+        }
+
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav a {
+            color: #475569;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            transition: color 0.3s;
+        }
+
+        .dark .mobile-nav a {
+            color: #cbd5e1;
+            border-bottom: 1px solid #374151;
+        }
+
+        .mobile-nav a:hover {
+            color: #0f66bd;
+        }
+
+        /* Ajustes responsivos para Hero Section */
+        @media (max-width: 768px) {
+            .hero-section {
+                height: 40vh;
+                min-height: 300px;
+            }
+
+            .hero-title {
+                font-size: 2rem !important;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem !important;
+            }
+
+            .hero-button {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section {
+                height: 35vh;
+                min-height: 250px;
+            }
+
+            .hero-title {
+                font-size: 1.75rem !important;
+            }
+
+            .hero-subtitle {
+                font-size: 0.875rem !important;
+            }
+
+            .hero-button {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+
+        /* Ajustes para planes de garantía */
+        @media (max-width: 768px) {
+            .warranty-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .warranty-card {
+                margin-bottom: 1rem;
+            }
+
+            .warranty-image {
+                height: 200px;
+            }
+
+            .warranty-content {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .warranty-grid {
+                gap: 1rem;
+            }
+
+            .warranty-image {
+                height: 180px;
+            }
+
+            .warranty-content {
+                padding: 1rem;
+            }
+
+            .warranty-button {
+                width: 100%;
+            }
+        }
+
+        /* Ajustes para beneficios */
+        @media (max-width: 768px) {
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .benefit-card {
+                padding: 1.5rem;
+            }
+
+            .benefit-icon {
+                width: 3rem;
+                height: 3rem;
+            }
+
+            .benefit-icon i {
+                font-size: 1.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .benefits-grid {
+                gap: 1rem;
+            }
+
+            .benefit-card {
+                padding: 1rem;
+            }
+
+            .benefit-icon {
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+        }
+
+        /* Ajustes para FAQ */
+        @media (max-width: 768px) {
+            .faq-container {
+                padding: 0;
+            }
+
+            .faq-question {
+                padding: 1rem;
+            }
+
+            .faq-answer {
+                padding: 0 1rem 1rem;
+            }
+
+            .faq-question span {
+                font-size: 0.875rem;
+                line-height: 1.4;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .faq-question {
+                padding: 0.75rem;
+            }
+
+            .faq-answer {
+                padding: 0 0.75rem 0.75rem;
+            }
+
+            .faq-question span {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Ajustes para CTA */
+        @media (max-width: 768px) {
+            .cta-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .cta-button {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cta-button {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Ajustes para el footer */
+        @media (max-width: 768px) {
+            .footer-column {
+                margin-bottom: 2rem;
+            }
+        }
+
+        /* Ajustes generales de tipografía */
+        @media (max-width: 768px) {
+            .text-3xl {
+                font-size: 1.75rem;
+            }
+
+            .text-2xl {
+                font-size: 1.5rem;
+            }
+
+            .text-xl {
+                font-size: 1.25rem;
+            }
+
+            .text-lg {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .text-3xl {
+                font-size: 1.5rem;
+            }
+
+            .text-2xl {
+                font-size: 1.25rem;
+            }
+
+            .text-xl {
+                font-size: 1.125rem;
+            }
+
+            .text-lg {
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Ajustes específicos para el logo en móviles */
+        @media (max-width: 640px) {
+            .logo-container {
+                gap: 0.5rem;
+            }
+
+            .logo-img {
+                width: 3rem;
+                height: 3rem;
+            }
+
+            .logo-text {
+                font-size: 1rem;
+            }
+        }
+
+        /* Ajustes para espaciado general */
+        @media (max-width: 768px) {
+            .py-16 {
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+
+            .mt-12 {
+                margin-top: 2rem;
+            }
+
+            .mb-16 {
+                margin-bottom: 3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .py-16 {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+
+            .mt-12 {
+                margin-top: 1.5rem;
+            }
+
+            .mb-16 {
+                margin-bottom: 2rem;
+            }
+        }
+
+        /* Ajustes para listas */
+        @media (max-width: 768px) {
+            .feature-list {
+                gap: 0.75rem;
+            }
+
+            .feature-list li {
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .feature-list {
+                gap: 0.5rem;
+            padding-left: 1rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            padding: 0.5rem 0;
+            border-radius: 0.5rem;
+        }
+
+            .feature-list li {
+                font-size: 0.75rem;
+                padding: 0.25rem 0;
+            }
+        }

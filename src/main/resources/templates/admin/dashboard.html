@@ -1,0 +1,3290 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      class="dark" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador - NexGen Motors</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0f66bd;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --gray: #6b7280;
+            --gray-light: #9ca3af;
+            --border-radius: 0.75rem;
+            --box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .btn-primary.w-auto {
+    width: auto !important;
+    flex: none !important;
+}
+
+        .dark body {
+            background-color: #101922;
+            color: #e5e7eb;
+        }
+
+        /* ===================== SIDEBAR ===================== */
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+            transition: all 0.3s ease;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transform: translateX(0);
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar.collapsed .sidebar-text {
+            display: none;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        .dark .main-content {
+            background: #101922;
+        }
+
+        .main-content.expanded {
+            margin-left: 80px;
+        }
+
+        .mobile-menu-open .sidebar {
+            transform: translateX(0);
+        }
+
+        /* ===================== COMPONENTES ELEGANTES ===================== */
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dark .stat-card {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+        }
+
+        .table-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .dark .table-container {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .dark .modal-content {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(15, 102, 189, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(15, 102, 189, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(107, 114, 128, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .dark .form-group label {
+            color: #d1d5db;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            background-color: white;
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+
+        .dark .form-group input,
+        .dark .form-group select,
+        .dark .form-group textarea {
+            background: #374151;
+            border-color: #4b5563;
+            color: #e5e7eb;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 102, 189, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+            border-radius: 9999px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(220, 38, 38, 0.4);
+        }
+
+        .sidebar-link {
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .sidebar-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .sidebar-link.active {
+            background: rgba(15, 102, 189, 0.1);
+            color: white;
+        }
+
+        /* ===================== BOTONES DE GESTIÓN DE CITAS ===================== */
+        .btn-gestion-cita {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.875rem;
+            color: white;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 100px;
+            border: 2px solid transparent;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-gestion-cita:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-aprobar {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        }
+
+        .btn-rechazar {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+        }
+
+        .btn-asignar-fecha {
+            background: linear-gradient(135deg, var(--info) 0%, #2563eb 100%);
+        }
+
+        .btn-pendiente {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+        }
+
+        .btn-notas {
+            background: linear-gradient(135deg, var(--gray) 0%, #4b5563 100%);
+        }
+
+        /* ===================== ESTADOS DE CITAS ===================== */
+        .estado-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .estado-pendiente {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .estado-aprobada {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .estado-rechazada {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* ===================== DÍAS DE TRABAJO ===================== */
+        .dias-trabajo-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px dashed #e2e8f0;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .dark .dias-trabajo-container {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-color: #475569;
+        }
+
+        .dias-trabajo-container:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(15, 102, 189, 0.1);
+        }
+
+        .dia-checkbox {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .dia-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .dark .dia-label {
+            background: #374151;
+            border-color: #4b5563;
+            color: #e5e7eb;
+        }
+
+        .dia-label:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 102, 189, 0.15);
+        }
+
+        .dia-checkbox:checked + .dia-label {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(15, 102, 189, 0.3);
+        }
+
+        .dia-checkbox:checked + .dia-label .dia-icon {
+            color: white;
+        }
+
+        .dia-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #6b7280;
+            transition: var(--transition);
+        }
+
+        .dark .dia-icon {
+            color: #9ca3af;
+        }
+
+        .dia-nombre {
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .dias-seleccionados {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(15, 102, 189, 0.05);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(15, 102, 189, 0.1);
+        }
+
+        .dark .dias-seleccionados {
+            background: rgba(15, 102, 189, 0.1);
+            border-color: rgba(15, 102, 189, 0.2);
+        }
+
+        .dia-seleccionado {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* ===================== TEAM SECTION STYLES ===================== */
+        .head-title {
+            margin-bottom: 2rem;
+        }
+
+        .head-title .left h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .dark .head-title .left h1 {
+            color: #f9fafb;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .breadcrumb li {
+            display: flex;
+            align-items: center;
+        }
+
+        .breadcrumb a {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: #0f66bd;
+        }
+
+        .breadcrumb .active {
+            color: #0f66bd;
+            font-weight: 600;
+        }
+
+        .dark .breadcrumb a {
+            color: #9ca3af;
+        }
+
+        .dark .breadcrumb a:hover {
+            color: #60a5fa;
+        }
+
+        .dark .breadcrumb .active {
+            color: #60a5fa;
+        }
+
+        .breadcrumb i {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .dark .breadcrumb i {
+            color: #9ca3af;
+        }
+
+        /* Table Data Styles */
+        .table-data {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .dark .table-data {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .order {
+            padding: 0;
+        }
+
+        .order .head {
+            background: linear-gradient(90deg, #0f66bd 0%, #3f37c9 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .order .head h3 {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Login Card Styles */
+        .login-card {
+            padding: 2rem;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid transparent;
+        }
+
+        .alert-danger {
+            background-color: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .dark .alert-danger {
+            background-color: rgba(220, 38, 38, 0.1);
+            border-color: rgba(220, 38, 38, 0.2);
+            color: #fca5a5;
+        }
+
+        /* Form Styles */
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .dark .form-label {
+            color: #d1d5db;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background-color: white;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .dark .form-control {
+            background: #374151;
+            border-color: #4b5563;
+            color: #e5e7eb;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #0f66bd;
+            box-shadow: 0 0 0 3px rgba(15, 102, 189, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -0.75rem;
+        }
+
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding: 0 0.75rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        /* Checkbox Container Styles */
+        .dias-checkbox-container,
+        .roles-checkbox-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: #f8fafc;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dark .form-check {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
+        .form-check:hover {
+            border-color: #0f66bd;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 102, 189, 0.15);
+        }
+
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #d1d5db;
+            border-radius: 0.375rem;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dark .form-check-input {
+            background: #4b5563;
+            border-color: #6b7280;
+        }
+
+        .form-check-input:checked {
+            background-color: #0f66bd;
+            border-color: #0f66bd;
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+        }
+
+        .form-check-label {
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            margin: 0;
+            flex: 1;
+        }
+
+        .dark .form-check-label {
+            color: #e5e7eb;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-block;
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid transparent;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f66bd 0%, #3f37c9 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(15, 102, 189, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(15, 102, 189, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(107, 114, 128, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(107, 114, 128, 0.3);
+        }
+
+        .w-100 {
+            width: 100%;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-3 {
+            margin-top: 1rem;
+        }
+
+        /* ===================== RESPONSIVE ===================== */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-menu-open .sidebar {
+                transform: translateX(0);
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .modal-content {
+                margin: 5% auto;
+                width: 95%;
+                padding: 1.5rem;
+            }
+
+            .head-title .left h1 {
+                font-size: 1.5rem;
+            }
+
+            .login-card {
+                padding: 1.5rem;
+            }
+
+            .col-md-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .order .head {
+                padding: 1rem 1.5rem;
+            }
+
+            .order .head h3 {
+                font-size: 1.125rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 1rem;
+            }
+
+            .form-check {
+                padding: 0.5rem 0.75rem;
+            }
+
+            .btn {
+                padding: 0.625rem 1.25rem;
+                font-size: 0.8125rem;
+            }
+        }
+    </style>
+    <style>
+        /* Estilos para el dropdown de notificaciones */
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 300px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+    display: none;
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-dropdown.show {
+    display: block;
+}
+
+.notification-list {
+    padding: 10px;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 10px;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-content strong {
+    color: #333;
+    font-size: 14px;
+}
+
+.notification-content p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 13px;
+}
+
+.notification-content small {
+    color: #999;
+    font-size: 11px;
+}
+
+.mark-read {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.mark-read:hover {
+    background: #f8f9fa;
+}
+
+.no-notifications {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-style: italic;
+}
+
+/* Estilo para el contador de notificaciones */
+.notification .num {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #ff4757;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+}
+    </style>
+    <style>
+        /* ===================== MODALES ESPECÍFICOS PARA TRABAJADORES ===================== */
+.modal-trabajadores {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content-trabajadores {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 0.75rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    animation: slideIn 0.3s ease;
+}
+
+.dark .modal-content-trabajadores {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Botones específicos para modales de trabajadores */
+.btn-confirmar-trabajadores {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
+
+.btn-confirmar-trabajadores:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
+}
+
+.btn-cancelar-trabajadores {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancelar-trabajadores:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(107, 114, 128, 0.3);
+}
+
+.btn-aceptar-trabajadores {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-aceptar-trabajadores:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(15, 102, 189, 0.4);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.btn-despedir {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.875rem;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
+
+.btn-despedir:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
+}
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0f66bd",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        display: ["Manrope", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        lg: "0.75rem",
+                        xl: "1rem",
+                        full: "9999px",
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="flex">
+    <!-- ===================== SIDEBAR ===================== -->
+    <div class="sidebar">
+        <div class="p-6 border-b border-gray-700">
+            <div class="flex items-center gap-3">
+                <div class="h-20 w-20 rounded-lg flex items-center justify-center overflow-hidden">
+                    <img src="https://res.cloudinary.com/dktrgjt6b/image/upload/v1760657181/NEXTGEN_MOTORS_-_LOGO_ncwuwb.png" alt="NextGenMotors" class="h-full w-full object-contain">
+                </div>
+
+                <div>
+                    <span class="text-white font-bold text-lg sidebar-text">Administrador</span>
+                    <p class="text-gray-400 text-sm sidebar-text">NexGen Motors</p>
+                </div>
+            </div>
+        </div>
+
+        <ul class="py-4 space-y-1">
+            <li>
+                <a href="#dashboard" class="sidebar-link flex items-center gap-3 px-6 py-4 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300 active">
+                    <i class='bx bxs-dashboard text-xl'></i>
+                    <span class="sidebar-text font-medium">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#vehiculos" class="sidebar-link flex items-center gap-3 px-6 py-4 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300">
+                    <i class='bx bxs-car text-xl'></i>
+                    <span class="sidebar-text font-medium">Vehículos</span>
+                </a>
+            </li>
+            <li>
+                <a href="#anuncios" class="sidebar-link flex items-center gap-3 px-6 py-4 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300">
+                    <i class='bx bxs-megaphone text-xl'></i>
+                    <span class="sidebar-text font-medium">Anuncios</span>
+                </a>
+            </li>
+            <li>
+                <a href="#analytics" class="sidebar-link flex items-center gap-3 px-6 py-4 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300">
+                    <i class='bx bxs-chart text-xl'></i>
+                    <span class="sidebar-text font-medium">Predicciones</span>
+                </a>
+            </li>
+            <li>
+                <a href="#mensaje" class="sidebar-link flex items-center gap-3 px-6 py-4 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300">
+                    <i class='bx bxs-calendar text-xl'></i>
+                    <span class="sidebar-text font-medium">Citas</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_ADMINISTRADOR')">
+                <a href="#team" class="sidebar-link flex items-center gap-3 px-6 py-4 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300">
+                    <i class='bx bxs-group text-xl'></i>
+                    <span class="sidebar-text font-medium">Team</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_ADMINISTRADOR')">
+                <a href="#mis-trabajadores" class="sidebar-link flex items-center gap-3 px-6 py-4 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300">
+                    <i class='bx bxs-user-badge text-xl'></i>
+                    <span class="sidebar-text font-medium">Mis Trabajadores</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="absolute bottom-0 w-full p-6 border-t border-gray-700">
+            <a href="/logout" class="flex items-center gap-3 px-6 py-4 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300 rounded-lg">
+                <i class='bx bxs-log-out-circle text-xl'></i>
+                <span class="sidebar-text font-medium">Cerrar Sesión</span>
+            </a>
+        </div>
+    </div>
+    <!-- ===================== END SIDEBAR ===================== -->
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <div class="main-content flex-1">
+        <!-- Navbar -->
+        <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 p-4 lg:p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button class="lg:hidden nav-toggle text-2xl cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <i class='bx bx-menu'></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <!-- Notificaciones -->
+                    <div class="relative">
+                        <button class="relative p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors" id="notification-bell">
+                            <i class='bx bxs-bell text-xl'></i>
+                            <span class="notification-badge" id="notification-count">0</span>
+                        </button>
+                        <div class="notification-dropdown" id="notification-dropdown">
+                            <div class="notification-header" style="padding: 10px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center;">
+                                <strong>Notificaciones</strong>
+                                <button onclick="marcarTodasLeidas()" style="background: none; border: none; color: #007bff; cursor: pointer; font-size: 12px;">
+                                    Marcar todas como leídas
+                                </button>
+                            </div>
+                            <div class="notification-list" id="notification-list">
+                                <!-- Las notificaciones aparecerán aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- ===================== DASHBOARD SECTION ===================== -->
+        <section id="dashboard" class="p-4 lg:p-6">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                <div>
+                    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
+                        <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
+                        <i class='bx bx-chevron-right text-xs'></i>
+                        <a href="#" class="text-primary font-medium">Home</a>
+                    </div>
+                </div>
+                <button class="btn-primary">
+                    <i class='bx bxs-cloud-download'></i>
+                    <span>Descargar PDF</span>
+                </button>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
+                <div class="stat-card">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-xl">
+                            <i class='bx bxs-calendar-check text-2xl text-blue-600'></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white" th:text="${totalCitas}">0</h3>
+                            <p class="text-gray-600 dark:text-gray-400">Citas Totales</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-green-100 dark:bg-green-900 rounded-xl">
+                            <i class='bx bxs-group text-2xl text-green-600'></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white" th:text="${totalUsuarios}">0</h3>
+                            <p class="text-gray-600 dark:text-gray-400">Usuarios Registrados</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-xl">
+                            <i class='bx bxs-car text-2xl text-purple-600'></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white" th:text="${totalVehiculos}">0</h3>
+                            <p class="text-gray-600 dark:text-gray-400">Vehículos en Stock</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Power BI Dashboard -->
+            <div class="table-container">
+                <div class="p-4 lg:p-6">
+                    <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white mb-4">Dashboard Analytics</h3>
+                    <div class="rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                        <iframe title="concesionariotablero" width="100%" height="500" src="https://app.powerbi.com/view?r=eyJrIjoiMDljY2M3NWUtMWM1ZS00NjFiLTljNjgtMDQ3NGRlNDVjZGJjIiwidCI6IjlkMTJiZjNmLWU0ZjYtNDdhYi05MTJmLTFhMmYwZmM0OGFhNCIsImMiOjR9" frameborder="0" allowFullScreen="true"></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== VEHÍCULOS SECTION ===================== -->
+        <section id="vehiculos" class="p-4 lg:p-6 hidden">
+            <div class="mb-6">
+                <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Vehículos</h1>
+                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
+                    <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
+                    <i class='bx bx-chevron-right text-xs'></i>
+                    <a href="#" class="text-primary font-medium">Vehículos</a>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="p-4 lg:p-6">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white">Vehículos en Stock</h3>
+                        <button onclick="mostrarModal('modal-vehiculo')" class="btn-primary">
+                            <i class='bx bx-plus'></i>
+                            <span>Añadir Vehículo</span>
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table id="tabla-vehiculos" class="w-full min-w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Marca</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Modelo</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Año</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Precio</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Categoría</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Imagen</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tr th:each="vehiculo : ${vehiculos}" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${vehiculo.marca}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${vehiculo.modelo}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${vehiculo.año}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${vehiculo.precio}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${vehiculo.categoria}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <img th:src="${vehiculo.imagenUrl}" class="w-16 h-12 object-cover rounded-lg shadow-sm">
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex gap-2">
+                                        <button th:data-id="${vehiculo.id}"
+                                                onclick="mostrarModalEditarVehiculo(this)"
+                                                class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">Editar</button>
+                                        <a th:href="@{/admin/eliminar/{id}(id=${vehiculo.id})}" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors" onclick="return confirm('¿Estás seguro de eliminar este vehículo?')">Eliminar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== ANUNCIOS SECTION ===================== -->
+        <section id="anuncios" class="p-4 lg:p-6 hidden">
+            <div class="mb-6">
+                <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Anuncios</h1>
+                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
+                    <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
+                    <i class='bx bx-chevron-right text-xs'></i>
+                    <a href="#" class="text-primary font-medium">Anuncios</a>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="p-4 lg:p-6">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white">Anuncios Destacados</h3>
+                        <button onclick="mostrarModal('modal-anuncio')" class="btn-primary">
+                            <i class='bx bx-plus'></i>
+                            <span>Crear Anuncio</span>
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table id="tabla-anuncios" class="w-full min-w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Marca</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Modelo</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Año</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Precio</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Categoría</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Imagen</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tr th:each="anuncio : ${anuncios}" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${anuncio.marca}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${anuncio.modelo}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${anuncio.año}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${anuncio.precio}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${anuncio.categoria}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <img th:src="${anuncio.imagenUrl}" class="w-16 h-12 object-cover rounded-lg shadow-sm">
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex gap-2">
+                                        <button th:data-id="${anuncio.id}"
+                                                onclick="mostrarModalEditarAnuncio(this)"
+                                                class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">Editar</button>
+                                        <a th:href="@{/admin/eliminar/{id}(id=${anuncio.id})}"
+                                           class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                                           onclick="return confirm('¿Estás seguro de eliminar este anuncio?')">Eliminar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== ANALYTICS SECTION ===================== -->
+        <section id="analytics" class="p-4 lg:p-6 hidden">
+            <div class="mb-6">
+                <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Predicción de Clientes Potenciales</h1>
+                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
+                    <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
+                    <i class='bx bx-chevron-right text-xs'></i>
+                    <a href="#" class="text-primary font-medium">Predicciones</a>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="p-4 lg:p-6">
+                    <!-- Sistema de Búsqueda y Selección -->
+                    <div class="mb-8">
+                        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                            <i class='bx bx-search-alt-2 mr-2'></i>Buscar y Seleccionar Cliente
+                        </h3>
+
+                        <!-- Barra de búsqueda y botón -->
+                        <div class="flex flex-col lg:flex-row gap-4 mb-6">
+                            <div class="flex-1">
+                                <div class="form-group">
+                                    <label for="buscar-cliente">Buscar Cliente</label>
+                                    <div class="relative">
+                                        <input type="text" id="buscar-cliente"
+                                               class="form-control pl-10"
+                                               placeholder="Buscar por nombre, email..."
+                                               onkeyup="filtrarClientes()">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="cargarUsuarios()"
+                                    class="mt-6 lg:mt-0 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center">
+                                <i class='bx bx-refresh mr-2'></i>Cargar Usuarios
+                            </button>
+                        </div>
+
+                        <!-- Lista de Usuarios -->
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto">
+                            <div id="loading-clientes" class="hidden text-center py-8">
+                                <i class='bx bx-loader-alt animate-spin text-2xl text-primary mb-2'></i>
+                                <p class="text-gray-600 dark:text-gray-400">Cargando usuarios...</p>
+                            </div>
+
+                            <div id="lista-clientes" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Los usuarios se cargarán aquí -->
+                            </div>
+
+                            <div id="empty-clientes" class="hidden text-center py-8">
+                                <i class='bx bx-user-x text-4xl text-gray-400 mb-2'></i>
+                                <p class="text-gray-600 dark:text-gray-400">No se encontraron usuarios</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resultado de Predicción -->
+                    <div id="resultado-prediccion" class="hidden">
+                        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                            <i class='bx bx-line-chart mr-2'></i>Resultado de Predicción
+                        </h3>
+
+                        <div class="metric-card">
+                            <h3 id="nombre-usuario" class="text-lg font-bold mb-4"></h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div class="text-center">
+                                    <div id="valor-potencial" class="text-2xl font-bold">Sin analizar</div>
+                                    <div class="text-sm text-gray-600">Cliente Potencial</div>
+                                </div>
+                                <div class="text-center">
+                                    <div id="valor-probabilidad" class="text-2xl font-bold text-purple-600">0%</div>
+                                    <div class="text-sm text-gray-600">Probabilidad</div>
+                                </div>
+                                <div class="text-center">
+                                    <div id="valor-recomendacion" class="text-lg font-semibold">Sin datos</div>
+                                    <div class="text-sm text-gray-600">Recomendación</div>
+                                </div>
+                            </div>
+
+                            <!-- Detalles del análisis -->
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-4">
+                                <h4 class="font-bold mb-2">Datos utilizados en el análisis:</h4>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                                    <div><strong>Citas:</strong> <span id="detalle-citas">0</span></div>
+                                    <div><strong>Antigüedad:</strong> <span id="detalle-antiguedad">0 días</span></div>
+                                    <div><strong>Estado:</strong> <span id="detalle-estado">-</span></div>
+                                    <div><strong>Interés:</strong> <span id="detalle-interes">-</span></div>
+                                </div>
+                            </div>
+
+                            <button onclick="realizarPrediccion()" class="btn-primary mt-4">
+                                <i class='bx bx-calculator mr-2'></i>Realizar Predicción
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Estado cuando no hay selección -->
+                    <div id="sin-seleccion" class="text-center py-12">
+                        <i class='bx bx-user-voice text-6xl text-gray-300 mb-4'></i>
+                        <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">
+                            Selecciona un usuario para ver la predicción
+                        </h3>
+                        <p class="text-gray-500 dark:text-gray-500">
+                            Busca y selecciona un usuario de la lista para analizar su potencial de conversión
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== MENSAJE SECTION ===================== -->
+        <section id="mensaje" class="p-4 lg:p-6 hidden">
+            <div class="mb-6">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                    <div>
+                        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Gestión de Citas</h1>
+                        <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
+                            <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
+                            <i class='bx bx-chevron-right text-xs'></i>
+                            <a href="#" class="text-primary font-medium">Citas</a>
+                        </div>
+                    </div>
+                    <select id="filtro-estado" class="form-group w-full lg:w-48 text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2">
+                        <option value="TODAS" class="text-gray-900 dark:text-white">Todas las citas</option>
+                        <option value="Pendiente" class="text-gray-900 dark:text-white">Pendientes</option>
+                        <option value="Aprobada" class="text-gray-900 dark:text-white">Aprobadas</option>
+                        <option value="Rechazada" class="text-gray-900 dark:text-white">Rechazadas</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="overflow-x-auto">
+                    <table id="tabla-citas" class="w-full min-w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Auto</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha Solicitud</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Comentario</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha Asignada</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Notas</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr th:each="cita : ${citas}" th:data-id="${cita.id}" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${cita.usuario != null ? cita.usuario.nombre + ' ' + cita.usuario.apellido : 'Sin usuario'}"></td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${cita.tipo}"></td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                <span th:if="${cita.vehiculo != null}" th:text="${cita.vehiculo.marca + ' ' + cita.vehiculo.modelo}"></span>
+                                <span th:unless="${cita.vehiculo != null}" th:text="${cita.modelo}">N/A</span>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${#temporals.format(cita.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td class="px-4 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate" th:text="${cita.comentario}"></td>
+                            <td class="px-4 py-4 whitespace-nowrap">
+                <span th:text="${cita.estado}"
+                      class="estado-badge"
+                      th:classappend="${cita.estado == 'Pendiente'} ? 'estado-pendiente' :
+                                     (${cita.estado == 'Aprobada'} ? 'estado-aprobada' : 'estado-rechazada')"></span>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                <span th:if="${cita.fechaAsignada != null}" th:text="${#temporals.format(cita.fechaAsignada, 'dd/MM/yyyy hh:mm a')}"></span>
+                                <span th:unless="${cita.fechaAsignada != null}">-</span>
+                            </td>
+                            <td class="px-4 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate" th:text="${cita.notasAdmin ?: 'Sin notas'}"></td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex flex-col lg:flex-row gap-2" th:id="'botones-cita-' + ${cita.id}">
+                                    <button class="btn-gestion-cita btn-aprobar"
+                                            th:data-id="${cita.id}"
+                                            data-accion="aprobar"
+                                            th:if="${cita.estado == 'Pendiente'}">Aprobar</button>
+                                    <button class="btn-gestion-cita btn-rechazar"
+                                            th:data-id="${cita.id}"
+                                            data-accion="rechazar"
+                                            th:if="${cita.estado == 'Pendiente'}">Rechazar</button>
+                                    <button class="btn-gestion-cita btn-asignar-fecha"
+                                            th:data-id="${cita.id}"
+                                            data-accion="asignar-fecha"
+                                            th:if="${cita.estado == 'Aprobada'}">Asignar Fecha</button>
+                                    <button class="btn-gestion-cita btn-pendiente"
+                                            th:data-id="${cita.id}"
+                                            data-accion="pendiente"
+                                            th:if="${cita.estado == 'Aprobada' or cita.estado == 'Rechazada'}">A Pendiente</button>
+                                    <button class="btn-gestion-cita btn-notas"
+                                            th:data-id="${cita.id}"
+                                            data-accion="notas">Notas</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(citas)}" class="text-center">
+                            <td colspan="9" class="px-4 py-8 text-gray-500 dark:text-gray-400">
+                                <div class="flex flex-col items-center justify-center">
+                                    <i class='bx bx-calendar-x text-4xl mb-2 text-gray-300'></i>
+                                    <p class="text-lg font-medium">No hay citas disponibles</p>
+                                    <p class="text-sm">Todas las citas han sido procesadas</p>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== TEAM SECTION ===================== -->
+        <section id="team" class="p-4 lg:p-6 hidden">
+            <div class="head-title">
+                <div class="left">
+                    <h1>Registro de Trabajadores</h1>
+                    <ul class="breadcrumb">
+                        <li><a href="#">Dashboard</a></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
+                        <li><a class="active" href="#">Nuevo Trabajador</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="table-data">
+                <div class="order">
+                    <div class="head">
+                        <h3>Datos del Trabajador</h3>
+                    </div>
+
+                    <div class="login-card">
+                        <!-- Mensaje de error -->
+                        <div th:if="${error != null}" class="alert alert-danger" role="alert">
+                            <span th:text="${error}"></span>
+                        </div>
+
+                        <form th:action="@{/admin/RegistroT}" method="post">
+                            <!-- Datos Personales -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nombre" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="nombre" name="nombre"
+                                           th:value="${nombre != null} ? ${nombre} : ''" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="apellido" class="form-label">Apellido</label>
+                                    <input type="text" class="form-control" id="apellido" name="apellido"
+                                           th:value="${apellido != null} ? ${apellido} : ''" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="identificacion" class="form-label">Identificación</label>
+                                    <input type="text" class="form-control" id="identificacion" name="identificacion"
+                                           th:value="${identificacion != null} ? ${identificacion} : ''" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="correo" class="form-label">Correo Electrónico</label>
+                                    <input type="email" class="form-control" id="correo" name="correo"
+                                           th:value="${correo != null} ? ${correo} : ''" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+
+                            <!-- Horario de Trabajo -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="horaInicio" class="form-label">Hora de Inicio</label>
+                                    <input type="time" class="form-control" id="horaInicio" name="horaInicio"
+                                           th:value="${horaInicio != null} ? ${horaInicio} : '08:00'" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="horaFin" class="form-label">Hora de Fin</label>
+                                    <input type="time" class="form-control" id="horaFin" name="horaFin"
+                                           th:value="${horaFin != null} ? ${horaFin} : '17:00'" required>
+                                </div>
+                            </div>
+
+                            <!-- Días de Trabajo -->
+                            <div class="mb-3">
+                                <label class="form-label">Días de Trabajo</label>
+                                <div class="dias-checkbox-container">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="diasTrabajo" value="LUNES" id="lunes">
+                                        <label class="form-check-label" for="lunes">Lunes</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="diasTrabajo" value="MARTES" id="martes">
+                                        <label class="form-check-label" for="martes">Martes</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="diasTrabajo" value="MIERCOLES" id="miercoles">
+                                        <label class="form-check-label" for="miercoles">Miércoles</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="diasTrabajo" value="JUEVES" id="jueves">
+                                        <label class="form-check-label" for="jueves">Jueves</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="diasTrabajo" value="VIERNES" id="viernes">
+                                        <label class="form-check-label" for="viernes">Viernes</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Roles del Trabajador -->
+                            <div class="mb-3">
+                                <label class="form-label">Roles del Trabajador</label>
+                                <div class="roles-checkbox-container">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="roles" value="TRB_ANALISIS" id="analista">
+                                        <label class="form-check-label" for="analista">Analista</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="roles" value="TRB_ASESOR" id="asesor">
+                                        <label class="form-check-label" for="asesor">Asesor</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="roles" value="TRB_GESTOR" id="gestor">
+                                        <label class="form-check-label" for="gestor">Gestor</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="roles" value="TRABAJADOR" id="trabajador">
+                                        <label class="form-check-label" for="trabajador">Trabajador General</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Registrar Trabajador</button>
+                            <div class="text-center mt-3">
+                                <a href="/admin/Dashboard" class="btn btn-secondary">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- ===================== MIS TRABAJADORES SECTION ===================== -->
+        <section id="mis-trabajadores" class="p-4 lg:p-6 hidden">
+            <div class="mb-6">
+                <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Mis Trabajadores</h1>
+                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
+                    <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
+                    <i class='bx bx-chevron-right text-xs'></i>
+                    <a href="#" class="text-primary font-medium">Mis Trabajadores</a>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="p-4 lg:p-6">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white">Lista de Trabajadores Registrados</h3>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table id="tabla-trabajadores" class="w-full min-w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nombre</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Identificación</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Correo</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Horario</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Días Trabajo</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Roles</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tr th:each="trabajador : ${trabajadores}" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+                                            <span th:text="${#strings.substring(trabajador.nombre, 0, 1)} + ${#strings.substring(trabajador.apellido, 0, 1)}"></span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="font-medium text-gray-900 dark:text-white" th:text="${trabajador.nombre} + ' ' + ${trabajador.apellido}"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${trabajador.identificacion}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" th:text="${trabajador.correo}"></td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    <!-- ✅ CORREGIDO: Usar los nombres correctos de los campos -->
+                                    <span th:text="${trabajador.horaInicioTrabajo} + ' - ' + ${trabajador.horaFinTrabajo}"></span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    <div class="flex flex-wrap gap-1">
+                                <span th:each="dia : ${trabajador.diasTrabajo}"
+                                      class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                                      th:text="${#strings.substring(dia, 0, 3)}"></span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    <div class="flex flex-wrap gap-1">
+                                <span th:each="rol : ${trabajador.roles}"
+                                      class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
+                                      th:text="${rol}"></span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button th:data-id="${trabajador.id}"
+                                            onclick="confirmarDespido(this)"
+                                            class="btn-despedir">
+                                        <i class='bx bx-user-x mr-1'></i>Despedir
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(trabajadores)}" class="text-center">
+                                <td colspan="7" class="px-4 py-8 text-gray-500 dark:text-gray-400">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <i class='bx bx-user-x text-4xl mb-2 text-gray-300'></i>
+                                        <p class="text-lg font-medium">No hay trabajadores registrados</p>
+                                        <p class="text-sm">Registra el primer trabajador en la sección "Team"</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Modal para Añadir Vehículo -->
+<div id="modal-vehiculo" class="modal">
+    <div class="modal-content">
+        <span class="close text-2xl cursor-pointer float-right hover:text-gray-600 transition-colors" onclick="cerrarModal('modal-vehiculo')">&times;</span>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Añadir Nuevo Vehículo</h2>
+        <form th:action="@{/admin/guardar-vehiculo}" method="post" enctype="multipart/form-data" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label>Marca</label>
+                    <input type="text" name="marca" placeholder="Marca" required>
+                </div>
+                <div class="form-group">
+                    <label>Modelo</label>
+                    <input type="text" name="modelo" placeholder="Modelo" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label>Año</label>
+                    <input type="number" name="año" placeholder="Año" required>
+                </div>
+                <div class="form-group">
+                    <label>Precio</label>
+                    <input type="number" step="0.01" name="precio" placeholder="Precio" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Categoría</label>
+                <select name="categoria" required>
+                    <option value="Pick-Ups">Pick-Ups</option>
+                    <option value="Camionetas">Camionetas</option>
+                    <option value="Automóviles">Automóviles</option>
+                    <option value="Performance">Performance</option>
+                    <option value="Híbridos">Híbridos</option>
+                    <option value="Comerciales">Comerciales</option>
+                    <option value="SUVs">SUVs</option>
+                    <option value="Deportivos">Deportivos</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label>Motor</label>
+                    <input type="text" name="motor" placeholder="Motor" required>
+                </div>
+                <div class="form-group">
+                    <label>Transmisión</label>
+                    <select name="transmision" required>
+                        <option value="Automática">Automática</option>
+                        <option value="Manual">Manual</option>
+                        <option value="CVT">CVT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label>Combustible</label>
+                    <select name="combustible" required>
+                        <option value="Gasolina">Gasolina</option>
+                        <option value="Diésel">Diésel</option>
+                        <option value="Híbrido">Híbrido</option>
+                        <option value="Eléctrico">Eléctrico</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Pasajeros</label>
+                    <input type="number" name="pasajeros" placeholder="Pasajeros" required min="1" max="10">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Descripción técnica</label>
+                <textarea name="descripcion" placeholder="Descripción técnica" required rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="colores">Colores disponibles (separados por comas)</label>
+                <input type="text" id="colores" name="colores" placeholder="Ej: Rojo, Azul, Negro">
+            </div>
+
+            <div class="form-group">
+                <label>Imagen</label>
+                <input type="file" name="imagen" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-700">
+            </div>
+            <div class="form-group">
+                <label>Modelo 3D (.glb)</label>
+                <input type="file" name="modelo3d" accept=".glb, model/gltf-binary" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-700">
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-4 pt-4">
+                <button type="submit" class="btn-primary flex-1">Guardar Vehículo</button>
+                <button type="button" class="btn-secondary" onclick="cerrarModal('modal-vehiculo')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Editar Vehículo -->
+<div id="modal-editar-vehiculo" class="modal">
+    <div class="modal-content">
+        <span class="close text-2xl cursor-pointer float-right hover:text-gray-600 transition-colors" onclick="cerrarModal('modal-editar-vehiculo')">&times;</span>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Editar Vehículo</h2>
+        <form id="form-editar-vehiculo" method="post" enctype="multipart/form-data" class="space-y-6">
+            <input type="hidden" name="id" id="editar-id">
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="editar-marca">Marca</label>
+                    <input type="text" id="editar-marca" name="marca" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-modelo">Modelo</label>
+                    <input type="text" id="editar-modelo" name="modelo" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="editar-año">Año</label>
+                    <input type="number" id="editar-año" name="año" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-precio">Precio</label>
+                    <input type="number" step="0.01" id="editar-precio" name="precio" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-categoria">Categoría</label>
+                <select id="editar-categoria" name="categoria" required>
+                    <option value="Pick-Ups">Pick-Ups</option>
+                    <option value="Camionetas">Camionetas</option>
+                    <option value="Automóviles">Automóviles</option>
+                    <option value="Performance">Performance</option>
+                    <option value="Híbridos">Híbridos</option>
+                    <option value="Comerciales">Comerciales</option>
+                    <option value="SUVs">SUVs</option>
+                    <option value="Deportivos">Deportivos</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="editar-motor">Motor</label>
+                    <input type="text" id="editar-motor" name="motor" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-transmision">Transmisión</label>
+                    <select id="editar-transmision" name="transmision" required>
+                        <option value="Automática">Automática</option>
+                        <option value="Manual">Manual</option>
+                        <option value="CVT">CVT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="editar-combustible">Combustible</label>
+                    <select id="editar-combustible" name="combustible" required>
+                        <option value="Gasolina">Gasolina</option>
+                        <option value="Diésel">Diésel</option>
+                        <option value="Híbrido">Híbrido</option>
+                        <option value="Eléctrico">Eléctrico</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editar-pasajeros">Pasajeros</label>
+                    <input type="number" id="editar-pasajeros" name="pasajeros" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-descripcion">Descripción</label>
+                <textarea id="editar-descripcion" name="descripcion" required rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-colores">Colores disponibles (separados por comas)</label>
+                <input type="text" id="editar-colores" name="colores" placeholder="Ej: Rojo, Azul, Negro">
+            </div>
+
+            <div class="form-group">
+                <label for="editar-imagen">Imagen</label>
+                <input type="file" id="editar-imagen" name="imagen" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-700">
+                <img id="editar-imagen-preview" src="" alt="Imagen actual" class="mt-2 rounded-lg shadow-sm" style="max-width: 200px; display: none;">
+            </div>
+            <div class="form-group">
+                <label for="editar-modelo3d">Modelo 3D (.glb)</label>
+                <input type="file" id="editar-modelo3d" name="modelo3d" accept=".glb, model/gltf-binary" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-700">
+                <p id="editar-modelo3d-status" class="text-sm text-gray-500 mt-1"></p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-4 pt-4">
+                <button type="submit" class="btn-primary flex-1">Guardar Cambios</button>
+                <button type="button" class="btn-secondary" onclick="cerrarModal('modal-editar-vehiculo')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Editar Anuncio -->
+<div id="modal-editar-anuncio" class="modal">
+    <div class="modal-content">
+        <span class="close text-2xl cursor-pointer float-right hover:text-gray-600 transition-colors" onclick="cerrarModal('modal-editar-anuncio')">&times;</span>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Editar Anuncio</h2>
+        <form id="form-editar-anuncio" method="post" enctype="multipart/form-data" class="space-y-6">
+            <input type="hidden" name="id" id="editar-anuncio-id">
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="editar-anuncio-marca">Marca</label>
+                    <input type="text" id="editar-anuncio-marca" name="marca" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-anuncio-modelo">Modelo</label>
+                    <input type="text" id="editar-anuncio-modelo" name="modelo" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="editar-anuncio-año">Año</label>
+                    <input type="number" id="editar-anuncio-año" name="año" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-anuncio-precio">Precio</label>
+                    <input type="number" step="0.01" id="editar-anuncio-precio" name="precio" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-anuncio-categoria">Categoría</label>
+                <select id="editar-anuncio-categoria" name="categoria" required>
+                    <option value="Pick-Ups">Pick-Ups</option>
+                    <option value="Camionetas">Camionetas</option>
+                    <option value="Automóviles">Automóviles</option>
+                    <option value="Performance">Performance</option>
+                    <option value="Híbridos">Híbridos</option>
+                    <option value="Comerciales">Comerciales</option>
+                    <option value="SUVs">SUVs</option>
+                    <option value="Deportivos">Deportivos</option>
+                </select>
+            </div>
+
+            <!-- ✅ AGREGA ESTOS CAMPOS FALTANTES -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="editar-anuncio-motor">Motor</label>
+                    <input type="text" id="editar-anuncio-motor" name="motor" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-anuncio-transmision">Transmisión</label>
+                    <select id="editar-anuncio-transmision" name="transmision" required>
+                        <option value="Automática">Automática</option>
+                        <option value="Manual">Manual</option>
+                        <option value="CVT">CVT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="editar-anuncio-combustible">Combustible</label>
+                    <select id="editar-anuncio-combustible" name="combustible" required>
+                        <option value="Gasolina">Gasolina</option>
+                        <option value="Diésel">Diésel</option>
+                        <option value="Híbrido">Híbrido</option>
+                        <option value="Eléctrico">Eléctrico</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editar-anuncio-pasajeros">Pasajeros</label>
+                    <input type="number" id="editar-anuncio-pasajeros" name="pasajeros" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-anuncio-descripcion">Descripción destacada</label>
+                <textarea id="editar-anuncio-descripcion" name="descripcion" required rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-anuncio-colores">Colores disponibles (separados por comas)</label>
+                <input type="text" id="editar-anuncio-colores" name="colores" placeholder="Ej: Rojo, Azul, Negro">
+            </div>
+
+            <div class="form-group">
+                <label for="editar-anuncio-imagen">Imagen</label>
+                <input type="file" id="editar-anuncio-imagen" name="imagen" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-700">
+                <img id="editar-anuncio-imagen-preview" src="" alt="Imagen actual" class="mt-2 rounded-lg shadow-sm" style="max-width: 200px; display: none;">
+            </div>
+            <div class="form-group">
+                <label for="editar-anuncio-modelo3d">Modelo 3D (.glb)</label>
+                <input type="file" id="editar-anuncio-modelo3d" name="modelo3d" accept=".glb, model/gltf-binary" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-700">
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-4 pt-4">
+                <button type="submit" class="btn-primary flex-1">Guardar Cambios</button>
+                <button type="button" class="btn-secondary" onclick="cerrarModal('modal-editar-anuncio')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Anuncio -->
+<div id="modal-anuncio" class="modal">
+    <div class="modal-content">
+        <span class="close text-2xl cursor-pointer float-right hover:text-gray-600 transition-colors" onclick="cerrarModal('modal-anuncio')">&times;</span>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Crear Nuevo Anuncio</h2>
+        <form th:action="@{/admin/guardar-anuncio}" method="post" enctype="multipart/form-data" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label>Marca</label>
+                    <input type="text" name="marca" placeholder="Marca" required>
+                </div>
+                <div class="form-group">
+                    <label>Modelo</label>
+                    <input type="text" name="modelo" placeholder="Modelo" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label>Año</label>
+                    <input type="number" name="año" placeholder="Año" required>
+                </div>
+                <div class="form-group">
+                    <label>Precio</label>
+                    <input type="number" step="0.01" name="precio" placeholder="Precio" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Categoría</label>
+                <select name="categoria" required>
+                    <option value="Pick-Ups">Pick-Ups</option>
+                    <option value="Camionetas">Camionetas</option>
+                    <option value="Automóviles">Automóviles</option>
+                    <option value="Performance">Performance</option>
+                    <option value="Híbridos">Híbridos</option>
+                    <option value="Comerciales">Comerciales</option>
+                    <option value="SUVs">SUVs</option>
+                    <option value="Deportivos">Deportivos</option>
+                </select>
+            </div>
+
+            <!-- ✅ CAMPOS AGREGADOS PARA ANUNCIOS -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label>Motor</label>
+                    <input type="text" name="motor" placeholder="Motor" required>
+                </div>
+                <div class="form-group">
+                    <label>Transmisión</label>
+                    <select name="transmision" required>
+                        <option value="Automática">Automática</option>
+                        <option value="Manual">Manual</option>
+                        <option value="CVT">CVT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label>Combustible</label>
+                    <select name="combustible" required>
+                        <option value="Gasolina">Gasolina</option>
+                        <option value="Diésel">Diésel</option>
+                        <option value="Híbrido">Híbrido</option>
+                        <option value="Eléctrico">Eléctrico</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Pasajeros</label>
+                    <input type="number" name="pasajeros" placeholder="Pasajeros" required min="1" max="10">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Descripción destacada</label>
+                <textarea name="descripcion" placeholder="Descripción destacada" required rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="colores-anuncio">Colores disponibles (separados por comas)</label>
+                <input type="text" id="colores-anuncio" name="colores" placeholder="Ej: Rojo, Azul, Negro">
+            </div>
+
+            <div class="form-group">
+                <label>Imagen</label>
+                <input type="file" name="imagen" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-700">
+            </div>
+            <div class="form-group">
+                <label>Modelo 3D (.glb)</label>
+                <input type="file" name="modelo3d" accept=".glb, model/gltf-binary" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-700">
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-4 pt-4">
+                <button type="submit" class="btn-primary flex-1">Crear Anuncio</button>
+                <button type="button" class="btn-secondary" onclick="cerrarModal('modal-anuncio')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Asignar Fecha -->
+<div id="modal-fecha" class="modal">
+    <div class="modal-content">
+        <span class="close text-2xl cursor-pointer float-right hover:text-gray-600 transition-colors" onclick="cerrarModal('modal-fecha')">&times;</span>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Asignar Fecha</h2>
+        <div class="space-y-6">
+            <div class="form-group">
+                <label for="fecha-asignacion">Fecha y Hora</label>
+                <input type="datetime-local" id="fecha-asignacion" class="form-control">
+            </div>
+            <div class="flex flex-col lg:flex-row gap-4 pt-4">
+                <button onclick="confirmarFecha()" class="btn-primary flex-1">Confirmar</button>
+                <button type="button" class="btn-secondary" onclick="cerrarModal('modal-fecha')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Notas -->
+<div id="modal-notas" class="modal">
+    <div class="modal-content">
+        <span class="close text-2xl cursor-pointer float-right hover:text-gray-600 transition-colors" onclick="cerrarModal('modal-notas')">&times;</span>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Notas Administrativas</h2>
+        <div class="space-y-6">
+            <div class="form-group">
+                <label for="texto-notas">Notas</label>
+                <textarea id="texto-notas" class="form-control" rows="5"></textarea>
+            </div>
+            <div class="flex flex-col lg:flex-row gap-4 pt-4">
+                <button onclick="guardarNotas()" class="btn-primary flex-1">Guardar</button>
+                <button type="button" class="btn-secondary" onclick="cerrarModal('modal-notas')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+    // ===================== VARIABLES GLOBALES =====================
+    let citaActualId = null;
+
+    // ===================== FUNCIONALIDAD PRINCIPAL =====================
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Inicializando dashboard...');
+
+        // Navegación entre secciones
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const sections = document.querySelectorAll('section[id]');
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                console.log('Navegando a:', targetId);
+
+                // Ocultar todas las secciones
+                sections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+
+                // Mostrar sección objetivo
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                }
+
+                // Actualizar enlace activo
+                sidebarLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+
+                // Cerrar sidebar en móviles
+                if (window.innerWidth < 1024) {
+                    document.body.classList.remove('mobile-menu-open');
+                }
+            });
+        });
+
+        // Menú móvil
+        const navToggle = document.querySelector('.nav-toggle');
+        if (navToggle) {
+            navToggle.addEventListener('click', function() {
+                document.body.classList.toggle('mobile-menu-open');
+                console.log('Menú móvil:', document.body.classList.contains('mobile-menu-open') ? 'abierto' : 'cerrado');
+            });
+        }
+
+        // Inicializar DataTables
+        inicializarDataTables();
+
+        // Gestión de citas
+        inicializarGestionCitas();
+
+        // Notificaciones
+        const notificationBell = document.getElementById('notification-bell');
+        const notificationDropdown = document.getElementById('notification-dropdown');
+
+        if (notificationBell && notificationDropdown) {
+            notificationBell.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('hidden');
+            });
+
+            // Cerrar dropdown al hacer clic fuera
+            document.addEventListener('click', function() {
+                notificationDropdown.classList.add('hidden');
+            });
+        }
+
+        // ===================== LOGICA DE ROLES DE TRABAJADOR =====================
+        const roleCheckboxes = document.querySelectorAll('input[name="roles"]');
+
+        roleCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // Si se selecciona un rol, desmarcar todos los demás
+                    roleCheckboxes.forEach(otherCheckbox => {
+                        if (otherCheckbox !== this) {
+                            otherCheckbox.checked = false;
+                            // Aseguramos que estén habilitados por si acaso
+                            otherCheckbox.disabled = false;
+                        }
+                    });
+                }
+            });
+        });
+
+        console.log('✅ Dashboard inicializado correctamente');
+    });
+
+    // ===================== DATA TABLES =====================
+    function inicializarDataTables() {
+        $('#tabla-vehiculos, #tabla-anuncios, #tabla-citas').DataTable({
+            responsive: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+            },
+            pageLength: 10,
+            dom: '<"flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4"lfr>t<"flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mt-4"ip>'
+        });
+    }
+
+    // ===================== GESTIÓN DE CITAS - ACTUALIZACIÓN EN TIEMPO REAL =====================
+    function inicializarGestionCitas() {
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-gestion-cita')) {
+                const citaId = e.target.getAttribute('th:data-id') || e.target.getAttribute('data-id');
+                const accion = e.target.getAttribute('data-accion');
+
+                console.log(`Acción: ${accion} para cita: ${citaId}`);
+                citaActualId = citaId;
+
+                manejarAccionCita(accion, e.target);
+            }
+        });
+
+        // Filtro de estado
+        const filtroEstado = document.getElementById('filtro-estado');
+        if (filtroEstado) {
+            filtroEstado.addEventListener('change', function() {
+                const estado = this.value;
+                filtrarCitasPorEstado(estado);
+            });
+        }
+    }
+
+    function manejarAccionCita(accion, boton) {
+        const fila = boton.closest('tr');
+
+        switch(accion) {
+            case 'aprobar':
+                cambiarEstadoCita('Aprobada', fila);
+                break;
+            case 'rechazar':
+                cambiarEstadoCita('Rechazada', fila);
+                break;
+            case 'asignar-fecha':
+                mostrarModal('modal-fecha');
+                break;
+            case 'pendiente':
+                cambiarEstadoCita('Pendiente', fila);
+                break;
+            case 'notas':
+                cargarNotasActuales(fila);
+                mostrarModal('modal-notas');
+                break;
+        }
+    }
+
+    function cambiarEstadoCita(nuevoEstado, fila) {
+        if (!citaActualId) return;
+
+        console.log(`Cambiando estado de cita ${citaActualId} a ${nuevoEstado}`);
+
+        // ACTUALIZACIÓN EN TIEMPO REAL - SIN RECARGAR
+        actualizarInterfazCita(fila, nuevoEstado);
+
+        // Llamada AJAX al backend
+        fetch(`/admin/citas/${citaActualId}/cambiar-estado`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `estado=${nuevoEstado}`
+        })
+        .then(response => response.text())
+        .then(result => {
+            if (result === 'OK') {
+                console.log('Estado actualizado correctamente en servidor');
+                mostrarNotificacion('Estado actualizado correctamente', 'success');
+            } else {
+                // Revertir cambios en caso de error
+                revertirEstadoCita(fila);
+                alert('Error al actualizar el estado');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            revertirEstadoCita(fila);
+            alert('Error al actualizar el estado');
+        });
+    }
+
+    function actualizarInterfazCita(fila, nuevoEstado) {
+        // Actualizar badge de estado
+        const estadoBadge = fila.querySelector('.estado-badge');
+        estadoBadge.textContent = nuevoEstado;
+        estadoBadge.className = 'estado-badge ' + getClaseEstado(nuevoEstado);
+
+        // Actualizar botones
+        const contenedorBotones = fila.querySelector('td:last-child > div');
+        contenedorBotones.innerHTML = generarBotonesEstado(nuevoEstado, citaActualId);
+
+        // Si se cambió a Pendiente, limpiar fecha asignada
+        if (nuevoEstado === 'Pendiente') {
+            const celdaFecha = fila.querySelector('td:nth-child(7)');
+            celdaFecha.innerHTML = '<span>-</span>';
+        }
+    }
+
+    function revertirEstadoCita(fila) {
+        // Aquí podrías implementar la lógica para revertir el estado visual
+        console.log('Revirtiendo cambios en la interfaz');
+    }
+
+    function generarBotonesEstado(estado, citaId) {
+        switch(estado) {
+            case 'Pendiente':
+                return `
+                    <button class="btn-gestion-cita btn-aprobar" data-id="${citaId}" data-accion="aprobar">Aprobar</button>
+                    <button class="btn-gestion-cita btn-rechazar" data-id="${citaId}" data-accion="rechazar">Rechazar</button>
+                    <button class="btn-gestion-cita btn-notas" data-id="${citaId}" data-accion="notas">Notas</button>
+                `;
+            case 'Aprobada':
+                return `
+                    <button class="btn-gestion-cita btn-asignar-fecha" data-id="${citaId}" data-accion="asignar-fecha">Asignar Fecha</button>
+                    <button class="btn-gestion-cita btn-pendiente" data-id="${citaId}" data-accion="pendiente">A Pendiente</button>
+                    <button class="btn-gestion-cita btn-notas" data-id="${citaId}" data-accion="notas">Notas</button>
+                `;
+            case 'Rechazada':
+                return `
+                    <button class="btn-gestion-cita btn-pendiente" data-id="${citaId}" data-accion="pendiente">A Pendiente</button>
+                    <button class="btn-gestion-cita btn-notas" data-id="${citaId}" data-accion="notas">Notas</button>
+                `;
+        }
+    }
+
+    function getClaseEstado(estado) {
+        switch(estado) {
+            case 'Pendiente': return 'estado-pendiente';
+            case 'Aprobada': return 'estado-aprobada';
+            case 'Rechazada': return 'estado-rechazada';
+            default: return 'estado-pendiente';
+        }
+    }
+
+    function cargarNotasActuales(fila) {
+        const notasActuales = fila.querySelector('td:nth-child(8)').textContent;
+        document.getElementById('texto-notas').value = notasActuales !== 'Sin notas' ? notasActuales : '';
+    }
+
+    function confirmarFecha() {
+        if (!citaActualId) return;
+
+        const fechaInput = document.getElementById('fecha-asignacion').value;
+        if (!fechaInput) {
+            alert('Por favor selecciona una fecha');
+            return;
+        }
+
+        console.log(`Asignando fecha ${fechaInput} a cita ${citaActualId}`);
+
+        // Actualizar interfaz en tiempo real
+        const fila = document.querySelector(`tr[data-id="${citaActualId}"]`);
+        if (fila) {
+            const celdaFecha = fila.querySelector('td:nth-child(7)');
+            const fechaFormateada = new Date(fechaInput).toLocaleString('es-ES');
+            celdaFecha.innerHTML = `<span>${fechaFormateada}</span>`;
+        }
+
+        // Llamada AJAX
+        fetch(`/admin/citas/${citaActualId}/asignar-fecha`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `fecha=${fechaInput}`
+        })
+        .then(response => response.text())
+        .then(result => {
+            if (result === 'OK') {
+                console.log('Fecha asignada correctamente');
+                cerrarModal('modal-fecha');
+                mostrarNotificacion('Fecha asignada correctamente', 'success');
+            } else {
+                alert('Error al asignar fecha');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al asignar fecha');
+        });
+    }
+
+    function guardarNotas() {
+        if (!citaActualId) return;
+
+        const notas = document.getElementById('texto-notas').value;
+
+        console.log(`Guardando notas para cita ${citaActualId}`);
+
+        // Actualizar interfaz en tiempo real
+        const fila = document.querySelector(`tr[data-id="${citaActualId}"]`);
+        if (fila) {
+            const celdaNotas = fila.querySelector('td:nth-child(8)');
+            celdaNotas.textContent = notas || 'Sin notas';
+        }
+
+        // Llamada AJAX
+        fetch(`/admin/citas/${citaActualId}/guardar-notas`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `notas=${encodeURIComponent(notas)}`
+        })
+        .then(response => response.text())
+        .then(result => {
+            if (result === 'OK') {
+                console.log('Notas guardadas correctamente');
+                cerrarModal('modal-notas');
+                mostrarNotificacion('Notas guardadas correctamente', 'success');
+            } else {
+                alert('Error al guardar notas');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al guardar notas');
+        });
+    }
+
+    function filtrarCitasPorEstado(estado) {
+        const tabla = $('#tabla-citas').DataTable();
+
+        if (estado === 'TODAS') {
+            tabla.search('').draw();
+        } else {
+            tabla.column(5).search(estado).draw();
+        }
+    }
+
+    // ===================== FUNCIONES DE MODALES =====================
+    function mostrarModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+        console.log(`Modal ${modalId} abierto`);
+    }
+
+    function cerrarModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+        console.log(`Modal ${modalId} cerrado`);
+    }
+
+    // Cerrar modales al hacer clic fuera
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+
+    // ===================== MODALES DE EDICIÓN - FUNCIONANDO =====================
+    async function mostrarModalEditarVehiculo(button) {
+    try {
+        const id = button.getAttribute('data-id');
+        console.log(`🔄 Cargando vehículo con ID: ${id}`);
+
+        if (!id) {
+            console.error('❌ ID de vehículo no proporcionado');
+            mostrarNotificacion('Error: ID de vehículo no válido', 'error');
+            return;
+        }
+
+        // Aquí va tu llamada AJAX para cargar los datos del vehículo
+        // Por ahora, usaremos datos de ejemplo
+        const vehiculo = await cargarDatosVehiculo(id);
+
+        // Llenar formulario
+        document.getElementById('editar-id').value = vehiculo.id;
+        document.getElementById('editar-marca').value = vehiculo.marca || '';
+        document.getElementById('editar-modelo').value = vehiculo.modelo || '';
+        document.getElementById('editar-año').value = vehiculo.año || '';
+        document.getElementById('editar-precio').value = vehiculo.precio || '';
+        document.getElementById('editar-categoria').value = vehiculo.categoria || 'Automóviles';
+        document.getElementById('editar-motor').value = vehiculo.motor || '';
+        document.getElementById('editar-transmision').value = vehiculo.transmision || 'Automática';
+        document.getElementById('editar-combustible').value = vehiculo.combustible || 'Gasolina';
+        document.getElementById('editar-pasajeros').value = vehiculo.pasajeros || '';
+        document.getElementById('editar-descripcion').value = vehiculo.descripcion || '';
+        document.getElementById('editar-colores').value = vehiculo.colores || '';
+
+        // Manejar imagen
+        const imagenPreview = document.getElementById('editar-imagen-preview');
+        if (vehiculo.imagenUrl) {
+            imagenPreview.src = vehiculo.imagenUrl;
+            imagenPreview.style.display = 'block';
+        } else {
+            imagenPreview.style.display = 'none';
+        }
+
+        // Configurar el action del formulario
+        const form = document.getElementById('form-editar-vehiculo');
+        form.action = `/admin/editar/${id}`;
+
+        mostrarModal('modal-editar-vehiculo');
+        console.log('✅ Modal de edición de vehículo mostrado correctamente');
+
+    } catch (error) {
+        console.error('❌ Error al cargar vehículo:', error);
+        mostrarNotificacion('Error al cargar los datos del vehículo', 'error');
+    }
+}
+
+async function mostrarModalEditarAnuncio(button) {
+    try {
+        const id = button.getAttribute('data-id');
+        console.log(`🔄 Cargando anuncio con ID: ${id}`);
+
+        if (!id) {
+            console.error('❌ ID de anuncio no proporcionado');
+            mostrarNotificacion('Error: ID de anuncio no válido', 'error');
+            return;
+        }
+
+        // Cargar datos del anuncio
+        const anuncio = await cargarDatosAnuncio(id);
+        console.log('📋 Datos COMPLETOS del anuncio recibidos:', anuncio);
+
+        // Llenar formulario COMPLETO
+        document.getElementById('editar-anuncio-id').value = anuncio.id;
+        document.getElementById('editar-anuncio-marca').value = anuncio.marca || '';
+        document.getElementById('editar-anuncio-modelo').value = anuncio.modelo || '';
+        document.getElementById('editar-anuncio-año').value = anuncio.año || '';
+        document.getElementById('editar-anuncio-precio').value = anuncio.precio || '';
+        document.getElementById('editar-anuncio-categoria').value = anuncio.categoria || 'Automóviles';
+        document.getElementById('editar-anuncio-motor').value = anuncio.motor || '';
+        document.getElementById('editar-anuncio-transmision').value = anuncio.transmision || 'Automática';
+        document.getElementById('editar-anuncio-combustible').value = anuncio.combustible || 'Gasolina';
+        document.getElementById('editar-anuncio-pasajeros').value = anuncio.pasajeros || '';
+        document.getElementById('editar-anuncio-descripcion').value = anuncio.descripcion || '';
+
+        // Procesar colores
+        let coloresString = '';
+        if (anuncio.colores) {
+            if (Array.isArray(anuncio.colores)) {
+                coloresString = anuncio.colores.join(', ');
+            } else {
+                coloresString = anuncio.colores;
+            }
+        }
+        document.getElementById('editar-anuncio-colores').value = coloresString;
+        console.log('🎨 Colores procesados:', coloresString);
+
+        // Manejar imagen
+        const imagenPreview = document.getElementById('editar-anuncio-imagen-preview');
+        if (anuncio.imagenUrl) {
+            imagenPreview.src = anuncio.imagenUrl;
+            imagenPreview.style.display = 'block';
+        } else {
+            imagenPreview.style.display = 'none';
+        }
+
+        // ✅ Usar el mismo endpoint de edición
+        const form = document.getElementById('form-editar-anuncio');
+        form.action = `/admin/editar/${id}`;
+
+        mostrarModal('modal-editar-anuncio');
+        console.log('✅ Modal de edición de anuncio mostrado correctamente');
+
+    } catch (error) {
+        console.error('❌ Error al cargar anuncio:', error);
+        mostrarNotificacion('Error al cargar los datos del anuncio', 'error');
+    }
+}
+
+// ===================== FUNCIONES AUXILIARES PARA CARGAR DATOS =====================
+// ===================== FUNCIONES AUXILIARES PARA CARGAR DATOS REALES =====================
+async function cargarDatosVehiculo(id) {
+    try {
+        console.log(`📡 Solicitando datos del vehículo ID: ${id}`);
+        const response = await fetch(`/admin/obtener-vehiculo/${id}`);
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const vehiculo = await response.json();
+        console.log('✅ Datos REALES del vehículo cargados:', vehiculo);
+        return vehiculo;
+
+    } catch (error) {
+        console.error('❌ Error al cargar datos del vehículo:', error);
+        console.warn('⚠️ Usando datos de ejemplo como fallback');
+
+        // Datos de ejemplo como fallback (pero debería cargar los reales)
+        return {
+            id: id,
+            marca: 'Cargando...',
+            modelo: 'Cargando...',
+            año: '',
+            precio: '',
+            categoria: 'Automóviles',
+            motor: '',
+            transmision: 'Automática',
+            combustible: 'Gasolina',
+            pasajeros: '',
+            descripcion: '',
+            colores: '',
+            imagenUrl: ''
+        };
+    }
+}
+
+async function cargarDatosAnuncio(id) {
+    try {
+        console.log(`📡 Solicitando datos del anuncio ID: ${id}`);
+        const response = await fetch(`/admin/obtener-vehiculo/${id}`);
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const anuncio = await response.json();
+        console.log('✅ Datos REALES del anuncio cargados:', anuncio);
+        return anuncio;
+
+    } catch (error) {
+        console.error('❌ Error al cargar datos del anuncio:', error);
+        console.warn('⚠️ Usando datos de ejemplo como fallback');
+
+        // Datos de ejemplo como fallback
+        return {
+            id: id,
+            marca: 'Cargando...',
+            modelo: 'Cargando...',
+            año: '',
+            precio: '',
+            categoria: 'Automóviles',
+            descripcion: '',
+            colores: '',
+            imagenUrl: ''
+        };
+    }
+}
+    // ===================== NOTIFICACIONES =====================
+    function mostrarNotificacion(mensaje, tipo = 'info') {
+        // Crear notificación toast
+        const notificacion = document.createElement('div');
+        notificacion.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-transform duration-300 ${
+            tipo === 'success' ? 'bg-green-500 text-white' :
+            tipo === 'error' ? 'bg-red-500 text-white' :
+            'bg-blue-500 text-white'
+        }`;
+        notificacion.textContent = mensaje;
+
+        document.body.appendChild(notificacion);
+
+        setTimeout(() => {
+            notificacion.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (document.body.contains(notificacion)) {
+                    document.body.removeChild(notificacion);
+                }
+            }, 300);
+        }, 3000);
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cargar notificaciones al iniciar
+        cargarNotificaciones();
+
+        // Configurar el evento click para la campana de notificaciones
+        const notificationBell = document.getElementById('notification-bell');
+        const notificationDropdown = document.getElementById('notification-dropdown');
+
+        if (notificationBell && notificationDropdown) {
+            notificationBell.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('show');
+                cargarNotificaciones(); // Recargar al abrir
+            });
+
+            // Cerrar dropdown al hacer clic fuera
+            document.addEventListener('click', function() {
+                notificationDropdown.classList.remove('show');
+            });
+        }
+
+        // Función para cargar notificaciones
+        function cargarNotificaciones() {
+            fetch('/admin/notificaciones')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Notificaciones recibidas:', data);
+                    actualizarNotificaciones(data);
+                })
+                .catch(error => {
+                    console.error('Error al cargar notificaciones:', error);
+                });
+        }
+
+        // Función para actualizar la interfaz de notificaciones
+        function actualizarNotificaciones(notificaciones) {
+            const notificationList = document.getElementById('notification-list');
+            const notificationCount = document.getElementById('notification-count');
+
+            // Actualizar contador
+            notificationCount.textContent = notificaciones.length;
+
+            // Actualizar lista
+            if (notificaciones.length === 0) {
+                notificationList.innerHTML = '<div class="no-notifications">No hay notificaciones</div>';
+            } else {
+                notificationList.innerHTML = notificaciones.map(cita => `
+                    <div class="notification-item" data-id="${cita.id}">
+                        <div class="notification-content">
+                            <strong>${cita.nombres} ${cita.apellidos}</strong>
+                            <p>Solicitud de ${cita.tipo}</p>
+                            <small>${new Date(cita.fechaCreacion).toLocaleString()}</small>
+                        </div>
+                        <button class="mark-read" onclick="marcarComoLeida('${cita.id}')">
+                            <i class='bx bx-check'></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Función para marcar como leída (debe ser global)
+        window.marcarComoLeida = function(citaId) {
+            fetch(`/admin/marcar-leida/${citaId}`, {
+                method: 'POST'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Remover la notificación de la lista
+                    const notificationItem = document.querySelector(`[data-id="${citaId}"]`);
+                    if (notificationItem) {
+                        notificationItem.remove();
+                    }
+                    // Recargar contador
+                    cargarNotificaciones();
+                }
+            })
+            .catch(error => {
+                console.error('Error al marcar como leída:', error);
+            });
+        };
+
+        // También puedes agregar un botón para marcar todas como leídas
+        window.marcarTodasLeidas = function() {
+            fetch('/admin/marcar-todas-leidas', {
+                method: 'POST'
+            })
+            .then(response => {
+                if (response.ok) {
+                    cargarNotificaciones();
+                }
+            })
+            .catch(error => {
+                console.error('Error al marcar todas como leídas:', error);
+            });
+        };
+
+        // Cargar notificaciones cada 30 segundos
+        setInterval(cargarNotificaciones, 30000);
+    });
+</script>
+<script>
+    let usuarioSeleccionado = null;
+
+// Cargar usuarios usando tu endpoint existente
+async function cargarUsuarios() {
+    const loading = document.getElementById('loading-clientes');
+    const lista = document.getElementById('lista-clientes');
+    const empty = document.getElementById('empty-clientes');
+
+    loading.classList.remove('hidden');
+    lista.classList.add('hidden');
+    empty.classList.add('hidden');
+
+    try {
+        const response = await fetch('/cargar-usuarios');
+        const usuarios = await response.json();
+
+        console.log('Usuarios cargados:', usuarios); // Para debug
+        loading.classList.add('hidden');
+
+        if (usuarios && usuarios.length > 0) {
+            mostrarUsuarios(usuarios);
+            lista.classList.remove('hidden');
+        } else {
+            empty.classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error('Error al cargar usuarios:', error);
+        loading.classList.add('hidden');
+        empty.classList.remove('hidden');
+    }
+}
+
+function mostrarUsuarios(usuarios) {
+    const lista = document.getElementById('lista-clientes');
+    lista.innerHTML = '';
+
+    usuarios.forEach(usuario => {
+        const usuarioElement = document.createElement('div');
+        usuarioElement.className = `p-4 hover:bg-white dark:hover:bg-gray-700 cursor-pointer transition-colors ${
+            usuarioSeleccionado && usuarioSeleccionado.id === usuario.id ? 'bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-500' : ''
+        }`;
+        usuarioElement.onclick = () => seleccionarUsuario(usuario);
+
+        usuarioElement.innerHTML = `
+            <div class="flex justify-between items-center">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <h4 class="font-semibold text-gray-900 dark:text-white">
+                            ${usuario.nombreUser || 'Sin nombre'} ${usuario.apellidoUser || ''}
+                        </h4>
+                        <span class="px-2 py-1 ${getClasePotencial(usuario.clientePotencial)} text-xs font-medium rounded-full">
+                            ${usuario.clientePotencial || 'Sin analizar'}
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        ${usuario.correoUser || 'Sin email'} • ${usuario.cantidadCitas || 0} citas • ${usuario.antiguedadCuenta || 0} días
+                    </div>
+                </div>
+                <i class='bx bx-chevron-right text-xl text-gray-400'></i>
+            </div>
+        `;
+
+        lista.appendChild(usuarioElement);
+    });
+}
+
+function seleccionarUsuario(usuario) {
+    usuarioSeleccionado = usuario;
+
+    // Actualizar interfaz de selección
+    document.querySelectorAll('#lista-clientes > div').forEach(element => {
+        element.classList.remove('bg-blue-50', 'dark:bg-blue-900', 'border-l-4', 'border-blue-500');
+    });
+
+    event.currentTarget.classList.add('bg-blue-50', 'dark:bg-blue-900', 'border-l-4', 'border-blue-500');
+
+    // Mostrar resultado
+    mostrarResultadoPrediccion(usuario);
+}
+
+function mostrarResultadoPrediccion(usuario) {
+    const resultado = document.getElementById('resultado-prediccion');
+    const sinSeleccion = document.getElementById('sin-seleccion');
+
+    resultado.classList.remove('hidden');
+    sinSeleccion.classList.add('hidden');
+
+    // Actualizar la información del usuario
+    document.getElementById('nombre-usuario').textContent =
+        `Resultado para: ${usuario.nombreUser || 'Sin nombre'} ${usuario.apellidoUser || ''}`;
+
+    // Actualizar valores principales
+    document.getElementById('valor-potencial').textContent = usuario.clientePotencial || 'Sin analizar';
+    document.getElementById('valor-potencial').className = `text-2xl font-bold ${
+        usuario.clientePotencial === 'Si' ? 'text-green-600' :
+        usuario.clientePotencial === 'No' ? 'text-red-600' : 'text-gray-600'
+    }`;
+
+    document.getElementById('valor-probabilidad').textContent =
+        usuario.probabilidad ? `${usuario.probabilidad.toFixed(1)}%` : 'N/A';
+
+    document.getElementById('valor-recomendacion').textContent =
+        usuario.observaciones || 'Sin observaciones';
+
+    // Actualizar detalles
+    document.getElementById('detalle-citas').textContent = usuario.cantidadCitas || 0;
+    document.getElementById('detalle-antiguedad').textContent = `${usuario.antiguedadCuenta || 0} días`;
+    document.getElementById('detalle-estado').textContent = usuario.estadoUltimaCita || 'Sin citas';
+    document.getElementById('detalle-interes').textContent = usuario.interesVehiculo || 'No';
+}
+
+function getClasePotencial(potencial) {
+    if (potencial === 'Si') return 'bg-green-100 text-green-800';
+    if (potencial === 'No') return 'bg-red-100 text-red-800';
+    return 'bg-gray-100 text-gray-800';
+}
+
+function filtrarClientes() {
+    const termino = document.getElementById('buscar-cliente').value.toLowerCase();
+    const elementos = document.querySelectorAll('#lista-clientes > div');
+
+    elementos.forEach(element => {
+        const texto = element.textContent.toLowerCase();
+        element.style.display = texto.includes(termino) ? 'block' : 'none';
+    });
+}
+
+// Realizar predicción usando tu endpoint existente
+async function realizarPrediccion() {
+    if (!usuarioSeleccionado) {
+        alert('Por favor selecciona un usuario primero');
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('usuarioId', usuarioSeleccionado.id);
+
+        const response = await fetch('/predecir-usuario', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Actualizar el usuario seleccionado con los nuevos datos
+            usuarioSeleccionado = data.usuario;
+            mostrarResultadoPrediccion(usuarioSeleccionado);
+
+            // Recargar la lista para actualizar los badges
+            cargarUsuarios();
+
+            mostrarNotificacion('Predicción realizada correctamente', 'success');
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (error) {
+        console.error('Error en la predicción:', error);
+        mostrarNotificacion('Error al realizar la predicción', 'error');
+    }
+}
+
+// Cargar usuarios automáticamente cuando se abre la sección
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const analyticsSection = document.getElementById('analytics');
+                if (analyticsSection && !analyticsSection.classList.contains('hidden')) {
+                    cargarUsuarios();
+                }
+            }
+        });
+    });
+
+    observer.observe(document.getElementById('analytics'), {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+});
+</script>
+<script>
+    // ===================== MODALES ESPECÍFICOS PARA TRABAJADORES =====================
+ function mostrarModalConfirmacionTrabajador(contenido, onConfirm) {
+     // Crear modal de confirmación específico para trabajadores
+     const modalId = 'modal-confirmacion-trabajadores';
+
+     // Remover modal existente si hay uno
+     const modalExistente = document.getElementById(modalId);
+     if (modalExistente) {
+         modalExistente.remove();
+     }
+
+     const modal = document.createElement('div');
+     modal.id = modalId;
+     modal.className = 'modal-trabajadores';
+     modal.innerHTML = `
+         <div class="modal-content-trabajadores">
+             <div class="p-6">
+                 ${contenido}
+                 <div class="flex flex-col lg:flex-row gap-3 mt-6">
+                     <button onclick="cerrarModalConfirmacionTrabajador()" class="btn-cancelar-trabajadores flex-1">
+                         <i class='bx bx-x mr-2'></i>Cancelar
+                     </button>
+                     <button onclick="confirmarAccionTrabajador()" class="btn-confirmar-trabajadores flex-1">
+                         <i class='bx bx-check mr-2'></i>Confirmar
+                     </button>
+                 </div>
+             </div>
+         </div>
+     `;
+
+     // Guardar callback de confirmación
+     modal._onConfirm = onConfirm;
+
+     document.body.appendChild(modal);
+     modal.style.display = 'block';
+
+     // Guardar referencia global específica
+     window.modalConfirmacionTrabajador = modal;
+ }
+
+ function mostrarModalErrorTrabajador(contenido) {
+     // Crear modal de error específico para trabajadores
+     const modalId = 'modal-error-trabajadores';
+
+     // Remover modal existente si hay uno
+     const modalExistente = document.getElementById(modalId);
+     if (modalExistente) {
+         modalExistente.remove();
+     }
+
+     const modal = document.createElement('div');
+     modal.id = modalId;
+     modal.className = 'modal-trabajadores';
+     modal.innerHTML = `
+         <div class="modal-content-trabajadores">
+             <div class="p-6">
+                 ${contenido}
+                 <div class="flex justify-center mt-6">
+                     <button onclick="cerrarModalErrorTrabajador()" class="btn-aceptar-trabajadores">
+                         <i class='bx bx-check mr-2'></i>Entendido
+                     </button>
+                 </div>
+             </div>
+         </div>
+     `;
+
+     document.body.appendChild(modal);
+     modal.style.display = 'block';
+
+     // Guardar referencia global específica
+     window.modalErrorTrabajador = modal;
+ }
+
+ function cerrarModalConfirmacionTrabajador() {
+     if (window.modalConfirmacionTrabajador) {
+         window.modalConfirmacionTrabajador.remove();
+         window.modalConfirmacionTrabajador = null;
+     }
+ }
+
+ function cerrarModalErrorTrabajador() {
+     if (window.modalErrorTrabajador) {
+         window.modalErrorTrabajador.remove();
+         window.modalErrorTrabajador = null;
+     }
+ }
+
+ function confirmarAccionTrabajador() {
+     if (window.modalConfirmacionTrabajador && window.modalConfirmacionTrabajador._onConfirm) {
+         window.modalConfirmacionTrabajador._onConfirm();
+         cerrarModalConfirmacionTrabajador();
+     }
+ }
+
+ // Cerrar modales específicos al hacer clic fuera
+ document.addEventListener('click', function(event) {
+     if (event.target.classList.contains('modal-trabajadores')) {
+         if (window.modalConfirmacionTrabajador && event.target === window.modalConfirmacionTrabajador) {
+             cerrarModalConfirmacionTrabajador();
+         }
+         if (window.modalErrorTrabajador && event.target === window.modalErrorTrabajador) {
+             cerrarModalErrorTrabajador();
+         }
+     }
+ });
+
+ // ===================== GESTIÓN DE TRABAJADORES (ACTUALIZADO) =====================
+ function confirmarDespido(button) {
+     const trabajadorId = button.getAttribute('data-id');
+     const nombreTrabajador = button.closest('tr').querySelector('.font-medium').textContent;
+
+     // Usar modal específico para trabajadores
+     mostrarModalConfirmacionTrabajador(`
+         <div class="text-center">
+             <i class='bx bx-user-x text-5xl text-red-500 mb-4'></i>
+             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Confirmar Terminación Laboral</h3>
+             <p class="text-gray-600 dark:text-gray-400 mb-4">
+                 ¿Está seguro de proceder con la terminación laboral de <strong>${nombreTrabajador}</strong>?
+             </p>
+             <p class="text-sm text-red-500 mb-6">
+                 Esta acción es irreversible y eliminará todos los datos del empleado.
+             </p>
+         </div>
+     `, () => {
+         despedirTrabajador(trabajadorId, button);
+     });
+ }
+
+ function despedirTrabajador(trabajadorId, button) {
+    console.log(`Procesando terminación laboral para ID: ${trabajadorId}`);
+
+    // Mostrar indicador de carga
+    const fila = button.closest('tr');
+    fila.style.opacity = '0.5';
+    button.disabled = true;
+    button.innerHTML = '<i class="bx bx-loader-alt animate-spin"></i> Procesando...';
+
+    // Obtener la instancia de DataTables
+    const tabla = $('#tabla-trabajadores').DataTable();
+
+    // Llamada AJAX al backend
+    fetch(`/admin/despedir-trabajador/${trabajadorId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.status}`);
+        }
+        return response.text();
+    })
+    .then(result => {
+        if (result === 'OK') {
+            // ✅ CORREGIDO: Eliminar la fila usando DataTables para mantener la integridad
+            const filaDataTable = tabla.row(fila);
+            filaDataTable.remove();
+            tabla.draw(); // Esto actualiza DataTables y elimina los espacios raros
+
+            mostrarNotificacion('Terminación laboral procesada correctamente', 'success');
+
+            // Verificar si quedan trabajadores
+            if (tabla.rows().count() === 0) {
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+
+        } else {
+            throw new Error('Error en la respuesta del servidor');
+        }
+    })
+    .catch(error => {
+        console.error('Error al despedir trabajador:', error);
+
+        // Revertir cambios visuales
+        fila.style.opacity = '1';
+        button.disabled = false;
+        button.innerHTML = '<i class="bx bx-user-x mr-1"></i>Despedir';
+
+        // Usar modal de error específico para trabajadores
+        mostrarModalErrorTrabajador(`
+            <div class="text-center">
+                <i class='bx bx-error-alt text-5xl text-red-500 mb-4'></i>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Error del Sistema</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                    No se pudo procesar la terminación laboral en este momento.
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-500">
+                    Por favor, intente nuevamente más tarde o contacte al administrador del sistema.
+                </p>
+            </div>
+        `);
+    });
+}
+</script>
+<script>
+    function inicializarDataTables() {
+    $('#tabla-vehiculos, #tabla-anuncios, #tabla-citas, #tabla-trabajadores').DataTable({
+        responsive: true,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        },
+        pageLength: 10,
+        dom: '<"flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4"lfr>t<"flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mt-4"ip>'
+    });
+}
+</script>
+</body>
+</html>

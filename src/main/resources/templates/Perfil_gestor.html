@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Gestor - NextGenMotors</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link th:href="@{/css/perfil-gestor.css}" rel="stylesheet">
+
+</head>
+<body class="dark:bg-background-dark">
+<!-- Barra de navegación -->
+<nav class="navbar">
+    <div class="nav-logo">
+        <span class="logo-nexgen">NextGen</span>
+        <span class="logo-motors">Motors</span>
+    </div>
+    <div class="nav-links">
+        <a th:href="@{/usuario/Inicio}">Inicio</a>
+        <a href="/vehiculos">Nuestros Modelos</a>
+        <a th:href="@{/usuario/agendamiento}">Agendamiento online</a>
+    </div>
+</nav>
+
+<!-- Contenedor principal -->
+<div class="main-container">
+    <!-- Barra lateral -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <i class="fas fa-user-tie mr-2"></i>
+            <span th:text="${nombreUsuario}">Gestor</span>
+        </a>
+        <ul class="side-menu top">
+            <li><a href="#bienvenida"><i class='fas fa-chart-line'></i><span>Dashboard</span></a></li>
+            <li><a href="#vehiculos"><i class='fas fa-car'></i><span>Vehículos</span></a></li>
+            <li><a href="#anuncios"><i class='fas fa-bullhorn'></i><span>Anuncios</span></a></li>
+<!--            <li><a href="#equipo"><i class='fas fa-users'></i><span>Gestión Equipo</span></a></li>-->
+            <li><a href="#reportes"><i class='fas fa-file-alt'></i><span>Reportes</span></a></li>
+            <li><a href="#" onclick="confirmarCerrarSesion()" class="logout"><i class='fas fa-sign-out-alt'></i><span>Cerrar Sesión</span></a></li>
+        </ul>
+    </section>
+
+    <!-- Contenido principal -->
+    <main>
+        <!-- Bienvenida GESTOR -->
+        <section id="bienvenida">
+            <h1 class="text-3xl font-bold mb-4">Bienvenido, <span th:text="${nombreUsuario}">Gestor</span></h1>
+            <p class="text-lg opacity-90">Panel de gestión y supervisión de operaciones. Monitorea el rendimiento del equipo y los recursos asignados.</p>
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="metric-card">
+                    <div class="metric-value" th:text="${totalVehiculos}">0</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">Vehículos en Stock</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" th:text="${totalAnuncios}">0</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">Anuncios Activos</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">87%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">Eficiencia Equipo</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">15</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">Miembros Equipo</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== VEHÍCULOS SECTION ===================== -->
+        <section id="vehiculos">
+            <div class="head-title mb-6">
+                <h2 class="text-2xl font-bold">Gestión de Vehículos</h2>
+                <p class="text-gray-600 dark:text-gray-300">Administra el inventario de vehículos disponibles</p>
+            </div>
+
+            <div class="table-container">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">Vehículos en Stock</h3>
+                    <button onclick="mostrarModal('modal-vehiculo')" class="btn-gestor">
+                        <i class="fas fa-plus mr-2"></i>Añadir Vehículo
+                    </button>
+                </div>
+                <table id="tabla-vehiculos">
+                    <thead>
+                    <tr>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Año</th>
+                        <th>Precio</th>
+                        <th>Categoría</th>
+                        <th>Imagen</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="vehiculo : ${vehiculos}">
+                        <td th:text="${vehiculo.marca}"></td>
+                        <td th:text="${vehiculo.modelo}"></td>
+                        <td th:text="${vehiculo.año}"></td>
+                        <td th:text="${vehiculo.precio}"></td>
+                        <td th:text="${vehiculo.categoria}"></td>
+                        <td><img th:src="${vehiculo.imagenUrl}" width="100" class="rounded-lg"></td>
+                        <td>
+                            <button th:attr="onclick=|mostrarModalEditarVehiculo('${vehiculo.id}')|" class="btn-editar">
+                                <i class="fas fa-edit mr-1"></i>Editar
+                            </button>
+                            <a th:href="@{/gestor/eliminar-vehiculo/{id}(id=${vehiculo.id})}" class="btn-eliminar" onclick="return confirm('¿Está seguro de eliminar este vehículo?')">
+                                <i class="fas fa-trash mr-1"></i>Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===================== ANUNCIOS SECTION ===================== -->
+        <section id="anuncios">
+            <div class="head-title mb-6">
+                <h2 class="text-2xl font-bold">Gestión de Anuncios</h2>
+                <p class="text-gray-600 dark:text-gray-300">Administra los anuncios destacados</p>
+            </div>
+
+            <div class="table-container">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">Anuncios Destacados</h3>
+                    <button onclick="mostrarModal('modal-anuncio')" class="btn-gestor">
+                        <i class="fas fa-plus mr-2"></i>Crear Anuncio
+                    </button>
+                </div>
+                <table id="tabla-anuncios">
+                    <thead>
+                    <tr>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Año</th>
+                        <th>Precio</th>
+                        <th>Categoría</th>
+                        <th>Imagen</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="anuncio : ${anuncios}">
+                        <td th:text="${anuncio.marca}"></td>
+                        <td th:text="${anuncio.modelo}"></td>
+                        <td th:text="${anuncio.año}"></td>
+                        <td th:text="${anuncio.precio}"></td>
+                        <td th:text="${anuncio.categoria}"></td>
+                        <td><img th:src="${anuncio.imagenUrl}" width="100" class="rounded-lg"></td>
+                        <td>
+                            <button th:attr="onclick=|mostrarModalEditarAnuncio('${anuncio.id}')|" class="btn-editar">
+                                <i class="fas fa-edit mr-1"></i>Editar
+                            </button>
+                            <a th:href="@{/gestor/eliminar-anuncio/{id}(id=${anuncio.id})}" class="btn-eliminar" onclick="return confirm('¿Está seguro de eliminar este anuncio?')">
+                                <i class="fas fa-trash mr-1"></i>Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+<!--        &lt;!&ndash; Gestión de Equipo &ndash;&gt;-->
+<!--        <section id="equipo">-->
+<!--            <h2 class="text-2xl font-bold mb-6">Gestión del Equipo</h2>-->
+<!--            <div class="table-container">-->
+<!--                <table>-->
+<!--                    <thead>-->
+<!--                    <tr>-->
+<!--                        <th>Nombre</th>-->
+<!--                        <th>Rol</th>-->
+<!--                        <th>Proyectos</th>-->
+<!--                        <th>Rendimiento</th>-->
+<!--                        <th>Estado</th>-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                    <tbody>-->
+<!--                    <tr>-->
+<!--                        <td>Ana Rodríguez</td>-->
+<!--                        <td>Analista Senior</td>-->
+<!--                        <td>5</td>-->
+<!--                        <td>95%</td>-->
+<!--                        <td><span class="estado-aprobado">Activo</span></td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                        <td>Carlos Méndez</td>-->
+<!--                        <td>Asesor Comercial</td>-->
+<!--                        <td>3</td>-->
+<!--                        <td>88%</td>-->
+<!--                        <td><span class="estado-aprobado">Activo</span></td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                        <td>María González</td>-->
+<!--                        <td>Gestor Proyectos</td>-->
+<!--                        <td>7</td>-->
+<!--                        <td>92%</td>-->
+<!--                        <td><span class="estado-pendiente">Vacaciones</span></td>-->
+<!--                    </tr>-->
+<!--                    </tbody>-->
+<!--                </table>-->
+<!--            </div>-->
+<!--        </section>-->
+
+        <!-- Reportes -->
+        <!-- Reportes -->
+        <!-- En Perfil_gestor.html - actualiza la sección de reportes -->
+        <section id="reportes">
+            <h2 class="text-2xl font-bold mb-6">Reportes Generados</h2>
+            <div class="space-y-4">
+                <!-- Reporte mejorado con IA -->
+                <div class="metric-card flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold">Reporte de Usuarios Potenciales con IA</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            Análisis predictivo de clientes potenciales usando modelo de machine learning
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            ✅ Incluye probabilidades calculadas | ✅ Niveles de confianza | ✅ Observaciones automáticas
+                        </p>
+                    </div>
+                    <a th:href="@{/gestor/descargar-reporte-potenciales}" class="btn-gestor">
+                        <i class="fas fa-brain mr-2"></i>Descargar Análisis IA
+                    </a>
+                </div>
+
+                <!-- Reportes existentes -->
+                <div class="metric-card flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold">Reporte Trimestral Q4</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Generado: 15/10/2024</p>
+                    </div>
+                    <button class="btn-gestor">
+                        <i class="fas fa-download mr-2"></i>Descargar
+                    </button>
+                </div>
+
+                <div class="metric-card flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold">Análisis de Rendimiento - Asesores</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            Reporte Excel con análisis mensual de prospectos y ventas
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            ✅ Total prospectos | ✅ Ventas por asesor | ✅ Tasa de conversión
+                        </p>
+                    </div>
+                    <a th:href="@{/gestor/descargar-analisis-rendimiento}" class="btn-gestor">
+                        <i class="fas fa-file-excel mr-2"></i>Descargar Excel
+                    </a>
+                </div>
+        </section>
+    </main>
+</div>
+
+<!-- ===================== MODALES ===================== -->
+
+<!-- Modal para Añadir Vehículo -->
+<div id="modal-vehiculo" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal('modal-vehiculo')">&times;</span>
+        <h2 class="text-2xl font-bold mb-4">Añadir Nuevo Vehículo</h2>
+        <form th:action="@{/gestor/guardar-vehiculo}" method="post" enctype="multipart/form-data">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="marca">Marca</label>
+                    <input type="text" id="marca" name="marca" placeholder="Marca" required>
+                </div>
+                <div class="form-group">
+                    <label for="modelo">Modelo</label>
+                    <input type="text" id="modelo" name="modelo" placeholder="Modelo" required>
+                </div>
+                <div class="form-group">
+                    <label for="año">Año</label>
+                    <input type="number" id="año" name="año" placeholder="Año" required>
+                </div>
+                <div class="form-group">
+                    <label for="precio">Precio</label>
+                    <input type="number" step="0.01" id="precio" name="precio" placeholder="Precio" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoria">Categoría</label>
+                    <select id="categoria" name="categoria" required>
+                        <option value="Pick-Ups">Pick-Ups</option>
+                        <option value="Camionetas">Camionetas</option>
+                        <option value="Automóviles">Automóviles</option>
+                        <option value="Performance">Performance</option>
+                        <option value="Híbridos">Híbridos</option>
+                        <option value="Comerciales">Comerciales</option>
+                        <option value="SUVs">SUVs</option>
+                        <option value="Deportivos">Deportivos</option>
+                        <option value="Eléctricos">Eléctricos</option>
+                        <option value="Lujo">Lujo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="motor">Motor</label>
+                    <input type="text" id="motor" name="motor" placeholder="Motor" required>
+                </div>
+                <div class="form-group">
+                    <label for="transmision">Transmisión</label>
+                    <select id="transmision" name="transmision" required>
+                        <option value="Automática">Automática</option>
+                        <option value="Manual">Manual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="combustible">Combustible</label>
+                    <select id="combustible" name="combustible" required>
+                        <option value="Gasolina">Gasolina</option>
+                        <option value="Diésel">Diésel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pasajeros">Pasajeros</label>
+                    <input type="number" id="pasajeros" name="pasajeros" placeholder="Pasajeros" required min="1" max="10">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="colores">Colores disponibles (separados por comas)</label>
+                    <input type="text" id="colores" name="colores" placeholder="Ej: Rojo, Azul, Negro">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="descripcion">Descripción técnica</label>
+                    <textarea id="descripcion" name="descripcion" rows="3" placeholder="Descripción técnica" required></textarea>
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="imagen">Imagen del vehículo</label>
+                    <input type="file" id="imagen" name="imagen" required accept="image/*">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="modelo3d">Modelo 3D (.glb)</label>
+                    <input type="file" id="modelo3d" name="modelo3d" accept=".glb">
+                    <p class="text-xs text-gray-500 mt-1">Opcional. Formato GLB para vista 3D.</p>
+                </div>
+                
+                <!-- Galería de imágenes (Opcional) -->
+                <div class="form-group md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Galería de Fotos (Opcional)</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="galeria1" class="text-xs mb-1 block">Foto Extra 1</label>
+                            <input type="file" id="galeria1" name="galeria1" accept="image/*" class="text-sm">
+                        </div>
+                        <div>
+                            <label for="galeria2" class="text-xs mb-1 block">Foto Extra 2</label>
+                            <input type="file" id="galeria2" name="galeria2" accept="image/*" class="text-sm">
+                        </div>
+                        <div>
+                            <label for="galeria3" class="text-xs mb-1 block">Foto Extra 3</label>
+                            <input type="file" id="galeria3" name="galeria3" accept="image/*" class="text-sm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-4">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700" onclick="cerrarModal('modal-vehiculo')">Cancelar</button>
+                <button type="submit" class="btn-gestor">Guardar Vehículo</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Editar Vehículo -->
+<div id="modal-editar-vehiculo" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal('modal-editar-vehiculo')">&times;</span>
+        <h2 class="text-2xl font-bold mb-4">Editar Vehículo</h2>
+        <form id="form-editar-vehiculo" th:action="@{/gestor/editar-vehiculo/{id}(id=${vehiculo?.id})}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="id" id="editar-id">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="editar-marca">Marca</label>
+                    <input type="text" id="editar-marca" name="marca" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-modelo">Modelo</label>
+                    <input type="text" id="editar-modelo" name="modelo" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-año">Año</label>
+                    <input type="number" id="editar-año" name="año" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-precio">Precio</label>
+                    <input type="number" step="0.01" id="editar-precio" name="precio" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-categoria">Categoría</label>
+                    <select id="editar-categoria" name="categoria" required>
+                        <option value="Pick-Ups">Pick-Ups</option>
+                        <option value="Camionetas">Camionetas</option>
+                        <option value="Automóviles">Automóviles</option>
+                        <option value="Performance">Performance</option>
+                        <option value="Híbridos">Híbridos</option>
+                        <option value="Comerciales">Comerciales</option>
+                        <option value="SUVs">SUVs</option>
+                        <option value="Deportivos">Deportivos</option>
+                        <option value="Eléctricos">Eléctricos</option>
+                        <option value="Lujo">Lujo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editar-motor">Motor</label>
+                    <input type="text" id="editar-motor" name="motor" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-transmision">Transmisión</label>
+                    <select id="editar-transmision" name="transmision" required>
+                        <option value="Automática">Automática</option>
+                        <option value="Manual">Manual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editar-combustible">Combustible</label>
+                    <select id="editar-combustible" name="combustible" required>
+                        <option value="Gasolina">Gasolina</option>
+                        <option value="Diésel">Diésel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editar-pasajeros">Pasajeros</label>
+                    <input type="number" id="editar-pasajeros" name="pasajeros" required min="1" max="10">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="editar-colores">Colores disponibles (separados por comas)</label>
+                    <input type="text" id="editar-colores" name="colores" placeholder="Ej: Rojo, Azul, Negro">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="editar-descripcion">Descripción técnica</label>
+                    <textarea id="editar-descripcion" name="descripcion" rows="3" required></textarea>
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="editar-imagen">Imagen del vehículo (dejar vacío para mantener la actual)</label>
+                    <input type="file" id="editar-imagen" name="imagen" accept="image/*">
+                    <img id="editar-imagen-preview" src="" alt="Imagen actual" class="mt-2 rounded-lg" style="max-width: 200px; display: none;">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="editar-modelo3d">Actualizar Modelo 3D (.glb)</label>
+                    <input type="file" id="editar-modelo3d" name="modelo3d" accept=".glb">
+                </div>
+                
+                <!-- Galería de imágenes (Edición) -->
+                <div class="form-group md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Añadir más fotos a la Galería</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="editar-galeria1" class="text-xs mb-1 block">Foto Extra 1</label>
+                            <input type="file" id="editar-galeria1" name="galeria1" accept="image/*" class="text-sm">
+                        </div>
+                        <div>
+                            <label for="editar-galeria2" class="text-xs mb-1 block">Foto Extra 2</label>
+                            <input type="file" id="editar-galeria2" name="galeria2" accept="image/*" class="text-sm">
+                        </div>
+                        <div>
+                            <label for="editar-galeria3" class="text-xs mb-1 block">Foto Extra 3</label>
+                            <input type="file" id="editar-galeria3" name="galeria3" accept="image/*" class="text-sm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-4">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700" onclick="cerrarModal('modal-editar-vehiculo')">Cancelar</button>
+                <button type="submit" class="btn-gestor">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Añadir Anuncio -->
+<div id="modal-anuncio" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal('modal-anuncio')">&times;</span>
+        <h2 class="text-2xl font-bold mb-4">Crear Nuevo Anuncio</h2>
+        <form th:action="@{/gestor/guardar-anuncio}" method="post" enctype="multipart/form-data">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="anuncio-marca">Marca</label>
+                    <input type="text" id="anuncio-marca" name="marca" placeholder="Marca" required>
+                </div>
+                <div class="form-group">
+                    <label for="anuncio-modelo">Modelo</label>
+                    <input type="text" id="anuncio-modelo" name="modelo" placeholder="Modelo" required>
+                </div>
+                <div class="form-group">
+                    <label for="anuncio-año">Año</label>
+                    <input type="number" id="anuncio-año" name="año" placeholder="Año" required>
+                </div>
+                <div class="form-group">
+                    <label for="anuncio-precio">Precio</label>
+                    <input type="number" step="0.01" id="anuncio-precio" name="precio" placeholder="Precio" required>
+                </div>
+                <div class="form-group">
+                    <label for="anuncio-categoria">Categoría</label>
+                    <select id="anuncio-categoria" name="categoria" required>
+                        <option value="Pick-Ups">Pick-Ups</option>
+                        <option value="Camionetas">Camionetas</option>
+                        <option value="Automóviles">Automóviles</option>
+                        <option value="Performance">Performance</option>
+                        <option value="Híbridos">Híbridos</option>
+                        <option value="Comerciales">Comerciales</option>
+                        <option value="SUVs">SUVs</option>
+                        <option value="Deportivos">Deportivos</option>
+                        <option value="Eléctricos">Eléctricos</option>
+                        <option value="Lujo">Lujo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="anuncio-motor">Motor</label>
+                    <input type="text" id="anuncio-motor" name="motor" placeholder="Motor" required>
+                </div>
+                <div class="form-group">
+                    <label for="anuncio-transmision">Transmisión</label>
+                    <select id="anuncio-transmision" name="transmision" required>
+                        <option value="Automática">Automática</option>
+                        <option value="Manual">Manual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="anuncio-combustible">Combustible</label>
+                    <select id="anuncio-combustible" name="combustible" required>
+                        <option value="Gasolina">Gasolina</option>
+                        <option value="Diésel">Diésel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="anuncio-pasajeros">Pasajeros</label>
+                    <input type="number" id="anuncio-pasajeros" name="pasajeros" placeholder="Pasajeros" required min="1" max="10">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="anuncio-colores">Colores disponibles (separados por comas)</label>
+                    <input type="text" id="anuncio-colores" name="colores" placeholder="Ej: Rojo, Azul, Negro">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="anuncio-descripcion">Descripción destacada</label>
+                    <textarea id="anuncio-descripcion" name="descripcion" rows="3" placeholder="Descripción destacada" required></textarea>
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="anuncio-imagen">Imagen del anuncio</label>
+                    <input type="file" id="anuncio-imagen" name="imagen" required accept="image/*">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="anuncio-modelo3d">Modelo 3D (.glb)</label>
+                    <input type="file" id="anuncio-modelo3d" name="modelo3d" accept=".glb">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-4">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700" onclick="cerrarModal('modal-anuncio')">Cancelar</button>
+                <button type="submit" class="btn-gestor">Crear Anuncio</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Modal de confirmación para cerrar sesión -->
+<div id="logoutModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">¿Cerrar Sesión?</h3>
+        <p class="modal-message">
+            ¿Estás seguro de que quieres cerrar tu sesión? Tendrás que volver a iniciar sesión para acceder a tu cuenta.
+        </p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-cancel" onclick="cancelarCerrarSesion()">
+                Cancelar
+            </button>
+            <button class="modal-btn modal-btn-confirm" onclick="cerrarSesion()">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                Sí, Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    // Navegación entre secciones
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('main section').forEach(section => {
+            section.style.display = 'none';
+        });
+        document.getElementById('bienvenida').style.display = 'block';
+
+        document.querySelectorAll('.side-menu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('href').startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelectorAll('main section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    const targetId = this.getAttribute('href').substring(1);
+                    document.getElementById(targetId).style.display = 'block';
+                }
+            });
+        });
+
+        // Inicializar DataTables
+        $('#tabla-vehiculos').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+            }
+        });
+
+        $('#tabla-anuncios').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+            }
+        });
+    });
+
+    // Funciones para manejar los modales
+    function mostrarModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+
+    function cerrarModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Cerrar modales al hacer clic fuera
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
+    }
+
+    // Función para editar vehículo
+    async function mostrarModalEditarVehiculo(id) {
+        try {
+            const response = await fetch('/gestor/obtener-vehiculo/' + id);
+            const vehiculo = await response.json();
+
+            // Llenar el formulario con los datos del vehículo
+            document.getElementById('editar-id').value = vehiculo.id;
+            document.getElementById('editar-marca').value = vehiculo.marca;
+            document.getElementById('editar-modelo').value = vehiculo.modelo;
+            document.getElementById('editar-año').value = vehiculo.año;
+            document.getElementById('editar-precio').value = vehiculo.precio;
+            document.getElementById('editar-categoria').value = vehiculo.categoria;
+            document.getElementById('editar-motor').value = vehiculo.motor;
+            document.getElementById('editar-transmision').value = vehiculo.transmision;
+            document.getElementById('editar-combustible').value = vehiculo.combustible;
+            document.getElementById('editar-pasajeros').value = vehiculo.pasajeros;
+            document.getElementById('editar-descripcion').value = vehiculo.descripcion;
+
+            // Procesar colores
+            if (vehiculo.colores && vehiculo.colores.length > 0) {
+                document.getElementById('editar-colores').value = vehiculo.colores.join(', ');
+            }
+
+            // Mostrar imagen actual
+            if (vehiculo.imagenUrl) {
+                const imgPreview = document.getElementById('editar-imagen-preview');
+                imgPreview.src = vehiculo.imagenUrl;
+                imgPreview.style.display = 'block';
+            }
+
+            // Actualizar action del formulario
+            document.getElementById('form-editar-vehiculo').action = '/gestor/editar-vehiculo/' + id;
+
+            // Mostrar modal
+            mostrarModal('modal-editar-vehiculo');
+
+        } catch (error) {
+            console.error('Error al cargar vehículo:', error);
+            alert('Error al cargar los datos del vehículo');
+        }
+    }
+
+    // Función para editar anuncio (similar a vehículos)
+    async function mostrarModalEditarAnuncio(id) {
+        try {
+            const response = await fetch('/gestor/obtener-vehiculo/' + id);
+            const anuncio = await response.json();
+
+            // Para simplificar, usamos el mismo modal de edición de vehículos
+            // En una implementación completa, tendrías un modal específico para anuncios
+            mostrarModalEditarVehiculo(id);
+
+        } catch (error) {
+            console.error('Error al cargar anuncio:', error);
+            alert('Error al cargar los datos del anuncio');
+        }
+    }
+
+    // Funciones para el modal de cierre de sesión
+function confirmarCerrarSesion() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.add('active');
+}
+
+function cancelarCerrarSesion() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.remove('active');
+}
+
+function cerrarSesion() {
+    // Mostrar loading en el botón
+    const confirmButton = document.querySelector('.modal-btn-confirm');
+    const originalText = confirmButton.innerHTML;
+    confirmButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Cerrando...';
+    confirmButton.disabled = true;
+
+    // Redirigir al logout después de un breve delay
+    setTimeout(() => {
+        window.location.href = '/logout';
+    }, 1000);
+}
+</script>
+</body>
+</html>

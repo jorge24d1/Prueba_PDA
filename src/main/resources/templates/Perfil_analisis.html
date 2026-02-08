@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Analista - NextGenMotors</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link th:href="@{/css/perfil-analisis.css}" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#8b5cf6", // Color analista
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        display: ["Manrope", "sans-serif"],
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="dark:bg-background-dark">
+<!-- Barra de navegación -->
+<nav class="navbar">
+    <div class="nav-logo">
+        <span class="logo-nexgen">NextGen</span>
+        <span class="logo-motors">Motors</span>
+    </div>
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="nav-links">
+        <a th:href="@{/usuario/Inicio}">Inicio</a>
+        <a href="/vehiculos">Nuestros Modelos</a>
+        <a th:href="@{/usuario/agendamiento}">Agendamiento online</a>
+    </div>
+</nav>
+
+<!-- Contenedor principal -->
+<div class="main-container">
+    <!-- Barra lateral -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <i class="fas fa-chart-bar mr-2"></i>
+            <span th:text="${nombreUsuario}">Analista</span>
+        </a>
+        <ul class="side-menu top">
+            <li>
+                <a href="#bienvenida">
+                    <i class='fas fa-home'></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#analisis-datos">
+                    <i class='fas fa-chart-line'></i>
+                    <span class="text">Análisis de Datos</span>
+                </a>
+            </li>
+            <li>
+                <a href="#base-datos">
+                    <i class='fas fa-database'></i>
+                    <span class="text">Base de Datos</span>
+                </a>
+            </li>
+            <li>
+                <a href="#reportes">
+                    <i class='fas fa-chart-pie'></i>
+                    <span class="text">Reportes</span>
+                </a>
+            </li>
+            <li>
+                <a href="#tendencias">
+                    <i class='fas fa-trending-up'></i>
+                    <span class="text">Tendencias</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="confirmarCerrarSesion()" class="logout">
+                    <i class='fas fa-sign-out-alt'></i>
+                    <span class="text">Cerrar sesión</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <!-- Bienvenida ANALISTA -->
+        <section id="bienvenida" class="slide-in">
+            <h1>Bienvenido, <span th:text="${nombreUsuario}">Analista</span></h1>
+            <p>Panel especializado de análisis de datos y business intelligence. Utiliza herramientas avanzadas para extraer insights y generar reportes estratégicos para la toma de decisiones.</p>
+
+            <!-- Métricas principales -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">15.2K</div>
+                    <div class="metric-label">Registros Procesados</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">94.7%</div>
+                    <div class="metric-label">Precisión Modelos</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">12.3%</div>
+                    <div class="metric-label">Crecimiento Trimestral</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">8.2/10</div>
+                    <div class="metric-label">Score Satisfacción</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Análisis de Datos -->
+        <section id="analisis-datos">
+            <div>
+                <iframe title="concesionariotablero" width="600" height="373.5" src="https://app.powerbi.com/view?r=eyJrIjoiMDljY2M3NWUtMWM1ZS00NjFiLTljNjgtMDQ3NGRlNDVjZGJjIiwidCI6IjlkMTJiZjNmLWU0ZjYtNDdhYi05MTJmLTFhMmYwZmM0OGFhNCIsImMiOjR9" frameborder="0" allowFullScreen="true"></iframe>
+            </div>
+
+            <button class="btn-analista mt-4">
+                <i class="fas fa-download mr-2"></i>Exportar Análisis
+            </button>
+        </section>
+
+        <!-- Base de Datos -->
+        <section id="base-datos">
+            <h2>Base de Datos - Estadísticas del Sistema</h2>
+
+            <!-- Grid de métricas con iconos -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" th:text="${totalClientes}">0</div>
+                        <div class="metric-label">Clientes Registrados</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" th:text="${totalVehiculos}">0</div>
+                        <div class="metric-label">Vehículos en Sistema</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" th:text="${totalCitas}">0</div>
+                        <div class="metric-label">Citas Programadas</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" th:text="${totalTrabajadores}">0</div>
+                        <div class="metric-label">Trabajadores Activos</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- En Perfil_gestor.html - actualiza la sección de reportes -->
+        <section id="reportes">
+            <h2 class="text-2xl font-bold mb-6">Reportes Generados</h2>
+            <div class="space-y-4">
+                <!-- Reporte mejorado con IA -->
+                <div class="metric-card flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold">Reporte de Usuarios Potenciales con IA</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            Análisis predictivo de clientes potenciales usando modelo de machine learning
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            ✅ Incluye probabilidades calculadas | ✅ Niveles de confianza | ✅ Observaciones automáticas
+                        </p>
+                    </div>
+                    <a th:href="@{/gestor/descargar-reporte-potenciales}" class="btn-gestor">
+                        <i class="fas fa-brain mr-2"></i>Descargar Análisis IA
+                    </a>
+                </div>
+
+                <!-- Reportes existentes -->
+                <div class="metric-card flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold">Reporte Trimestral Q4</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Generado: 15/10/2024</p>
+                    </div>
+                    <button class="btn-gestor">
+                        <i class="fas fa-download mr-2"></i>Descargar
+                    </button>
+                </div>
+
+                <div class="metric-card flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold">Análisis de Rendimiento</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Generado: 10/10/2024</p>
+                    </div>
+                    <button class="btn-gestor">
+                        <i class="fas fa-download mr-2"></i>Descargar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tendencias -->
+        <section id="tendencias">
+            <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-6">🎯 Predicción de Clientes Potenciales</h2>
+
+            <!-- Sistema de Predicción -->
+            <div class="table-container">
+                <div class="p-4 lg:p-6">
+                    <!-- Header con búsqueda Y PAGINACIÓN ARRIBA -->
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white">
+                            <i class='fas fa-chart-line mr-2'></i>Sistema de Predicción de Clientes
+                        </h3>
+
+                        <div class="flex flex-col lg:flex-row gap-3 w-full lg:w-auto">
+                            <!-- Barra de búsqueda -->
+                            <div class="relative flex-1 lg:w-64">
+                                <input type="text" id="buscar-usuarios"
+                                       class="w-full p-3 pl-10 rounded-lg border border-gray-300 dark:border-gray-600
+                                      bg-white dark:bg-gray-700 text-gray-800 dark:text-white
+                                      focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                       placeholder="Buscar por nombre, email...">
+                                <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
+                            </div>
+
+                            <!-- SELECTOR DE PÁGINA ARRIBA -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Mostrar</span>
+                                <select id="filasPorPagina" class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </div>
+
+                            <button id="cargarUsuariosBtn" class="btn-analista whitespace-nowrap">
+                                <i class="fas fa-sync-alt mr-2"></i>Cargar Usuarios
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Loading indicator -->
+                    <div id="loadingIndicator" class="hidden text-center py-8">
+                        <div class="inline-flex flex-col items-center">
+                            <i class="fas fa-spinner fa-spin text-3xl text-purple-600 mb-2"></i>
+                            <span class="text-lg">Cargando usuarios...</span>
+                            <p class="text-sm text-gray-500 mt-1">Analizando datos de clientes</p>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor de tabla -->
+                    <div id="usuariosContainer" class="hidden">
+                        <div class="overflow-x-auto">
+                            <table id="tablaUsuarios" class="w-full min-w-full">
+                                <thead class="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Usuario</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Email</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Citas</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Antigüedad</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Estado</th>
+                                    <!-- QUITAMOS INTERÉS Y MEJORAMOS POTENCIAL -->
+                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Predicción</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Acción</th>
+                                </tr>
+                                </thead>
+                                <tbody id="usuariosBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Los usuarios se cargarán aquí dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- PAGINACIÓN ABAJO (solo botones) -->
+                        <div id="paginacion" class="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <!-- Contador de resultados -->
+                            <div id="contadorResultados" class="text-sm text-gray-600 dark:text-gray-400">
+                                Mostrando 0-0 de 0 usuarios
+                            </div>
+
+                            <!-- Botones de navegación -->
+                            <div class="flex items-center gap-2">
+                                <button id="paginaAnterior" class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+
+                                <span id="infoPagina" class="text-sm text-gray-600 dark:text-gray-400 px-3">
+                            Página 1 de 1
+                        </span>
+
+                                <button id="paginaSiguiente" class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado vacío -->
+                    <div id="emptyState" class="text-center py-12">
+                        <i class="fas fa-users text-5xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No hay usuarios cargados</h3>
+                        <p class="text-gray-500 dark:text-gray-500 max-w-md mx-auto">
+                            Haz clic en "Cargar Usuarios" para comenzar a analizar el potencial de tus clientes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultado de Predicción -->
+            <div id="resultadoPrediccion" class="table-container mt-6 hidden">
+                <div class="p-4 lg:p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                            <i class="fas fa-chart-line mr-2"></i>Resultado de Predicción
+                        </h3>
+                        <button onclick="cerrarResultado()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div id="contenidoResultado">
+                        <!-- Se llenará con JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+<!-- Modal de confirmación para cerrar sesión -->
+<div id="logoutModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">¿Cerrar Sesión?</h3>
+        <p class="modal-message">
+            ¿Estás seguro de que quieres cerrar tu sesión? Tendrás que volver a iniciar sesión para acceder a tu cuenta.
+        </p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-cancel" onclick="cancelarCerrarSesion()">
+                Cancelar
+            </button>
+            <button class="modal-btn modal-btn-confirm" onclick="cerrarSesion()">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                Sí, Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+<!-- Scripts idénticos al original -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    // Navegación entre secciones - IDÉNTICO AL ORIGINAL
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('main section').forEach(section => {
+            section.style.display = 'none';
+        });
+        document.getElementById('bienvenida').style.display = 'block';
+
+        document.querySelectorAll('.side-menu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('href').startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelectorAll('main section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    const targetId = this.getAttribute('href').substring(1);
+                    document.getElementById(targetId).style.display = 'block';
+                }
+            });
+        });
+
+        // Inicializar DataTable
+        if ($('#tabla-datos').length) {
+            $('#tabla-datos').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                },
+                responsive: true,
+                autoWidth: false
+            });
+        }
+    });
+
+    // Funciones para el modal de cierre de sesión
+function confirmarCerrarSesion() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.add('active');
+}
+
+function cancelarCerrarSesion() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.remove('active');
+}
+
+function cerrarSesion() {
+    // Mostrar loading en el botón
+    const confirmButton = document.querySelector('.modal-btn-confirm');
+    const originalText = confirmButton.innerHTML;
+    confirmButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Cerrando...';
+    confirmButton.disabled = true;
+
+    // Redirigir al logout después de un breve delay
+    setTimeout(() => {
+        window.location.href = '/logout';
+    }, 1000);
+}
+</script>
+<script>
+    // ===================== VARIABLES GLOBALES =====================
+    let usuariosCargados = [];
+    let usuariosFiltrados = [];
+    let paginaActual = 1;
+    let filasPorPagina = 10;
+
+    // ===================== INICIALIZACIÓN =====================
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('cargarUsuariosBtn').addEventListener('click', cargarUsuarios);
+
+        document.getElementById('buscar-usuarios').addEventListener('input', filtrarUsuarios);
+
+        document.getElementById('filasPorPagina').addEventListener('change', function() {
+            filasPorPagina = parseInt(this.value);
+            paginaActual = 1;
+            mostrarUsuariosPaginados();
+        });
+
+        document.getElementById('paginaAnterior').addEventListener('click', function() {
+            if (paginaActual > 1) {
+                paginaActual--;
+                mostrarUsuariosPaginados();
+            }
+        });
+
+        document.getElementById('paginaSiguiente').addEventListener('click', function() {
+            const totalPaginas = Math.ceil(usuariosFiltrados.length / filasPorPagina);
+            if (paginaActual < totalPaginas) {
+                paginaActual++;
+                mostrarUsuariosPaginados();
+            }
+        });
+    });
+
+    // ===================== CARGAR USUARIOS =====================
+    async function cargarUsuarios() {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const usuariosContainer = document.getElementById('usuariosContainer');
+        const emptyState = document.getElementById('emptyState');
+
+        loadingIndicator.classList.remove('hidden');
+        usuariosContainer.classList.add('hidden');
+        emptyState.classList.add('hidden');
+
+        try {
+            const response = await fetch('/cargar-usuarios');
+            const usuarios = await response.json();
+
+            loadingIndicator.classList.add('hidden');
+
+            if (usuarios && usuarios.length > 0) {
+                usuariosCargados = usuarios;
+                usuariosFiltrados = [...usuarios];
+                paginaActual = 1;
+                mostrarUsuariosPaginados();
+                usuariosContainer.classList.remove('hidden');
+            } else {
+                emptyState.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            loadingIndicator.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            alert('Error al cargar los usuarios');
+        }
+    }
+
+    // ===================== FILTRAR USUARIOS =====================
+    function filtrarUsuarios() {
+        const terminoBusqueda = document.getElementById('buscar-usuarios').value.toLowerCase().trim();
+
+        if (terminoBusqueda === '') {
+            usuariosFiltrados = [...usuariosCargados];
+        } else {
+            usuariosFiltrados = usuariosCargados.filter(usuario =>
+                usuario.nombreUser.toLowerCase().includes(terminoBusqueda) ||
+                usuario.apellidoUser.toLowerCase().includes(terminoBusqueda) ||
+                usuario.correoUser.toLowerCase().includes(terminoBusqueda) ||
+                usuario.estadoUltimaCita.toLowerCase().includes(terminoBusqueda) ||
+                usuario.clientePotencial.toLowerCase().includes(terminoBusqueda)
+            );
+        }
+
+        paginaActual = 1;
+        mostrarUsuariosPaginados();
+    }
+
+    // ===================== MOSTRAR USUARIOS PAGINADOS =====================
+    function mostrarUsuariosPaginados() {
+        const tbody = document.getElementById('usuariosBody');
+        const contadorResultados = document.getElementById('contadorResultados');
+        const infoPagina = document.getElementById('infoPagina');
+        const paginaAnterior = document.getElementById('paginaAnterior');
+        const paginaSiguiente = document.getElementById('paginaSiguiente');
+
+        const inicio = (paginaActual - 1) * filasPorPagina;
+        const fin = Math.min(inicio + filasPorPagina, usuariosFiltrados.length);
+        const usuariosPagina = usuariosFiltrados.slice(inicio, fin);
+        const totalPaginas = Math.ceil(usuariosFiltrados.length / filasPorPagina);
+
+        tbody.innerHTML = '';
+
+        if (usuariosPagina.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-search text-3xl mb-2"></i>
+                        <p>No se encontraron usuarios que coincidan con tu búsqueda</p>
+                    </td>
+                </tr>
+            `;
+        } else {
+            usuariosPagina.forEach(usuario => {
+                const row = document.createElement('tr');
+                row.className = 'border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors';
+                row.innerHTML = `
+                    <td class="px-4 py-3">${usuario.nombreUser} ${usuario.apellidoUser}</td>
+                    <td class="px-4 py-3">${usuario.correoUser}</td>
+                    <td class="px-4 py-3 text-center">${usuario.cantidadCitas}</td>
+                    <td class="px-4 py-3 text-center">${usuario.antiguedadCuenta} días</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="${getEstadoClass(usuario.estadoUltimaCita)}">${usuario.estadoUltimaCita}</span>
+                    </td>
+                    <!-- COLUMNA MEJORADA - SOLO PREDICCIÓN -->
+                    <td class="px-4 py-3 text-center">
+                        ${getPrediccionHtml(usuario.clientePotencial, usuario.interesVehiculo)}
+                    </td>
+
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="predecirUsuario('${usuario.id}', this)"
+                        data-original-text='<i class="fas fa-bolt mr-1"></i>Analizar'
+                        class="btn-analista py-2 px-3 text-sm whitespace-nowrap"
+                        style="min-width: 110px; width: 110px;">
+                        <i class="fas fa-bolt mr-1"></i>Analizar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        const inicioMostrado = usuariosFiltrados.length > 0 ? inicio + 1 : 0;
+        const finMostrado = usuariosFiltrados.length > 0 ? fin : 0;
+        contadorResultados.textContent = `Mostrando ${inicioMostrado}-${finMostrado} de ${usuariosFiltrados.length} usuarios`;
+
+        infoPagina.textContent = `Página ${paginaActual} de ${totalPaginas}`;
+
+        paginaAnterior.disabled = paginaActual === 1;
+        paginaSiguiente.disabled = paginaActual === totalPaginas || totalPaginas === 0;
+
+        if (paginaAnterior.disabled) {
+            paginaAnterior.classList.add('opacity-50', 'cursor-not-allowed');
+            paginaAnterior.classList.remove('hover:bg-gray-100');
+        } else {
+            paginaAnterior.classList.remove('opacity-50', 'cursor-not-allowed');
+            paginaAnterior.classList.add('hover:bg-gray-100');
+        }
+
+        if (paginaSiguiente.disabled) {
+            paginaSiguiente.classList.add('opacity-50', 'cursor-not-allowed');
+            paginaSiguiente.classList.remove('hover:bg-gray-100');
+        } else {
+            paginaSiguiente.classList.remove('opacity-50', 'cursor-not-allowed');
+            paginaSiguiente.classList.add('hover:bg-gray-100');
+        }
+    }
+
+    // ===================== TEXTO MEJORADO PARA PREDICCIÓN =====================
+    function getPrediccionHtml(potencial, interes) {
+    // Si ya tiene predicción - CON FONDO VERDE/ROJO
+    if (potencial === 'Si') {
+        return `
+            <div class="flex flex-col items-center gap-1">
+                <span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1.5 rounded-full font-semibold text-sm border border-green-300 dark:border-green-700">
+                    Potencial
+                </span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">${interes === 'Si' ? 'Con interés' : 'Sin interés'}</span>
+            </div>
+        `;
+    }
+    if (potencial === 'No') {
+    return `
+        <div class="flex flex-col items-center gap-1">
+            <span class="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1.5 rounded-full font-semibold text-sm border border-red-300 dark:border-red-700" style="display: inline-block; min-width: 120px; max-width: 120px; white-space: nowrap;">
+                No Potencial
+            </span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">${interes === 'Si' ? 'Con interés' : 'Sin interés'}</span>
+        </div>
+    `;
+}
+
+    // Si no tiene predicción aún
+    return `
+        <div class="flex flex-col items-center gap-1">
+            <span class="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-3 py-1.5 rounded-full font-semibold text-sm border border-yellow-300 dark:border-yellow-700">
+                ⏳ Por analizar
+            </span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">${interes === 'Si' ? 'Con interés' : 'Sin interés'}</span>
+        </div>
+    `;
+}
+
+    // ===================== FUNCIÓN DE PREDICCIÓN =====================
+    async function predecirUsuario(usuarioId, boton) {
+    // FIJAR el ancho del botón ANTES de cambiar el texto
+    const anchoOriginal = boton.offsetWidth;
+    boton.style.width = anchoOriginal + 'px';
+    boton.style.minWidth = anchoOriginal + 'px';
+
+    // Cambiar a spinner SIN texto para que no se expanda
+    boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    boton.disabled = true;
+
+    try {
+        const formData = new FormData();
+        formData.append('usuarioId', usuarioId);
+
+        const response = await fetch('/predecir-usuario', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            mostrarResultadoPrediccion(data.usuario);
+            actualizarUsuarioEnLista(data.usuario);
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al realizar la predicción');
+    } finally {
+        // RESTAURAR texto original
+        boton.innerHTML = '<i class="fas fa-bolt mr-1"></i>Analizar';
+        boton.disabled = false;
+        // Quitar el ancho fijo
+        boton.style.width = '';
+        boton.style.minWidth = '';
+    }
+}
+
+    // ===================== ACTUALIZAR USUARIO EN LISTA =====================
+    function actualizarUsuarioEnLista(usuarioActualizado) {
+        const index = usuariosCargados.findIndex(u => u.id === usuarioActualizado.id);
+        if (index !== -1) {
+            usuariosCargados[index] = usuarioActualizado;
+        }
+
+        const indexFiltrado = usuariosFiltrados.findIndex(u => u.id === usuarioActualizado.id);
+        if (indexFiltrado !== -1) {
+            usuariosFiltrados[indexFiltrado] = usuarioActualizado;
+        }
+
+        mostrarUsuariosPaginados();
+    }
+
+    // ===================== MOSTRAR RESULTADO DE PREDICCIÓN =====================
+    function mostrarResultadoPrediccion(usuario) {
+        const resultadoDiv = document.getElementById('resultadoPrediccion');
+        const contenidoDiv = document.getElementById('contenidoResultado');
+        const esPotencial = usuario.clientePotencial === 'Si';
+
+        contenidoDiv.innerHTML = `
+            <div class="bg-gradient-to-r ${esPotencial ? 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20' : 'from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20'} rounded-xl p-6 mb-4 border ${esPotencial ? 'border-green-200 dark:border-green-800' : 'border-red-200 dark:border-red-800'}">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-bold ${esPotencial ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'}">
+                        <i class="fas ${esPotencial ? 'fa-check-circle' : 'fa-exclamation-triangle'} mr-2"></i>
+                        ${usuario.nombreUser} ${usuario.apellidoUser} - ${esPotencial ? ' POTENCIAL' : 'NO POTENCIAL'}
+                    </h4>
+                    <span class="text-2xl font-bold ${esPotencial ? 'text-green-600' : 'text-red-600'}">
+                        ${usuario.probabilidad ? usuario.probabilidad.toFixed(1) + '%' : 'N/A'}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold ${esPotencial ? 'text-green-600' : 'text-red-600'}">
+                            ${usuario.probabilidad ? usuario.probabilidad.toFixed(1) + '%' : 'N/A'}
+                        </div>
+                        <div class="text-sm ${esPotencial ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}">Probabilidad</div>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="text-xl font-semibold text-gray-700 dark:text-gray-300">
+                            ${usuario.cantidadCitas} citas
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Historial</div>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="text-xl font-semibold text-gray-700 dark:text-gray-300">
+                            ${usuario.antiguedadCuenta} días
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Antigüedad</div>
+                    </div>
+                </div>
+
+                ${usuario.observaciones ? `
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                        <h5 class="font-bold mb-2 text-gray-700 dark:text-gray-300">📋 Observaciones del Sistema:</h5>
+                        <p class="text-gray-600 dark:text-gray-400">${usuario.observaciones}</p>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        resultadoDiv.classList.remove('hidden');
+        resultadoDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ===================== FUNCIONES AUXILIARES =====================
+    function getEstadoClass(estado) {
+        if (estado === 'Aprobada') return 'estado-optimo';
+        if (estado === 'Pendiente') return 'estado-alerta';
+        return 'estado-critico';
+    }
+
+    function cerrarResultado() {
+        document.getElementById('resultadoPrediccion').classList.add('hidden');
+    }
+</script>
+</body>
+</html>
