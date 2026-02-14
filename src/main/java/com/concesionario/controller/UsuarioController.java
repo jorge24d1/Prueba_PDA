@@ -1,5 +1,7 @@
 package com.concesionario.controller;
 
+import com.concesionario.utils.SecurityUtils;
+
 
 
 import java.security.Principal;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.concesionario.repository.UsuarioRepository;
 
 @Controller
@@ -34,7 +36,7 @@ public class UsuarioController {
     @Autowired
     private CitaService citaService;
     @Autowired
-    TrabajadorRepository TrabajadorRepository;
+    private TrabajadorRepository trabajadorRepository;
     @Autowired
     private VehiculoService vehiculoService;
     @Autowired
@@ -46,12 +48,14 @@ public class UsuarioController {
     @Autowired
     private TrabajadorDetailsService trabajadorDetailsService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
 
     @GetMapping("/perfil")
     public String verPerfil(Model model, Principal principal) {
-        String email = principal.getName();
-
+        String email = getEmailFromPrincipal(principal);
 
         try {
             Administrador administrador = administradorService.findByCorreoAdmin(email);
@@ -59,15 +63,11 @@ public class UsuarioController {
                 return "redirect:/admin/dashboard";
             }
         } catch (Exception e) {
-
             System.out.println("No es administrador: " + e.getMessage());
         }
 
-
         try {
             Trabajador trabajador = trabajadorDetailsService.findByCorreo(email);
-
-            // Redirigir según el rol del trabajador
             if (trabajador.tieneRol(Rol.TRB_GESTOR)) {
                 return "redirect:/perfil_gestor";
             } else if (trabajador.tieneRol(Rol.TRB_ANALISIS)) {
@@ -77,20 +77,53 @@ public class UsuarioController {
             } else if (trabajador.tieneRol(Rol.TRABAJADOR)) {
                 return "redirect:/trabajador/dashboard";
             }
-
-
         } catch (Exception e) {
-
             System.out.println("No es trabajador: " + e.getMessage());
         }
 
-
         Usuario usuario = usuarioService.findByCorreoUser(email);
-        List<Cita> citas = citaService.obtenerCitasPorUsuarioId(usuario.getId());
 
+        // Validar si el perfil está completo
+        if (usuario.getIdentificacionUser() == null || usuario.getIdentificacionUser().isEmpty()) {
+            return "redirect:/usuario/completar-perfil";
+        }
+
+        List<Cita> citas = citaService.obtenerCitasPorUsuarioId(usuario.getId());
         model.addAttribute("nombreUsuario", usuario.getNombreUser());
         model.addAttribute("citas", citas);
         return "usuario/perfil";
+    }
+
+    @GetMapping("/completar-perfil")
+    public String mostrarCompletarPerfil(Principal principal, Model model) {
+        String email = getEmailFromPrincipal(principal);
+        Usuario usuario = usuarioService.findByCorreoUser(email);
+        model.addAttribute("usuario", usuario);
+        return "usuario/completar-perfil";
+    }
+
+    @PostMapping("/completar-perfil")
+    public String guardarPerfilCompleto(@RequestParam String identificacion,
+                                        @RequestParam String password,
+                                        Principal principal,
+                                        RedirectAttributes redirectAttributes) {
+        try {
+            String email = getEmailFromPrincipal(principal);
+            Usuario usuario = usuarioService.findByCorreoUser(email);
+            usuario.setIdentificacionUser(identificacion);
+            // Encriptar la contraseña antes de guardar
+            usuario.setPasswordUser(passwordEncoder.encode(password));
+            usuarioRepository.save(usuario);
+            redirectAttributes.addFlashAttribute("success", "Perfil completado exitosamente. Ahora puedes usar tu contraseña para entrar.");
+            return "redirect:/usuario/perfil";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al completar el perfil: " + e.getMessage());
+            return "redirect:/usuario/completar-perfil";
+        }
+    }
+
+    private String getEmailFromPrincipal(Principal principal) {
+        return SecurityUtils.getEmailFromPrincipal(principal);
     }
 
     @GetMapping("/agendamiento")
@@ -130,7 +163,8 @@ public class UsuarioController {
             Model model) {
 
         // Obtener usuario autenticado
-        Usuario usuario = usuarioRepository.findByCorreoUser(principal.getName())
+        String email = getEmailFromPrincipal(principal);
+        Usuario usuario = usuarioRepository.findByCorreoUser(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Crear nueva cita con datos del usuario
@@ -159,7 +193,7 @@ public class UsuarioController {
         } else {
             cita.setTipo("Otros");
         }
-        List<Trabajador> trabajadores = TrabajadorRepository.findByRolesContaining(Rol.TRB_ASESOR);
+        List<Trabajador> trabajadores = trabajadorRepository.findByRolesContaining(Rol.TRB_ASESOR);
 
         model.addAttribute("trabajadores", trabajadores);
         model.addAttribute("cita", cita);
@@ -175,7 +209,7 @@ public class UsuarioController {
                               RedirectAttributes redirectAttributes) {
         try {
             // 1. Validar que el trabajador exista
-            Trabajador trabajador = TrabajadorRepository.findById(cita.getTrabajadorId())
+            Trabajador trabajador = trabajadorRepository.findById(cita.getTrabajadorId())
                     .orElseThrow(() -> new RuntimeException("Trabajador no encontrado"));
 
             // 2. Validar que la fecha sea un día laboral del trabajador
@@ -191,7 +225,8 @@ public class UsuarioController {
             }
 
             // Resto de la lógica de guardado...
-            Usuario usuario = usuarioRepository.findByCorreoUser(principal.getName())
+            String email = getEmailFromPrincipal(principal);
+            Usuario usuario = usuarioRepository.findByCorreoUser(email)
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
             if (!validarDatosInmutables(cita, usuario)) {
@@ -259,8 +294,8 @@ public class UsuarioController {
 
     @GetMapping("/mis-citas")
     public String verMisCitas(Model model, Principal principal) {
-
-        Usuario usuario = usuarioRepository.findByCorreoUser(principal.getName())
+        String email = getEmailFromPrincipal(principal);
+        Usuario usuario = usuarioRepository.findByCorreoUser(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
 
@@ -308,7 +343,7 @@ public class UsuarioController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Trabajador trabajador = TrabajadorRepository.findById(trabajadorId)
+            Trabajador trabajador = trabajadorRepository.findById(trabajadorId)
                     .orElseThrow(() -> new RuntimeException("Trabajador no encontrado"));
 
             LocalDate fechaCita = LocalDate.parse(fecha);

@@ -542,8 +542,19 @@
                                 <a th:href="@{/auth/forgot-password}">¿Olvidaste tu contraseña?</a>
                             </div>
 
-                            <div class="form-actions">
+                            <div class="form-actions space-y-4">
                                 <button type="submit" class="btn-primary">Ingresar</button>
+                                
+                                <div class="relative flex items-center justify-center">
+                                    <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                                    <span class="flex-shrink mx-4 text-gray-400 text-xs uppercase tracking-wider">o continuar con</span>
+                                    <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                                </div>
+
+                                <a href="/oauth2/authorization/google" class="flex items-center justify-center gap-3 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 px-4 py-3 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm">
+                                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
+                                    Iniciar sesión con Google
+                                </a>
                             </div>
 
                             <div class="divider"></div>

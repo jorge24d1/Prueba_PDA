@@ -1,6 +1,7 @@
 package com.concesionario.controller;
 
 
+import com.concesionario.utils.SecurityUtils;
 import com.concesionario.model.Trabajador;
 import com.concesionario.model.Usuario;
 import com.concesionario.model.Vehiculo;
@@ -76,7 +77,7 @@ public class TrabajadorController {
         String nombreUsuario = "Analista";
 
         if (authentication != null) {
-            String username = authentication.getName();
+            String username = SecurityUtils.getEmailFromPrincipal(authentication);
             Optional<Trabajador> trabajador = trabajadorRepository.findByCorreo(username);
             if (trabajador.isPresent()) {
                 nombreUsuario = trabajador.get().getNombre();
@@ -104,7 +105,7 @@ public class TrabajadorController {
         String nombreUsuario = "Gestor"; // Valor por defecto
 
         if (authentication != null) {
-            String username = authentication.getName();
+            String username = SecurityUtils.getEmailFromPrincipal(authentication);
             Optional<Trabajador> trabajador = trabajadorRepository.findByCorreo(username);
             if (trabajador.isPresent()) {
                 nombreUsuario = trabajador.get().getNombre();
@@ -124,7 +125,8 @@ public class TrabajadorController {
     public String perfilAsesor(Model model, Principal principal) {
         String nombreUsuario = "Asesor";
         if (principal != null) {
-            Trabajador trabajador = trabajadorDetailsService.findByCorreo(principal.getName());
+            String email = SecurityUtils.getEmailFromPrincipal(principal);
+            Trabajador trabajador = trabajadorDetailsService.findByCorreo(email);
             if (trabajador != null) {
                 nombreUsuario = trabajador.getNombre();
                 // Opcional: Agregar ID si se necesita en la vista inicial para algo

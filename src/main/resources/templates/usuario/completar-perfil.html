@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completar Perfil - NextGenMotors</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(15, 102, 189, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(15, 102, 189, 0.8); }
+        }
+
+        .glowing {
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dark .form-card {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #0f66bd, #1e40af);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .form-body {
+            padding: 2rem;
+        }
+
+        .input-with-icon {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-with-icon .form-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .dark .form-input {
+            background: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        .input-with-icon .form-input:focus {
+            border-color: #0f66bd;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(15, 102, 189, 0.1);
+            outline: none;
+        }
+
+        .dark .form-input:focus {
+            background: #1e293b;
+        }
+
+        .input-with-icon .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            z-index: 2;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f66bd, #1e40af);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(15, 102, 189, 0.4);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0f66bd",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        display: ["Manrope", "sans-serif"],
+                    }
+                },
+            },
+        };
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="flex min-h-screen items-center justify-center p-4">
+    <div class="max-w-md w-full">
+        <div class="form-card glowing">
+            <div class="form-header">
+                <h2 class="text-2xl font-bold">¡HOLA, <span th:text="${#strings.toUpperCase(usuario.nombreUser)}">USUARIO</span>!</h2>
+                <p class="mt-2 opacity-90">Ya casi terminamos tu registro</p>
+            </div>
+            <div class="form-body">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
+                    Por seguridad, necesitamos que completes tu identificación y crees una contraseña local para tu cuenta.
+                </p>
+
+                <form th:action="@{/usuario/completar-perfil}" method="post">
+                    <div class="input-with-icon">
+                        <input type="text" name="identificacion" class="form-input" placeholder="Número de Identificación (CC)" required>
+                        <div class="input-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                    </div>
+
+                    <div class="input-with-icon">
+                        <input type="password" name="password" class="form-input" placeholder="Nueva Contraseña" required>
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-gray-500 mb-6">
+                        <i class="fas fa-info-circle mr-1"></i> Esta contraseña te permitirá entrar incluso si no tienes acceso a Google más adelante.
+                    </p>
+
+                    <button type="submit" class="btn-primary">
+                        FINALIZAR REGISTRO <i class="fas fa-chevron-right ml-2"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

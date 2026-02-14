@@ -103,6 +103,12 @@
             <version>9.2.0</version>
         </dependency>
 
+        <!-- OAuth2 Client for Google Auth -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+
         <!-- Azure Notification Hubs dependency removed due to resolution issues. Using direct REST API. -->
 
         <!-- Desarrollo -->

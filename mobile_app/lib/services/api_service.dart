@@ -3,10 +3,13 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  // Cambiado: URL de producción en Azure
+  // CONFIGURACIÓN DE CONEXIÓN:
+  // 1. Azure (Producción): 'https://nextgen-motors2-bsbudccxcnadgabd.canadacentral-01.azurewebsites.net/api/usuario'
+  // 2. Local (Emulador Android): 'http://10.0.2.2:8080/api/usuario'
+  // 3. Ngrok (Link público): Pon aquí el link que te da ngrok http 8080
+
   static const String baseUrl =
-      'https://nextgen-motors2-bsbudccxcnadgabd.canadacentral-01.azurewebsites.net/api/usuario';
-  // static const String baseUrl = 'http://192.168.1.4:8080/api/usuario'; // Localhost IPv4
+      'https://sage-unrefusable-tearingly.ngrok-free.dev/api/usuario'; // URL de Ngrok activa
 
   Future<Map<String, dynamic>> login(String correo, String password) async {
     final response = await http.post(

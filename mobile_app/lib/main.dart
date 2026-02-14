@@ -1,9 +1,15 @@
+// Main entry point of the Concesionario App
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile_app/screens/login_screen.dart';
 import 'package:mobile_app/screens/home_screen.dart';
-import 'package:mobile_app/screens/splash_screen.dart'; // Importante
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:mobile_app/screens/splash_screen.dart';
+import 'package:mobile_app/screens/settings_screen.dart';
+import 'package:mobile_app/providers/locale_provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 // Handler para notificaciones en segundo plano (debe ser top-level)
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -22,39 +28,52 @@ void main() async {
     print('⚠️ Error inicializando Firebase: $e');
   }
 
-  // Verificar sesión persistente (MOVIDO A SPLASH)
-  // final prefs = await SharedPreferences.getInstance();
-  // final userId = prefs.getString('userId');
-
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => LocaleProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final localeProvider = context.watch<LocaleProvider>();
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Concesionario App',
+      title: 'NextGen Motors',
+      locale: localeProvider.locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        scaffoldBackgroundColor: Color(0xFFF5F7FA), // Fondo gris muy suave
-        appBarTheme: AppBarTheme(
+        brightness: Brightness.dark,
+        primaryColor: const Color(0xFF0D47A1),
+        scaffoldBackgroundColor: const Color(0xFF0F1219),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF2196F3),
+          brightness: Brightness.dark,
+          surface: const Color(0xFF1A1F2E),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF0F1219),
           elevation: 0,
-          backgroundColor: Colors.white,
-          titleTextStyle: TextStyle(
-            color: Colors.black87,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-          iconTheme: IconThemeData(color: Colors.black87),
         ),
       ),
-      // initialRoute ya no es fijo, usamos home: Splash
-      home: SplashScreen(),
+      initialRoute: '/',
       routes: {
+        '/': (context) => SplashScreen(),
         '/login': (context) => LoginScreen(),
         '/home': (context) => HomeScreen(),
+        '/settings': (context) => const SettingsScreen(),
       },
     );
   }
